@@ -1,0 +1,19 @@
+
+.top-row {
+	text-align: center;
+	margin: 10px 0;
+}
+
+.top-row a div {
+	font-size: 10px;
+	line-height: 12px;
+}
+
+.anim-opacity-enter-setup {
+	transition: opacity 1s;
+	opacity: 0.0;
+}
+
+.anim-opacity-enter-start {
+	opacity: 1.0;
+}

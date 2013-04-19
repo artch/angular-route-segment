@@ -1,0 +1,24 @@
+<div class="span12" ng-controller="Section2Ctrl">
+    
+    <h2>Section 2</h2> 
+    
+    <p>You typed: <span class="label">{{test.textValue}}</span></p>
+    
+    <div class="well">
+        <ul class="nav nav-pills">
+            
+            <li ng-repeat="i in items"
+                ng-class="{active: $routeParams.id==i}">
+                
+                <a ng-href="#/section2/{{i}}">Item {{i}}</a>
+                
+            </li>        
+        </ul>
+        
+        <div app-view-segment="1" ng-animate="{enter: 'anim-opacity-enter'}">No item selected.</div>
+    </div>
+    
+    Type something:<br>
+    <textarea rows=5 style="width: 500px" ng-model="test.textValue"></textarea>  
+    
+</div>

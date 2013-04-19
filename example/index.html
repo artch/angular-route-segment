@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en" ng-app="app">
+<head>
+    <meta charset="utf-8">
+    <title>Route Segment Demo</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/app.css">    
+</head>
+<body>
+    
+    <div class="ng-cloak">
+    
+        <div class="container" ng-controller="MainCtrl">
+                            
+            <div class="navbar navbar-inverse">        
+                <div class="navbar-inner">                
+                    <ul class="nav">
+                        <li ng-class="{active: $routeSegment.startsWith('s1')}"><a href="#/section1">Section 1</a></li>
+                        <li ng-class="{active: $routeSegment.startsWith('s2')}"><a href="#/section2">Section 2</a></li>
+                        <li ng-class="{active: $routeSegment.startsWith('s3')}"><a href="#/section3">Section 3</a></li>
+                    </ul>                   
+                </div>            
+            </div>
+                        
+            <div class="row" app-view-segment="0" ng-animate="{enter: 'anim-opacity-enter'}"></div>
+            
+        </div>        
+    
+    </div>
+        
+    
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.4/angular.min.js"></script>
+    <script src="../build/angular-route-segment.min.js"></script>
+    <script src="app.js"></script>
+   
+</body>
+</html>

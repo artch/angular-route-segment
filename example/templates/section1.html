@@ -1,0 +1,38 @@
+<div ng-controller="Section1Ctrl">
+    <div class="span3">
+        <div class="well">
+            <ul class="nav nav-list">
+            
+                <li ng-class="{active: $routeSegment.name == 's1.home'}"><a href="#/section1/">Home</a></li>
+                
+                <li class="nav-header">Items</li>
+                
+                <li ng-repeat="i in items" 
+                    ng-class="{active: $routeSegment.startsWith('s1.itemInfo') && $routeParams.id == i}">
+                    
+                    <a ng-href="#/section1/{{i}}">Item {{i}}</a>
+                    
+                </li>
+                
+                <li class="nav-header">Misc</li>
+                
+                <li ng-class="{active: $routeSegment.startsWith('s1.prefs')}">
+                    <a href="#/section1/prefs">Preferences</a>
+                </li>
+                
+                <li class="divider"></li>
+                
+                <li>
+                    <button class="btn" ng-class="{active: test.btnClicked}" ng-click="test.btnClicked = !test.btnClicked">Click me!</button>
+                    <span class="label" ng-show="test.btnClicked">Clicked</span>
+                </li>
+                
+            </ul>
+        </div>
+        
+        
+        
+    </div>
+    
+    <div class="span9" app-view-segment="1" ng-animate="{enter: 'anim-opacity-enter'}"></div>
+</div>
