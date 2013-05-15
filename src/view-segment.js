@@ -39,8 +39,6 @@ angular.module( 'view-segment', [ 'route-segment' ] ).directive( 'appViewSegment
                 // Trying to inject $animator which may be absent in 1.0.x branch
                 var $animator = $injector.get('$animator')
                 animate = $animator($scope, attrs);
-                if(attrs.appViewSegment == 2)
-                    console.log(animate);
             }
             catch(e) {                
             }
@@ -57,11 +55,12 @@ angular.module( 'view-segment', [ 'route-segment' ] ).directive( 'appViewSegment
                         if(segment && (isDependenciesChanged(segment) || lastSegmentName != segment.name))
                             update(segment);
                         
-                        lastSegmentName = segment && segment.name;  
-                        
+                        lastSegmentName = segment && segment.name;                          
                          
-                        if(!segment)
+                        if(!segment) {
                             element.html(oldContent.html());
+                            $compile(element.contents())($scope);
+                        }
                     }
             )            
                         
