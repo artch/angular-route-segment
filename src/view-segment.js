@@ -30,97 +30,100 @@ angular.module( 'view-segment', [ 'route-segment' ] ).directive( 'appViewSegment
     
     return {
         restrict : 'ECA',
-        link : function($scope, element, attrs) {
+        compile : function(tElement) {
             
-            var lastScope, onloadExp = attrs.onload || '',
-                lastSegmentName, lastParams = {}, animate;
+            var oldContent = tElement.clone();
             
-            try {
-                // Trying to inject $animator which may be absent in 1.0.x branch
-                var $animator = $injector.get('$animator')
-                animate = $animator($scope, attrs);
-            }
-            catch(e) {                
-            }
-            
-            var oldContent = element.clone();
-            
-            // Watching to the specified route segment and updating contents
-            $scope.$watch(                    
-                    function() { 
-                        return $routeSegment.chain[parseInt(attrs.appViewSegment)]; 
-                    },                    
-                    function(segment) {
-                        
-                        if(segment && (isDependenciesChanged(segment) || lastSegmentName != segment.name))
-                            update(segment);
-                        
-                        lastSegmentName = segment && segment.name;                          
-                         
-                        if(!segment) {
-                            element.html(oldContent.html());
-                            $compile(element.contents())($scope);
-                        }
-                    }
-            )            
-                        
-            function isDependenciesChanged(segment) {
-                var result = false;
-                if(segment.params.dependencies)
-                    angular.forEach(segment.params.dependencies, function(name) {
-                        if(!angular.equals(lastParams[name], $routeParams[name]))
-                            result = true;
-                    })
-                lastParams = angular.copy($routeParams);
-                return result;
-            }
-
-            function destroyLastScope() {
-                if (lastScope) {
-                    lastScope.$destroy();
-                    lastScope = null;
+            return function($scope, element, attrs) {
+                
+                var lastScope, onloadExp = attrs.onload || '',
+                    lastSegmentName, lastParams = {}, animate;
+                
+                try {
+                    // Trying to inject $animator which may be absent in 1.0.x branch
+                    var $animator = $injector.get('$animator')
+                    animate = $animator($scope, attrs);
                 }
-            }
-
-            function clearContent() {
+                catch(e) {                
+                }
                 
-                if(animate)
-                    animate.leave(element.contents(), element);
-                else
-                    element.html('');
-                destroyLastScope();
-            }
-
-            function update(segment) {
-                
-                var template = segment.params && segment.params.template;
-                
-                if (template) {
-                    $q.when(template).then(function (templateHtml) {
-                        
-                        clearContent();
-                        
-                        if(animate)
-                            animate.enter( angular.element('<div></div>').html(templateHtml).contents(), element );
-                        else
-                            element.html(templateHtml);
-                        
-                        destroyLastScope();
-    
-                        var link = $compile(element.contents()), controller; 
-     
-                        lastScope = $scope.$new();
-                        if (segment.params.controller) {
-                            controller = $controller(segment.params.controller, {$scope: lastScope});
-                            element.children().data('$ngControllerController', controller);
+                // Watching to the specified route segment and updating contents
+                $scope.$watch(                    
+                        function() { 
+                            return $routeSegment.chain[parseInt(attrs.appViewSegment)]; 
+                        },                    
+                        function(segment) {
+                            
+                            if(segment && (isDependenciesChanged(segment) || lastSegmentName != segment.name))
+                                update(segment);
+                            
+                            lastSegmentName = segment && segment.name;                          
+                             
+                            if(!segment) {
+                                element.html(oldContent.html());
+                                $compile(element.contents())($scope);
+                            }
                         }
+                )            
+                            
+                function isDependenciesChanged(segment) {
+                    var result = false;
+                    if(segment.params.dependencies)
+                        angular.forEach(segment.params.dependencies, function(name) {
+                            if(!angular.equals(lastParams[name], $routeParams[name]))
+                                result = true;
+                        })
+                    lastParams = angular.copy($routeParams);
+                    return result;
+                }
     
-                        link(lastScope);
-                        lastScope.$emit('$viewContentLoaded');
-                        lastScope.$eval(onloadExp);
-                    });
-                } else {
-                    clearContent();
+                function destroyLastScope() {
+                    if (lastScope) {
+                        lastScope.$destroy();
+                        lastScope = null;
+                    }
+                }
+    
+                function clearContent() {
+                    
+                    if(animate)
+                        animate.leave(element.contents(), element);
+                    else
+                        element.html('');
+                    destroyLastScope();
+                }
+    
+                function update(segment) {
+                    
+                    var template = segment.params && segment.params.template;
+                    
+                    if (template) {
+                        $q.when(template).then(function (templateHtml) {
+                            
+                            clearContent();
+                            
+                            if(animate)
+                                animate.enter( angular.element('<div></div>').html(templateHtml).contents(), element );
+                            else
+                                element.html(templateHtml);
+                            
+                            destroyLastScope();
+        
+                            var link = $compile(element.contents()), controller; 
+         
+                            lastScope = $scope.$new();
+                            if (segment.params.controller) {
+                                controller = $controller(segment.params.controller, {$scope: lastScope});
+                                element.children().data('$ngControllerController', controller);
+                            }
+        
+                            link(lastScope);
+                            lastScope.$emit('$viewContentLoaded');
+                            lastScope.$eval(onloadExp);
+                        });
+                    } else {
+                        clearContent();
+                    }
                 }
             }
         }
