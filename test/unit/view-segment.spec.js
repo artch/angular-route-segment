@@ -57,14 +57,14 @@ describe('view-segment', function() {
         scope.$destroy();
     })
     
-    it('showing a section without children', function() {
+    it('should show a section without children', function() {
         $location.path('/1');
         $rootScope.$digest();
         expect(elm).toHaveClass('container');
         expect(elm.find('> h4').text()).toMatch(/Section 1/);
     })
     
-    it('showing an empty section with children', function() {
+    it('should show an empty section with children', function() {
         $location.path('/2');
         $rootScope.$digest();
         expect(elm.find('> h4').text()).toMatch(/Section 2/);
@@ -72,7 +72,7 @@ describe('view-segment', function() {
         expect(elm.find('> div').contents().scope().test).toBe(1);
     })
     
-    it('showing a section with an active child', function() {
+    it('should show a section with an active child', function() {
         $location.path('/2/1');
         $rootScope.$digest();
         expect(elm.find('> h4').text()).toMatch(/Section 2/);
@@ -92,7 +92,6 @@ describe('view-segment', function() {
         
         elm.find('> span').addClass('testClass');
         expect(elm.find('> span')).toHaveClass('testClass');
-        
         $location.path('/2/1');
         $rootScope.$digest();
         expect(elm.find('> div > span').text()).toBe('CONTROLLER OVERRIDED');

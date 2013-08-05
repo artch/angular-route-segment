@@ -59,6 +59,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
         /**
          * When true, it will resolve `templateUrl` automatically 
          * via $http service and put its contents into `template`. 
+         * @type {boolean}
          */
         autoLoadTemplates: false,
         
@@ -67,6 +68,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
          * will throw an error (you would usually want this behavior in production). 
          * When false, it will transparently create new empty segment (can be useful 
          * in isolated tests).
+         * @type {boolean}
          */
         strictMode: false
     };
@@ -92,9 +94,9 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
             /**
              * Adds new segment at current pointer level.
              * 
-             * @param name Name of a segment. 
-             * @param params Corresponding params hash. It will being propagated to 'routeSegmentChange' event. 
-             * @returns The same level pointer.
+             * @param name {string} Name of a segment. 
+             * @param params {Object} Corresponding params hash. It will being propagated to 'routeSegmentChange' event. 
+             * @returns {Object} The same level pointer.
              */
             segment: function(name, params) {
                 segment[camelCase(name)] = {params: params};
@@ -106,8 +108,8 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
              * Traverses into an existing segment, so that subsequent `segment` calls
              * will add new segments as its descendants.
              * 
-             * @param segmentName An existing segment's name. If undefined, then the last added segment is selected.             * 
-             * @returns The pointer to the child segment.
+             * @param segmentName {string} An existing segment's name. If undefined, then the last added segment is selected.             * 
+             * @returns {Object} The pointer to the child segment.
              */  
             within: function(childName) {                
                 var child;
@@ -129,7 +131,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
             
             /**
              * Traverses up in the tree.
-             * @returns The pointer which are parent to the current one;
+             * @returns {Object} The pointer which are parent to the current one;
              */
             up: function() {
                 return parent;
@@ -159,20 +161,36 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
     
         
     // the service factory
-    this.$get = ['$rootScope', '$q', '$http', '$templateCache', '$route', 
-                 function($rootScope, $q, $http, $templateCache, $route) {
+    this.$get = ['$rootScope', '$q', '$http', '$templateCache', '$route', '$routeParams', '$injector',
+                 function($rootScope, $q, $http, $templateCache, $route, $routeParams, $injector) {
                 
         var $routeSegment = {    
                 
+                /**
+                 * @type {string}
+                 */
                 name: '',    
                 
+                /**
+                 * @type {Array.<string>}
+                 */
                 chain: [],
                 
+                /**
+                 * 
+                 * @param val {string}
+                 * @returns {boolean}
+                 */
                 startsWith: function (val) {
                     var regexp = new RegExp('^'+val);
                     return regexp.test($routeSegment.name);
                 },
                 
+                /**
+                 * 
+                 * @param val {string}
+                 * @returns {Boolean}
+                 */
                 contains: function (val) {
                     for(var i=0; i<this.chain.length; i++)
                         if(this.chain[i].name == val)
@@ -181,20 +199,80 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                 }    
         };    
         
+        var lastParams = angular.copy($routeParams);        
         
         // When a route changes, all interested parties should be notified about new segment chain
         $rootScope.$on('$routeChangeSuccess', function(event, args) {
             var route = args.$route || args.$$route; 
             if(route && route.segment) {
-                
+                                
                 $routeSegment.name = route.segment;
-                $routeSegment.chain = [];
                 var segmentNameChain = route.segment.split(".");
-                for(var i=0; i < segmentNameChain.length; i++)
-                    $routeSegment.chain[i] = getSegmentInChain( i, segmentNameChain );
-                $rootScope.$broadcast( 'routeSegmentChange', { $route: route, params: args.params } );                
+                
+                for(var i=0; i < segmentNameChain.length; i++) {
+                    
+                    var newSegment = getSegmentInChain( i, segmentNameChain );
+                    
+                    if(!$routeSegment.chain[i] || $routeSegment.chain[i].name != newSegment.name ||
+                            isDependenciesChanged(newSegment)) {
+                       
+                        updateSegment(i, newSegment);
+                    }    
+                }                
+                // Removing redundant segment in case of new segment chain is shorter than old one
+                for(var i=segmentNameChain.length; i < $routeSegment.chain.length; i++) {
+                    updateSegment(i, null);
+                    $routeSegment.chain.splice(-1, $routeSegment.chain.length - segmentNameChain.length);
+                }
+                
+                lastParams = angular.copy($routeParams);
             }
-        })    
+        })
+        
+        function isDependenciesChanged(segment) {
+            var result = false;
+            if(segment.params.dependencies)
+                angular.forEach(segment.params.dependencies, function(name) {
+                    if(!angular.equals(lastParams[name], $routeParams[name]))
+                        result = true;
+                })            
+            return result;
+        }
+        
+        function updateSegment(index, segment) {
+            
+            if(!segment) {
+                $rootScope.$broadcast( 'routeSegmentChange', { index: index, segment: null } );
+                return;
+            }
+            
+            var locals = angular.extend({}, segment.params.resolve);
+            //console.log(segment);
+            
+            angular.forEach(locals, function(value, key) {
+                locals[key] = angular.isString(value) ? $injector.get(value) : $injector.invoke(value);
+            })
+                        
+            if(segment.params.template)
+                locals.$template = segment.params.template;
+            
+            if(options.autoLoadTemplates && segment.params.templateUrl)
+                locals.$template = 
+                    $http.get(segment.params.templateUrl, {cache: $templateCache})
+                        .then(function(response) {                            
+                            return response.data;
+                        })
+                        
+            $q.all(locals).then(function(locals) {
+                
+                $routeSegment.chain[index] = {
+                        name: segment.name,
+                        params: segment.params,
+                        locals: locals
+                    };
+                $rootScope.$broadcast( 'routeSegmentChange', { index: index, segment: $routeSegment.chain[index] } );
+            })            
+        }
         
         function getSegmentInChain(segmentIdx, segmentNameChain) {
                         
@@ -218,14 +296,6 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                     curSegment = curSegment.children;
             }
             
-            
-            if(options.autoLoadTemplates && curSegment.params.templateUrl)
-                curSegment.params.template = 
-                    $http.get(curSegment.params.templateUrl, {cache: $templateCache})
-                        .then(function(response) {                            
-                            return response.data;
-                        })
-                    
             return {
                 name: nextName,
                 params: curSegment.params

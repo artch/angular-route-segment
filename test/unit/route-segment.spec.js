@@ -4,14 +4,16 @@ describe('route segment', function() {
     
     beforeEach(module('route-segment'));
         
-    var $routeSegment, $routeSegmentProvider, $rootScope, $httpBackend, $location;
+    var $routeSegment, $routeSegmentProvider, $rootScope, $httpBackend, $location, $provide;
+    var callback;
     
-    beforeEach(module(function(_$routeSegmentProvider_) {
+    beforeEach(module(function(_$routeSegmentProvider_, _$provide_) {
+        
+        $provide = _$provide_;
         
         $routeSegmentProvider = _$routeSegmentProvider_;
         
-        $routeSegmentProvider
-        
+        $routeSegmentProvider        
             .when('/1',             'section-first')
             .when('/2',             'section2')
             .when('/2/X',           'section2.section21')
@@ -22,37 +24,24 @@ describe('route segment', function() {
             .when('/invalid',       'invalid')
             .when('/2/:id/invalid', 'section2.section23.invalid')    
             
-        $routeSegmentProvider
-        
-            .segment('section-first', {test: 'A'})
-                
-            .segment('section2', {test: 'B'})
-                
-            .within()
-                
-                .segment('section21', {test: 'C'})
-                    
-                .within()
-                    
-                    .segment('section211', {test: 'E'})
-                    
-                .up()
-                    
-                .segment('section22', {test: 'D'})
-        
+        $routeSegmentProvider        
+            .segment('section-first', {test: 'A'})                
+            .segment('section2', {test: 'B'})                
+            .within()                
+                .segment('section21', {test: 'C'})                    
+                .within()                    
+                    .segment('section211', {test: 'E'})                    
+                .up()                    
+                .segment('section22', {test: 'D'})        
                 .segment('section23', {test: 'F'})
         
         // Starting from the root again                
-        $routeSegmentProvider
-        
-            .within('section2')
-            
-                .within('section23')
-                    
+        $routeSegmentProvider        
+            .within('section2')            
+                .within('section23')                   
                     .segment('section231', {test: 'G'})
-            
-        // We don't want to perform any XHRs here                    
-        $routeSegmentProvider.options.autoLoadTemplates = true;
+           
+        $routeSegmentProvider.options.autoLoadTemplates = false;    // We don't want to perform any XHRs here
         $routeSegmentProvider.options.strictMode = true;
     }))
     
@@ -63,6 +52,9 @@ describe('route segment', function() {
             $httpBackend = _$httpBackend_;
             $location = _$location_;
         });
+        
+        callback = jasmine.createSpy('callback');
+        $rootScope.$on('routeSegmentChange', callback); 
     });    
 
     it('creating segments hash', function() {
@@ -79,65 +71,51 @@ describe('route segment', function() {
     
     describe('routing', function() {
         
-        var namesHandled, paramsHandled, scope;
-        
-        beforeEach(function() {
-            namesHandled = [];    
-            paramsHandled = [];
-            scope = $rootScope.$new();
-            for(var i=0;i<3;i++)
-                (function(i) {
-                    scope.$on('routeSegmentChange', function() {
-            
-                        var next = $routeSegment.chain[i];
-                        if(next) {
-                            namesHandled[i] = next.name;
-                            paramsHandled[i] = next.params;
-                        }
-                    })
-                })(i); 
-        });
-        
-        afterEach(function() {
-            scope.$destroy();
-        })
-        
-        it('first level', function() {
+        var scope;
+                
+        it('first level', function() {            
             $location.path('/1');
             $rootScope.$digest();
             
-            expect(namesHandled).toEqual(['section-first']);
-            expect(paramsHandled).toEqual([{test: 'A'}]);
+            expect(callback.calls.length).toBe(1);
+            expect(callback.calls[0].args[1]).toEqual({index: 0, segment: {name: 'section-first', params: {test: 'A'}, locals: {}}});
         });
         
         it('second level', function() {
             $location.path('/2/X');
             $rootScope.$digest();  
-            expect(namesHandled).toEqual(['section2', 'section21']);  
-            expect(paramsHandled).toEqual([{test: 'B'}, {test: 'C'}]);
+            
+            expect(callback.calls.length).toBe(2);
+            expect(callback.calls[0].args[1]).toEqual({index: 0, segment: {name: 'section2', params: {test: 'B'}, locals: {}}});
+            expect(callback.calls[1].args[1]).toEqual({index: 1, segment: {name: 'section21', params: {test: 'C'}, locals: {}}});
         });
         
         it('second level segment with first level url', function() {
             $location.path('/Y');
             $rootScope.$digest();  
-            expect(namesHandled).toEqual(['section2', 'section22']);  
-            expect(paramsHandled).toEqual([{test: 'B'}, {test: 'D'}]);
+            
+            expect(callback.calls.length).toBe(2);
+            expect(callback.calls[0].args[1]).toEqual({index: 0, segment: {name: 'section2', params: {test: 'B'}, locals: {}}});
+            expect(callback.calls[1].args[1]).toEqual({index: 1, segment: {name: 'section22', params: {test: 'D'}, locals: {}}});
         });
         
         it('third level', function() {
             $location.path('/X-foo')
             $rootScope.$digest();
-            expect(namesHandled).toEqual(['section2', 'section21', 'section211']);
+            
+            expect(callback.calls.length).toBe(3);
+            expect(callback.calls[0].args[1]).toEqual({index: 0, segment: {name: 'section2', params: {test: 'B'}, locals: {}}});
+            expect(callback.calls[1].args[1]).toEqual({index: 1, segment: {name: 'section21', params: {test: 'C'}, locals: {}}});
+            expect(callback.calls[2].args[1]).toEqual({index: 2, segment: {name: 'section211', params: {test: 'E'}, locals: {}}});
         });    
         
         it('a route with no segment', function() {
             $rootScope.$broadcast('$routeChangeSuccess', {$$route: {}});
             $rootScope.$digest();
-            expect(namesHandled).toEqual([]);
-            expect(paramsHandled).toEqual([]);
+            expect(callback).not.toHaveBeenCalled();
         });
         
-        it('should throw an error when invalid section', function() {        
+        it('should throw an error when invalid section', function() {
             expect(function() {
                 $location.path('/invalid');
                 $rootScope.$digest();
@@ -151,15 +129,18 @@ describe('route segment', function() {
         });
         
          
-        it('should fetch templateUrl by $http', function() {    
+        it('should auto-fetch templateUrl by $http', function() {
+            
+            $routeSegmentProvider.options.autoLoadTemplates = true;
+            
             $routeSegmentProvider.segment('section3', {templateUrl: '/abc/def'});            
             $httpBackend.expectGET('/abc/def').respond(200, 'TEST');
             $rootScope.$broadcast('$routeChangeSuccess', {$route: {segment: 'section3'}});
             $rootScope.$digest();
-            var templateCallback = jasmine.createSpy('template');
-            $routeSegmentProvider.segments.section3.params.template.then(templateCallback);
+            /*var templateCallback = jasmine.createSpy('template');
+            $routeSegmentProvider.segments.section3.locals.$template.then(templateCallback);
             $httpBackend.flush();
-            expect(templateCallback).toHaveBeenCalledWith('TEST');
+            expect(templateCallback).toHaveBeenCalledWith('TEST');*/
         });
         
         it('`startsWith` should work', function () {
@@ -210,6 +191,128 @@ describe('route segment', function() {
             expect($routeSegmentProvider.segments.test.params.foo).toBeUndefined();
             expect($routeSegmentProvider.segments.test.params.baz).toBe('qux');
         })
+        
+        it('should go down to a child after going to a parent', function() {
+            
+            $location.path('/2');
+            $rootScope.$digest();
+            
+            callback = jasmine.createSpy('event');
+            $rootScope.$on('routeSegmentChange', callback);
+            $location.path('/2/X');
+            $rootScope.$digest();
+            expect(callback.calls.length).toBe(1);
+            expect(callback.calls[0].args[1]).toEqual({index: 1, segment: {name: 'section21', params: {test: 'C'}, locals: {}}});
+        })  
+        
+        it('should go up to parent after going to a child, sending null for previously loaded child segment', function() {
+            
+            $location.path('/2/X');
+            $rootScope.$digest();
+            
+            callback = jasmine.createSpy('event');
+            $rootScope.$on('routeSegmentChange', callback);
+            $location.path('/2');
+            $rootScope.$digest();
+            expect(callback.calls.length).toBe(1);
+            expect(callback.calls[0].args[1]).toEqual({index: 1, segment: null});
+        })  
+        
+        it('should update when dependencies are changed', function() {
+            
+            $routeSegmentProvider.when('/2/details/:id/:tab', 'section2.details');
+            $routeSegmentProvider.within('section2').segment('details', {dependencies: ['id']});
+            
+            $location.path('/2/details/1/info');
+            $rootScope.$digest();            
+            
+            expect(callback.calls.length).toBe(2);
+            expect(callback.calls[0].args[1]).toEqual({index: 0, segment: {name: 'section2', params: {test: 'B'}, locals: {}}});
+            expect(callback.calls[1].args[1]).toEqual({index: 1, segment: {name: 'details', params: {dependencies: ['id']}, locals: {}}});
+            
+            callback = jasmine.createSpy('event');
+            $rootScope.$on('routeSegmentChange', callback);
+            $location.path('/2/details/1/edit');
+            $rootScope.$digest();
+            
+            expect(callback).not.toHaveBeenCalled();
+            
+            callback = jasmine.createSpy('event');
+            $rootScope.$on('routeSegmentChange', callback);
+            $location.path('/2/details/2/edit');
+            $rootScope.$digest();
+            
+            expect(callback.calls.length).toBe(1);
+            expect(callback.calls[0].args[1]).toEqual({index: 1, segment: {name: 'details', params: {dependencies: ['id']}, locals: {}}});
+        })
+    })
+    
+    describe('resolving', function() {       
+        
+        var resolve;
+        
+        beforeEach(function() {
+            resolve = {};
+            $routeSegmentProvider.when('/3', 'section3');
+            $routeSegmentProvider.segment('section3', {resolve: resolve});
+        })
+        
+        
+        it('should resolve a param as function', inject(function($q) {
+            
+            var defer = $q.defer();    
+            resolve.param1 = function() { return defer.promise; };
+            
+            $location.path('/3');
+            
+            $rootScope.$digest();            
+            expect(callback).not.toHaveBeenCalled();
+            
+            defer.resolve();
+            
+            $rootScope.$digest();
+            expect(callback).toHaveBeenCalled();
+            expect(callback.calls[0].args[1].segment.name).toBe('section3');     
+        }))
+        
+        it('should resolve a param as an injectable by its string name', inject(function($q) {
+            
+            var defer = $q.defer();
+            $provide.factory('injectable', function() {
+                return defer.promise;
+            });            
+            resolve.param1 = 'injectable';
+            
+            $location.path('/3');
+            
+            $rootScope.$digest();            
+            expect(callback).not.toHaveBeenCalled();
+            
+            defer.resolve();
+            
+            $rootScope.$digest();            
+            expect(callback).toHaveBeenCalled();
+            expect(callback.calls[0].args[1].segment.name).toBe('section3');   
+        }))
+        
+        it('should receive two resolved values in locals', inject(function($q) {
+            
+            var defer1 = $q.defer(), defer2 = $q.defer();
+            resolve.param1 = function() { return defer1.promise; };
+            resolve.param2 = function() { return defer2.promise; };
+            
+            $location.path('/3');
+            defer1.resolve('TEST1');
+            
+            $rootScope.$digest();
+            expect(callback).not.toHaveBeenCalled();
+            
+            defer2.resolve('TEST2');
+            
+            $rootScope.$digest();            
+            expect(callback.calls[0].args[1].segment.locals.param1).toBe('TEST1');
+            expect(callback.calls[0].args[1].segment.locals.param2).toBe('TEST2');
+        }))
     })
     
     

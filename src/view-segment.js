@@ -37,7 +37,8 @@ angular.module( 'view-segment', [ 'route-segment' ] ).directive( 'appViewSegment
             return function($scope, element, attrs) {
                 
                 var lastScope, onloadExp = attrs.onload || '',
-                    lastSegmentName, lastParams = {}, animate;
+                    lastSegmentName, lastParams = {}, animate,
+                    viewSegmentIndex = parseInt(attrs.appViewSegment);
                 
                 try {
                     // Trying to inject $animator which may be absent in 1.0.x branch
@@ -45,37 +46,15 @@ angular.module( 'view-segment', [ 'route-segment' ] ).directive( 'appViewSegment
                     animate = $animator($scope, attrs);
                 }
                 catch(e) {                
-                }
+                }                
+
+                update($routeSegment.chain[viewSegmentIndex]);
                 
-                // Watching to the specified route segment and updating contents
-                $scope.$watch(                    
-                        function() { 
-                            return $routeSegment.chain[parseInt(attrs.appViewSegment)]; 
-                        },                    
-                        function(segment) {
-                            
-                            if(segment && (isDependenciesChanged(segment) || lastSegmentName != segment.name))
-                                update(segment);
-                            
-                            lastSegmentName = segment && segment.name;                          
-                             
-                            if(!segment) {
-                                element.html(oldContent.html());
-                                $compile(element.contents())($scope);
-                            }
-                        }
-                )            
-                            
-                function isDependenciesChanged(segment) {
-                    var result = false;
-                    if(segment.params.dependencies)
-                        angular.forEach(segment.params.dependencies, function(name) {
-                            if(!angular.equals(lastParams[name], $routeParams[name]))
-                                result = true;
-                        })
-                    lastParams = angular.copy($routeParams);
-                    return result;
-                }
+                // Watching for the specified route segment and updating contents
+                $scope.$on('routeSegmentChange', function(event, args) {
+                    if(args.index == viewSegmentIndex)
+                        update(args.segment);
+                });
     
                 function destroyLastScope() {
                     if (lastScope) {
@@ -93,9 +72,16 @@ angular.module( 'view-segment', [ 'route-segment' ] ).directive( 'appViewSegment
                     destroyLastScope();
                 }
     
-                function update(segment) {
+               function update(segment) {
+                   
+                   if(!segment) {
+                       element.html(oldContent.html());
+                       $compile(element.contents())($scope);
+                       return;
+                   }
                     
-                    var template = segment.params && segment.params.template;
+                    var locals = angular.extend({}, segment.locals),
+                        template = locals && locals.$template;
                     
                     if (template) {
                         $q.when(template).then(function (templateHtml) {
@@ -113,7 +99,8 @@ angular.module( 'view-segment', [ 'route-segment' ] ).directive( 'appViewSegment
          
                             lastScope = $scope.$new();
                             if (segment.params.controller) {
-                                controller = $controller(segment.params.controller, {$scope: lastScope});
+                                locals.$scope = lastScope;
+                                controller = $controller(segment.params.controller, locals);
                                 element.children().data('$ngControllerController', controller);
                             }
         
