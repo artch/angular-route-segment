@@ -246,32 +246,43 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                 return;
             }
             
-            var locals = angular.extend({}, segment.params.resolve);
-            //console.log(segment);
+            if(segment.params.untilResolved) {
+                resolveAndBroadcast(index, segment.name, segment.params.untilResolved)
+                    .then(function() {
+                        resolveAndBroadcast(index, segment.name, segment.params);
+                    })
+            }
+            else
+                resolveAndBroadcast(index, segment.name, segment.params);            
+        }
+        
+        function resolveAndBroadcast(index, name, params) {
+            
+            var locals = angular.extend({}, params.resolve);
             
             angular.forEach(locals, function(value, key) {
                 locals[key] = angular.isString(value) ? $injector.get(value) : $injector.invoke(value);
             })
                         
-            if(segment.params.template)
-                locals.$template = segment.params.template;
+            if(params.template)
+                locals.$template = params.template;
             
-            if(options.autoLoadTemplates && segment.params.templateUrl)
+            if(options.autoLoadTemplates && params.templateUrl)
                 locals.$template = 
-                    $http.get(segment.params.templateUrl, {cache: $templateCache})
+                    $http.get(params.templateUrl, {cache: $templateCache})
                         .then(function(response) {                            
                             return response.data;
                         })
                         
-            $q.all(locals).then(function(locals) {
+            return $q.all(locals).then(function(locals) {
                 
                 $routeSegment.chain[index] = {
-                        name: segment.name,
-                        params: segment.params,
+                        name: name,
+                        params: params,
                         locals: locals
                     };
                 $rootScope.$broadcast( 'routeSegmentChange', { index: index, segment: $routeSegment.chain[index] } );
-            })            
+            })
         }
         
         function getSegmentInChain(segmentIdx, segmentNameChain) {

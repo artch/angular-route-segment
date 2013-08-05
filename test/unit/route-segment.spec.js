@@ -253,66 +253,101 @@ describe('route segment', function() {
         
         beforeEach(function() {
             resolve = {};
-            $routeSegmentProvider.when('/3', 'section3');
-            $routeSegmentProvider.segment('section3', {resolve: resolve});
+            $routeSegmentProvider.when('/3', 'section3');            
+        })        
+        
+        describe('without `untilResolved`', function() {
+            
+            beforeEach(function() {
+                $routeSegmentProvider.segment('section3', {resolve: resolve});
+            })
+        
+            it('should resolve a param as function', inject(function($q) {
+                
+                var defer = $q.defer();    
+                resolve.param1 = function() { return defer.promise; };
+                
+                $location.path('/3');
+                
+                $rootScope.$digest();            
+                expect(callback).not.toHaveBeenCalled();
+                
+                defer.resolve();
+                
+                $rootScope.$digest();
+                expect(callback).toHaveBeenCalled();
+                expect(callback.calls[0].args[1].segment.name).toBe('section3');     
+            }))
+            
+            it('should resolve a param as an injectable by its string name', inject(function($q) {
+                
+                var defer = $q.defer();
+                $provide.factory('injectable', function() {
+                    return defer.promise;
+                });            
+                resolve.param1 = 'injectable';
+                
+                $location.path('/3');
+                
+                $rootScope.$digest();            
+                expect(callback).not.toHaveBeenCalled();
+                
+                defer.resolve();
+                
+                $rootScope.$digest();            
+                expect(callback).toHaveBeenCalled();
+                expect(callback.calls[0].args[1].segment.name).toBe('section3');   
+            }))
+            
+            it('should receive two resolved values in locals', inject(function($q) {
+                
+                var defer1 = $q.defer(), defer2 = $q.defer();
+                resolve.param1 = function() { return defer1.promise; };
+                resolve.param2 = function() { return defer2.promise; };
+                
+                $location.path('/3');
+                defer1.resolve('TEST1');
+                
+                $rootScope.$digest();
+                expect(callback).not.toHaveBeenCalled();
+                
+                defer2.resolve('TEST2');
+                
+                $rootScope.$digest();            
+                expect(callback.calls[0].args[1].segment.locals.param1).toBe('TEST1');
+                expect(callback.calls[0].args[1].segment.locals.param2).toBe('TEST2');
+            }))
         })
         
+        describe('with `untilResolved`', function() {
         
-        it('should resolve a param as function', inject(function($q) {
+            beforeEach(function() {
+                $routeSegmentProvider.segment('section3', {
+                    stage: 'AFTER',
+                    resolve: resolve,
+                    untilResolved: {stage: 'BEFORE'}
+                });
+            })
             
-            var defer = $q.defer();    
-            resolve.param1 = function() { return defer.promise; };
+            it('should call the callback twice, before and after it is resolved', inject(function($q) {
+                
+                var defer = $q.defer();    
+                resolve.param1 = function() { return defer.promise; };
+                
+                $location.path('/3');
+                
+                $rootScope.$digest();            
+                expect(callback.calls.length).toBe(1);
+                expect(callback.calls[0].args[1].segment.params.stage).toBe('BEFORE');
+                
+                defer.resolve();
+                
+                $rootScope.$digest();
+                expect(callback.calls.length).toBe(2);
+                expect(callback.calls[1].args[1].segment.params.stage).toBe('AFTER');     
+            }))
             
-            $location.path('/3');
-            
-            $rootScope.$digest();            
-            expect(callback).not.toHaveBeenCalled();
-            
-            defer.resolve();
-            
-            $rootScope.$digest();
-            expect(callback).toHaveBeenCalled();
-            expect(callback.calls[0].args[1].segment.name).toBe('section3');     
-        }))
-        
-        it('should resolve a param as an injectable by its string name', inject(function($q) {
-            
-            var defer = $q.defer();
-            $provide.factory('injectable', function() {
-                return defer.promise;
-            });            
-            resolve.param1 = 'injectable';
-            
-            $location.path('/3');
-            
-            $rootScope.$digest();            
-            expect(callback).not.toHaveBeenCalled();
-            
-            defer.resolve();
-            
-            $rootScope.$digest();            
-            expect(callback).toHaveBeenCalled();
-            expect(callback.calls[0].args[1].segment.name).toBe('section3');   
-        }))
-        
-        it('should receive two resolved values in locals', inject(function($q) {
-            
-            var defer1 = $q.defer(), defer2 = $q.defer();
-            resolve.param1 = function() { return defer1.promise; };
-            resolve.param2 = function() { return defer2.promise; };
-            
-            $location.path('/3');
-            defer1.resolve('TEST1');
-            
-            $rootScope.$digest();
-            expect(callback).not.toHaveBeenCalled();
-            
-            defer2.resolve('TEST2');
-            
-            $rootScope.$digest();            
-            expect(callback.calls[0].args[1].segment.locals.param1).toBe('TEST1');
-            expect(callback.calls[0].args[1].segment.locals.param2).toBe('TEST2');
-        }))
+        })
     })
     
     
