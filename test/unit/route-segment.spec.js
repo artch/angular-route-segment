@@ -131,16 +131,15 @@ describe('route segment', function() {
          
         it('should auto-fetch templateUrl by $http', function() {
             
-            $routeSegmentProvider.options.autoLoadTemplates = true;
+            $routeSegmentProvider.options.autoLoadTemplates = true;            
+            $routeSegmentProvider.segment('section3', {templateUrl: '/abc/def'});
             
-            $routeSegmentProvider.segment('section3', {templateUrl: '/abc/def'});            
-            $httpBackend.expectGET('/abc/def').respond(200, 'TEST');
+            $httpBackend.expectGET('/abc/def').respond(200, 'TEST');            
             $rootScope.$broadcast('$routeChangeSuccess', {$route: {segment: 'section3'}});
+            
             $rootScope.$digest();
-            /*var templateCallback = jasmine.createSpy('template');
-            $routeSegmentProvider.segments.section3.locals.$template.then(templateCallback);
             $httpBackend.flush();
-            expect(templateCallback).toHaveBeenCalledWith('TEST');*/
+            expect(callback.calls[0].args[1].segment.locals.$template).toEqual('TEST');
         });
         
         it('`startsWith` should work', function () {
@@ -317,6 +316,16 @@ describe('route segment', function() {
                 expect(callback.calls[0].args[1].segment.locals.param1).toBe('TEST1');
                 expect(callback.calls[0].args[1].segment.locals.param2).toBe('TEST2');
             }))
+            
+            it('should throw an error if a promise is rejected but no `resolveFailed` provided', inject(function($q) {
+                
+                resolve.param1 = function() { return $q.reject(); }
+                
+                expect(function() {
+                    $location.path('/3');                
+                    $rootScope.$digest();
+                }).toThrow();
+            }))
         })
         
         describe('with `untilResolved`', function() {
@@ -347,6 +356,46 @@ describe('route segment', function() {
                 expect(callback.calls[1].args[1].segment.params.stage).toBe('AFTER');     
             }))
             
+        })
+        
+        describe('with `resolveFailed`', function() {
+            
+            beforeEach(function() {
+                $routeSegmentProvider.segment('section3', {
+                    stage: 'OK',
+                    resolve: resolve,
+                    resolveFailed: {stage: 'ERROR'}
+                });
+            })
+            
+            it('should call result=ERROR if a promise is rejected', inject(function($q) {
+              
+                resolve.param1 = function() { return $q.reject('foo'); }
+                
+                $location.path('/3');
+                
+                $rootScope.$digest();
+                expect(callback.calls[0].args[1].segment.params.stage).toBe('ERROR');
+                expect(callback.calls[0].args[1].segment.locals.error).toEqual('foo');
+            }))
+            
+            it('should auto-fetch templateUrl even if resolving is failed', inject(function($q) {
+                resolve.param1 = function() { return $q.reject('foo'); }
+                $routeSegmentProvider.options.autoLoadTemplates = true;                
+                $routeSegmentProvider.segment('section3', {
+                    resolveFailed: {
+                        templateUrl: '/abc/def'
+                    },
+                    resolve: resolve
+                });            
+                $httpBackend.expectGET('/abc/def').respond(200, 'TEST');
+                $rootScope.$broadcast('$routeChangeSuccess', {$route: {segment: 'section3'}});
+                
+                $rootScope.$digest();
+                $httpBackend.flush();
+                expect(callback.calls[0].args[1].segment.locals.error).toEqual('foo');                
+                expect(callback.calls[0].args[1].segment.locals.$template).toEqual('TEST');
+            }))
         })
     })
     

@@ -273,16 +273,29 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                         .then(function(response) {                            
                             return response.data;
                         })
+                                     
+            return $q.all(locals).then(
+                    
+                    function(resolvedLocals) {
                         
-            return $q.all(locals).then(function(locals) {
-                
-                $routeSegment.chain[index] = {
-                        name: name,
-                        params: params,
-                        locals: locals
-                    };
-                $rootScope.$broadcast( 'routeSegmentChange', { index: index, segment: $routeSegment.chain[index] } );
-            })
+                        $routeSegment.chain[index] = {
+                                name: name,
+                                params: params,
+                                locals: resolvedLocals
+                            };
+                        
+                        $rootScope.$broadcast( 'routeSegmentChange', { index: index, segment: $routeSegment.chain[index] } );            
+                    },
+                    
+                    function(error) {
+                        
+                        if(params.resolveFailed) {
+                            var newResolve = {error: function() { return $q.when(error); }};
+                            resolveAndBroadcast(index, name, angular.extend({resolve: newResolve}, params.resolveFailed));                                            
+                        }
+                        else
+                            throw new Error('Resolving failed with a reason `'+error+'`, but no `resolveFailed` provided for segment `'+name+'`');
+                    })
         }
         
         function getSegmentInChain(segmentIdx, segmentNameChain) {
