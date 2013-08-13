@@ -1,51 +1,10 @@
-/** https://github.com/artch/angular-route-segment
+/** 
+ *  $routeSegment service
+ *  @link https://github.com/artch/angular-route-segment
  *  @author Artem Chivchalov
  *  @license MIT License http://opensource.org/licenses/MIT
  */
 'use strict';
-
-/**
- * $routeSegment service listens to $route service and handles 'route segments' - independent parts
- * of a route which can be changed without affecting each other. 
- * 
- * The provider exports the `segment` method to set segments up on configuration stage.
- * 
- * The service exports an object containing the following properties:
- *  - `name` - the current full route segment name, e.g. 'foo.bar.baz';
- *  - `chain` - an array of all segments, each element is an object with its own `name` and `params` properties;
- *  - `startsWith` - a helper method for convenient checking whether the current route is in particular route path,
- *         e.g. if( $routeSegment.current.startsWith('foo.bar') ) {...}
- *  - `contains` - a helper method to check whether the current route contains the given segment       
- * 
- * Usage:
- * 
- * .config(function($routeProvider, $routeSegmentProvider) {
- *      $routeProvider
- *             .when('/foo', 
- *                {segment: 'foo'})
- *             .when('/foo/:id', 
- *                {segment: 'foo.details'})
- *             .when('/foo/:id/bar', 
- *                {segment: 'foo.details.bar'});
- * 
- *      $routeSegmentProvider
- *             .segment('foo', 
- *                {templateUrl: 'tmpl1.html', controller: 'ctrl1'});
- *             .segment('foo.details', 
- *                {templateUrl: 'tmpl2.html', controller: 'ctrl2', dependencies: ['id']});
- *             .segment('foo.details.bar', 
- *                {templateUrl: 'tmpl3.html', controller: 'ctrl3', dependencies: ['id']});
- * })
- * 
- * .controller('ctrl', function($routeSegment) { 
- *      $scope.routeSegment = $routeSegment.current;
- * })
- * 
- * // HTML  
- * <li ng:class="{active: routeSegment.name == 'foo'}">
- * <li ng:class="{active: routeSegment.startsWith('foo.details')}">
- * 
- */
 
 (function(angular) {
 
@@ -58,7 +17,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
             
         /**
          * When true, it will resolve `templateUrl` automatically 
-         * via $http service and put its contents into `template`. 
+         * via $http service and put its contents into `template`.
          * @type {boolean}
          */
         autoLoadTemplates: false,
@@ -96,6 +55,20 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
              * 
              * @param name {string} Name of a segment. 
              * @param params {Object} Corresponding params hash. It will being propagated to 'routeSegmentChange' event. 
+             *                        The following params are supported:
+             *                        - `template` provides HTML for the given segment view;
+             *                        - `templateUrl` is a template should be fetched from network via this URL;
+             *                        - `controller` is attached to the given segment view when compiled and linked,
+             *                              this can be any controller definition AngularJS supports;
+             *                        - `dependencies` is an array of route param names which are forcing the view 
+             *                              to recreate when changed 
+             *                        - `resolve` is a hash of functions or injectable names which should be resolved
+             *                              prior to instantiating the template and the controller;
+             *                        - `untilResolved` is the alternate set of params (e.g. `template` and `controller`)
+             *                              which should be used before resolving is completed; 
+             *                        - `resolveFailed` is the alternate set of params which should be used 
+             *                              if resolving failed     
+             *                              
              * @returns {Object} The same level pointer.
              */
             segment: function(name, params) {
@@ -103,12 +76,12 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                 lastAddedName = name;
                 return this;
             },
-            
+
             /**
              * Traverses into an existing segment, so that subsequent `segment` calls
              * will add new segments as its descendants.
-             * 
-             * @param segmentName {string} An existing segment's name. If undefined, then the last added segment is selected.             * 
+             *
+             * @param childName {string} An existing segment's name. If undefined, then the last added segment is selected.             *
              * @returns {Object} The pointer to the child segment.
              */  
             within: function(childName) {                
@@ -125,7 +98,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                     else {
                         child = segment[camelCase(childName)] = {params: {}, children: {}};
                     }                
-                }        
+                }
                 return pointer(child.children, this);
             },
             
@@ -153,7 +126,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
     $routeSegmentProvider.when = function(route, segment) {
         $routeProvider.when(route, {segment: segment});
         return this;
-    }
+    };
     
     // Extending the provider with the methods of rootPointer
     // to start configuration.
@@ -167,17 +140,19 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
         var $routeSegment = {    
                 
                 /**
+                 * Fully qualified name of current active segment 
                  * @type {string}
                  */
                 name: '',    
                 
                 /**
+                 * Array of segments splitted by each level separately
                  * @type {Array.<string>}
                  */
                 chain: [],
                 
                 /**
-                 * 
+                 * Helper method for checking whether current segment starts with the given string
                  * @param val {string}
                  * @returns {boolean}
                  */
@@ -187,7 +162,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                 },
                 
                 /**
-                 * 
+                 * Helper method for checking whether current segments contains the given string
                  * @param val {string}
                  * @returns {Boolean}
                  */
@@ -196,18 +171,20 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                         if(this.chain[i].name == val)
                             return true;
                     return false;
-                }    
+                }
         };    
         
         var lastParams = angular.copy($routeParams);        
         
         // When a route changes, all interested parties should be notified about new segment chain
         $rootScope.$on('$routeChangeSuccess', function(event, args) {
+
             var route = args.$route || args.$$route; 
             if(route && route.segment) {
-                                
-                $routeSegment.name = route.segment;
-                var segmentNameChain = route.segment.split(".");
+
+                var segmentName = route.segment;
+                var segmentNameChain = segmentName.split(".");
+                var updates = [];
                 
                 for(var i=0; i < segmentNameChain.length; i++) {
                     
@@ -216,44 +193,56 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                     if(!$routeSegment.chain[i] || $routeSegment.chain[i].name != newSegment.name ||
                             isDependenciesChanged(newSegment)) {
                        
-                        updateSegment(i, newSegment);
+                        updates.push(updateSegment(i, newSegment));
                     }    
-                }                
-                // Removing redundant segment in case of new segment chain is shorter than old one
-                for(var i=segmentNameChain.length; i < $routeSegment.chain.length; i++) {
-                    updateSegment(i, null);
-                    $routeSegment.chain.splice(-1, $routeSegment.chain.length - segmentNameChain.length);
                 }
+
+                $q.all(updates).then(function() {
+
+                    $routeSegment.name = segmentName;
+
+                    // Removing redundant segment in case if new segment chain is shorter than old one
+                    if($routeSegment.chain.length > segmentNameChain.length) {
+                        for(var i=segmentNameChain.length; i < $routeSegment.chain.length; i++)
+                            updateSegment(i, null);
+                        $routeSegment.chain.splice(-1, $routeSegment.chain.length - segmentNameChain.length);
+                    }
+                });
                 
                 lastParams = angular.copy($routeParams);
             }
-        })
+        });
         
         function isDependenciesChanged(segment) {
+
             var result = false;
             if(segment.params.dependencies)
                 angular.forEach(segment.params.dependencies, function(name) {
                     if(!angular.equals(lastParams[name], $routeParams[name]))
                         result = true;
-                })            
+                });
             return result;
         }
         
         function updateSegment(index, segment) {
-            
+
+            if($routeSegment.chain[index] && $routeSegment.chain[index].clearWatcher) {
+                $routeSegment.chain[index].clearWatcher();
+            }
+
             if(!segment) {
                 $rootScope.$broadcast( 'routeSegmentChange', { index: index, segment: null } );
                 return;
             }
             
             if(segment.params.untilResolved) {
-                resolveAndBroadcast(index, segment.name, segment.params.untilResolved)
+                return resolveAndBroadcast(index, segment.name, segment.params.untilResolved)
                     .then(function() {
                         resolveAndBroadcast(index, segment.name, segment.params);
                     })
             }
             else
-                resolveAndBroadcast(index, segment.name, segment.params);            
+                return resolveAndBroadcast(index, segment.name, segment.params);
         }
         
         function resolveAndBroadcast(index, name, params) {
@@ -262,7 +251,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
             
             angular.forEach(locals, function(value, key) {
                 locals[key] = angular.isString(value) ? $injector.get(value) : $injector.invoke(value);
-            })
+            });
                         
             if(params.template)
                 locals.$template = params.template;
@@ -272,7 +261,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                     $http.get(params.templateUrl, {cache: $templateCache})
                         .then(function(response) {                            
                             return response.data;
-                        })
+                        });
                                      
             return $q.all(locals).then(
                     
@@ -281,10 +270,39 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                         $routeSegment.chain[index] = {
                                 name: name,
                                 params: params,
-                                locals: resolvedLocals
+                                locals: resolvedLocals,
+                                reload: function() {
+                                    updateSegment(index, this);
+                                }
                             };
+
+                        if(params.watcher) {
+
+                            var getWatcherValue = function() {
+                                if(!angular.isFunction(params.watcher))
+                                    throw new Error('Watcher is not a function in segment `'+name+'1');
+
+                                return $injector.invoke(
+                                    params.watcher,
+                                    {},
+                                    {segment: $routeSegment.chain[index]});
+                            }
+
+                            var lastWatcherValue = getWatcherValue();
+
+                            $routeSegment.chain[index].clearWatcher = $rootScope.$watch(
+                                getWatcherValue,
+                                function(value) {
+                                    if(value == lastWatcherValue) // should not being run when $digest-ing at first time
+                                        return;
+                                    lastWatcherValue = value;
+                                    $routeSegment.chain[index].reload();
+                                })
+                        }
                         
-                        $rootScope.$broadcast( 'routeSegmentChange', { index: index, segment: $routeSegment.chain[index] } );            
+                        $rootScope.$broadcast( 'routeSegmentChange', {
+                            index: index,
+                            segment: $routeSegment.chain[index] } );
                     },
                     
                     function(error) {
@@ -308,12 +326,10 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                         
             var curSegment = segments, nextName;
             for(var i=0;i<=segmentIdx;i++) {        
-                
+
                 nextName = segmentNameChain[i];
-                
-                var lastSegment = curSegment;
-                
-                if(curSegment[ camelCase(nextName) ] != undefined) 
+
+                if(curSegment[ camelCase(nextName) ] != undefined)
                     curSegment = curSegment[ camelCase(nextName) ];
                 
                 if(i < segmentIdx)

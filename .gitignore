@@ -28,6 +28,8 @@ local.properties
 # PDT-specific
 .buildpath
 
+.idea
+
 
 #################
 ## Visual Studio

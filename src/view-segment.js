@@ -1,4 +1,6 @@
-/** https://github.com/artch/angular-route-segment
+/** 
+ *  $routeSegment angular service
+ *  @link https://github.com/artch/angular-route-segment
  *  @author Artem Chivchalov
  *  @license MIT License http://opensource.org/licenses/MIT
  */
@@ -17,9 +19,8 @@
  * Initial contents of an element with app:view will display if corresponding route segment doesn't exist.
  * 
  * View resolving are depends on route segment params:
- * - `template/templateUrl` define contents of the view
+ * - `template` define contents of the view
  * - `controller` is attached to view contents when compiled and linked
- * - `dependencies` is an array of route param names which are forcing the view to recreate when changed 
  */
 
 (function(angular) {

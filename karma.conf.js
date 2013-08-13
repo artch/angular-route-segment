@@ -1,16 +1,22 @@
-basePath = './';
+module.exports = function(config) {
+    config.set({
 
-files = [
-  JASMINE,
-  JASMINE_ADAPTER,
-  'test/lib/jquery.min.js',
-  'test/lib/angular.js',
-  'test/lib/angular-mocks.js',  
-  'test/lib/**/*.js',
-  'src/**/*.js',
-  'test/unit/**/*.js',
-];
+        basePath: './',
 
-autoWatch = true;
+        frameworks: ["jasmine"],
 
-browsers = ['PhantomJS'];
+        files: [
+            'test/lib/jquery.min.js',
+            'test/lib/angular.js',
+            'test/lib/angular-mocks.js',
+            'test/lib/**/*.js',
+            'src/**/*.js',
+            'test/unit/**/*.js',
+        ],
+
+        autoWatch: true,
+
+        browsers: ['PhantomJS']
+
+    });
+};
