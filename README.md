@@ -48,24 +48,24 @@ $routeSegmentProvider.
             controller: Section1ItemCtrl,
             dependencies: ['id']}).
 
-	    within().
+        within().
+	    
+            segment('overview', {
+                templateUrl: 'templates/section1/item/overview.html'}).
 
-		segment('overview', {
-		    templateUrl: 'templates/section1/item/overview.html'}).
+            segment('edit', {
+                 templateUrl: 'templates/section1/item/edit.html'}).
 
-		segment('tab2', {
-		    templateUrl: 'templates/section1/item/edit.html'}).
+            up().
 
-	    up().
-
-	    segment('prefs', {
+        segment('prefs', {
             templateUrl: 'templates/section1/prefs.html'}).
 
-	up().
+        up().
 
-	segment('s2', {
-	    templateUrl: 'templates/section2.html',
-	    controller: MainCtrl});
+    segment('s2', {
+        templateUrl: 'templates/section2.html',
+        controller: MainCtrl});
 ```
 
 Alternatively, you can use this syntax instead of traversing:
