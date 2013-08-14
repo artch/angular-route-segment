@@ -27,22 +27,23 @@ The library provides two pieces of code: `$routeSegment` service and `app-view-s
 angular.module('app').config(function ($routeSegmentProvider) {
 
 $routeSegmentProvider.
+
     when('/section1',          's1.home').
     when('/section1/prefs',    's1.prefs').
     when('/section1/:id',      's1.itemInfo.overview').
-    when('/section1/:id/edit',    's1.itemInfo.edit').
+    when('/section1/:id/edit', 's1.itemInfo.edit').
     when('/section2',          's2').
 
-	segment('s1', {
-	    templateUrl: 'templates/section1.html',
-	    controller: MainCtrl}).
+    segment('s1', {
+        templateUrl: 'templates/section1.html',
+        controller: MainCtrl}).
 
-	within().
+    within().
 
-	    segment('home', {
+        segment('home', {
             templateUrl: 'templates/section1/home.html'}).
 
-	    segment('itemInfo', {
+        segment('itemInfo', {
             templateUrl: 'templates/section1/item.html',
             controller: Section1ItemCtrl,
             dependencies: ['id']}).
