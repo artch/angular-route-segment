@@ -1,0 +1,12 @@
+{
+  "name": "angular-route-segment",
+  "version": "1.0.0",
+  "main": "build/angular-route-segment.min.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

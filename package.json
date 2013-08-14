@@ -1,6 +1,6 @@
 {
     "name": "angular-route-segment",
-    "version": "0.0.0",
+    "version": "1.0.0",
     "dependencies": {
         "grunt": "",
         "grunt-contrib-uglify": "",
@@ -9,6 +9,7 @@
         "karma": "",
         "karma-jasmine": "",
         "karma-phantomjs-launcher": "",
-        "karma-junit-reporter": ""
+        "karma-junit-reporter": "",
+        "grunt-git-describe": ""
     }
 }

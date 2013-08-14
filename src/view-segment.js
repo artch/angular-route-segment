@@ -1,9 +1,3 @@
-/** 
- *  $routeSegment angular service
- *  @link https://github.com/artch/angular-route-segment
- *  @author Artem Chivchalov
- *  @license MIT License http://opensource.org/licenses/MIT
- */
 'use strict';
 
 /**
