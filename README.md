@@ -1,7 +1,7 @@
 angular-route-segment
 =====================
 
-A feature-packed routing library for [AngularJS](http://angularjs.org/) which supports tree-like nested routes and handling the  loading flow.
+A feature-packed routing library for [AngularJS](http://angularjs.org/) which supports tree-like nested routes and loading flow handling.
 
 Example
 -------
@@ -160,13 +160,13 @@ Traverses into an existing segment, so that subsequent `segment` calls will add 
     
 **$routeSegmentProvider.up()**   
  
- Traverses up in the tree.
+Traverses up in the tree.
 
 **$routeSegmentProvider.root()**   
  
 Traverses to the root.
  
-## $routeSegment ##
+### $routeSegment ###
  
 **$routeSegment.name**
 
