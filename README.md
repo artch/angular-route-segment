@@ -7,7 +7,8 @@ Getting Started
 -------
 
 Example site is located here: http://artch.ru/angular-route-segment/example/.
-You can find the sources of this example in the folder '[example](https://github.com/artch/angular-route-segment/tree/master/example)'.
+
+The sources of this example can be found in the folder '[example](https://github.com/artch/angular-route-segment/tree/master/example)'.
 
 You can install the library via [Bower](http://bower.io/):
 ```
