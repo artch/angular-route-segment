@@ -85,7 +85,7 @@ $routeSegmentProvider.within('s1').segment('itemInfo', {
     dependencies: ['id']});
 ```
 
-Then, any `app-view-segment` tags in the DOM will be populated with the corresponding route segment item. You must provide a segment index as an argument to this directive to make it aware about which segment in the tree it should be linked to.
+Then, any `app-view-segment` tags (which are similar to built-in `ng-view`) in the DOM will be populated with the corresponding route segment item. You must provide a segment index as an argument to this directive to make it aware about which segment in the tree it should be linked to.
 
 **index.html:**
 ```html
