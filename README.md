@@ -3,11 +3,16 @@ angular-route-segment
 
 A feature-packed routing library for [AngularJS](http://angularjs.org/) which supports tree-like nested routes and loading flow handling.
 
-Example
+Getting Started
 -------
 
 Example site is located here: http://artch.ru/angular-route-segment/example/.
 You can find the sources of this example in the folder '[example](https://github.com/artch/angular-route-segment/tree/master/example)'.
+
+You can install the library via [Bower](http://bower.io/):
+```
+bower install angular-route-segment
+```
 
 Overview
 --------
