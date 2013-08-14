@@ -18,7 +18,7 @@ bower install angular-route-segment
 Overview
 --------
 
-This library is intended to provide the lacking functionality of nested routing to AngularJS applications. It is widely known there are no ways to keep a controller instance alive when only part of it should be updated via routing mechanics -- the `$route` service is re-creating the whole scope after a route is changed. `angular-route-segment` library gives you a way to handle this.
+This library is intended to provide the lacking functionality of nested routing to AngularJS applications. It is widely known, there are no ways to keep a controller instance alive when only part of it should be updated via routing mechanics - the `$route` service re-creates the whole scope after a route is changed, losing its state completely. **route-segment** gives you a way to handle this.
 
 The library provides two pieces of code: `$routeSegment` service and `app-view-segment` directive.
 
