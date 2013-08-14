@@ -1,7 +1,7 @@
 angular-route-segment
 =====================
 
-A feature-packed routing library for [AngularJS](http://angularjs.org/) which supports tree-like nested routes and loading flow handling.
+A feature-packed routing library for [AngularJS](http://angularjs.org/) which supports tree-like nested views and routes hierarchy, and advanced loading flow handling.
 
 Getting Started
 -------
