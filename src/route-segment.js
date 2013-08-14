@@ -122,6 +122,8 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
     
     /**
      * The shorthand for $routeProvider.when() method with specified route name.
+     * @param {string} route Route URL, e.g. '/foo/bar'
+     * @param {string} name Fully qualified route name, e.g. 'foo.bar'
      */
     $routeSegmentProvider.when = function(route, name) {
         $routeProvider.when(route, {segment: name});
@@ -146,7 +148,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                 name: '',    
                 
                 /**
-                 * Array of segments splitted by each level separately. Each item contains the following attributes:
+                 * Array of segments splitted by each level separately. Each item contains the following properties:
                  * - `name` is the name of a segment;
                  * - `params` is the config params hash of a segment;
                  * - `locals` is a hash which contains resolve results if any;
