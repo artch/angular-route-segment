@@ -37,8 +37,7 @@ angular.module( 'view-segment', [ 'route-segment' ] ).directive( 'appViewSegment
             
             return function($scope, element, attrs) {
                 
-                var lastScope, onloadExp = attrs.onload || '',
-                    lastSegmentName, lastParams = {}, animate,
+                var lastScope, onloadExp = attrs.onload || '', animate,
                     viewSegmentIndex = parseInt(attrs.appViewSegment);
                 
                 try {
@@ -77,6 +76,7 @@ angular.module( 'view-segment', [ 'route-segment' ] ).directive( 'appViewSegment
                    
                    if(!segment) {
                        element.html(oldContent.html());
+                       destroyLastScope();
                        $compile(element.contents())($scope);
                        return;
                    }
@@ -85,14 +85,13 @@ angular.module( 'view-segment', [ 'route-segment' ] ).directive( 'appViewSegment
                         template = locals && locals.$template;
                     
                     if (template) {
-                        $q.when(template).then(function (templateHtml) {
                             
                             clearContent();
                             
                             if(animate)
-                                animate.enter( angular.element('<div></div>').html(templateHtml).contents(), element );
+                                animate.enter( angular.element('<div></div>').html(template).contents(), element );
                             else
-                                element.html(templateHtml);
+                                element.html(template);
                             
                             destroyLastScope();
         
@@ -108,7 +107,6 @@ angular.module( 'view-segment', [ 'route-segment' ] ).directive( 'appViewSegment
                             link(lastScope);
                             lastScope.$emit('$viewContentLoaded');
                             lastScope.$eval(onloadExp);
-                        });
                     } else {
                         clearContent();
                     }

@@ -14,10 +14,28 @@
                     
                 </li>
                 
-                <li class="nav-header">Misc</li>
-                
                 <li ng-class="{active: $routeSegment.startsWith('s1.prefs')}">
                     <a href="#/section1/prefs">Preferences</a>
+                </li>
+                
+                <li class="nav-header">Error handling</li>
+                
+                <li ng-class="{active: $routeSegment.startsWith('s1.invalidTemplate')}">
+                    <a href="#/invalid-template">Invalid template file</a>
+                </li>
+
+                <li ng-class="{active: $routeSegment.startsWith('s1.invalidData')}">
+                    <a href="#/invalid-data">Invalid resolve data</a>
+                </li>
+
+                <li class="nav-header">Slow resolve data</li>
+
+                <li ng-class="{active: $routeSegment.startsWith('s1.slowDataSimple')}">
+                    <a href="#/slow-data">Without `untilResolved`</a>
+                </li>
+
+                <li ng-class="{active: $routeSegment.startsWith('s1.slowDataLoading')}">
+                    <a href="#/slow-data-loading">With `untilResolved`</a>
                 </li>
                 
                 <li class="divider"></li>
@@ -36,3 +54,5 @@
     
     <div class="span9" app-view-segment="1" ng-animate="{enter: 'anim-opacity-enter'}"></div>
 </div>
+
+<div id=loading class=alert ng-show="loader.show">Loading...</div>

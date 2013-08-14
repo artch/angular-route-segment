@@ -68,10 +68,41 @@ describe('route segment', function() {
         expect(segments.section2.children.section22.children).toBeUndefined();
         expect(segments.section2.children.section21.children.section211.params.test).toBe('E');        
     })
+
+    describe('configuring', function() {
+
+        it('should throw an error when adding a segment into non-existing parent while in strictMode', function () {
+
+            $routeSegmentProvider.options.strictMode = true;
+            expect(function () {
+                $routeSegmentProvider.within('invalid');
+            }).toThrow();
+        })
+
+        it('should not throw an error while strictMode=false', function () {
+
+            $routeSegmentProvider.options.strictMode = false;
+            expect(function () {
+                $routeSegmentProvider.within('invalid').segment('invalid-child', {});
+            }).not.toThrow();
+            expect($routeSegmentProvider.segments.invalid.params).toBeDefined();
+            expect($routeSegmentProvider.segments.invalid.children.invalidChild).toBeDefined();
+        })
+
+        it('should update existing segment with new one', function () {
+
+            $routeSegmentProvider.options.strictMode = false;
+            $routeSegmentProvider.within('test');
+            expect($routeSegmentProvider.segments.test).toBeDefined();
+            $routeSegmentProvider.segment('test', {foo: 'bar'});
+            expect($routeSegmentProvider.segments.test.params.foo).toBe('bar');
+            $routeSegmentProvider.segment('test', {baz: 'qux'});
+            expect($routeSegmentProvider.segments.test.params.foo).toBeUndefined();
+            expect($routeSegmentProvider.segments.test.params.baz).toBe('qux');
+        })
+    })
     
     describe('routing', function () {
-
-        var scope;
 
         it('first level', function () {
             $location.path('/1');
@@ -171,36 +202,6 @@ describe('route segment', function() {
             expect($routeSegment.contains('section3')).toBe(false);
         })
 
-        it('should throw an error when adding a segment into non-existing parent while in strictMode', function () {
-
-            $routeSegmentProvider.options.strictMode = true;
-            expect(function () {
-                $routeSegmentProvider.within('invalid');
-            }).toThrow();
-        })
-
-        it('should not throw an error while strictMode=false', function () {
-
-            $routeSegmentProvider.options.strictMode = false;
-            expect(function () {
-                $routeSegmentProvider.within('invalid').segment('invalid-child', {});
-            }).not.toThrow();
-            expect($routeSegmentProvider.segments.invalid.params).toBeDefined();
-            expect($routeSegmentProvider.segments.invalid.children.invalidChild).toBeDefined();
-        })
-
-        it('should update existing segment with new one', function () {
-
-            $routeSegmentProvider.options.strictMode = false;
-            $routeSegmentProvider.within('test');
-            expect($routeSegmentProvider.segments.test).toBeDefined();
-            $routeSegmentProvider.segment('test', {foo: 'bar'});
-            expect($routeSegmentProvider.segments.test.params.foo).toBe('bar');
-            $routeSegmentProvider.segment('test', {baz: 'qux'});
-            expect($routeSegmentProvider.segments.test.params.foo).toBeUndefined();
-            expect($routeSegmentProvider.segments.test.params.baz).toBe('qux');
-        })
-
         it('should go down to a child after going to a parent', function () {
 
             $location.path('/2');
@@ -232,6 +233,23 @@ describe('route segment', function() {
             expect(callback.calls[0].args[1]).toEqual({index: 1, segment: null});
             expect($routeSegment.chain.length).toBe(1);
             expect($routeSegment.chain[0].name).toBe('section2');
+        })
+
+
+        it('should go to from a route with a child to a sibling with no children', function () {
+            $location.path('/2/X');
+            $rootScope.$digest();
+
+            callback = jasmine.createSpy('callback');
+            $rootScope.$on('routeSegmentChange', callback);
+
+            $location.path('/1');
+
+            $rootScope.$digest();
+            expect($routeSegment.name).toBe('section-first');
+            expect(callback.calls.length).toBe(2);
+            expect(callback.calls[0].args[1].segment.name).toBe('section-first');
+            expect(callback.calls[1].args[1].segment).toBe(null);
         })
 
         it('should update when dependencies are changed', function () {

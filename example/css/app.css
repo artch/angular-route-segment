@@ -17,3 +17,11 @@
 .anim-opacity-enter-start {
 	opacity: 1.0;
 }
+
+#loading {
+    position: absolute;
+    width: 300px;
+    top: 10px;
+    left: 500px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+}

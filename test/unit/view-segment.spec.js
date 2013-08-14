@@ -59,6 +59,7 @@ describe('view-segment', function() {
     
     it('should show a section without children', function() {
         $location.path('/1');
+
         $rootScope.$digest();
         expect(elm).toHaveClass('container');
         expect(elm.find('> h4').text()).toMatch(/Section 1/);
@@ -66,14 +67,32 @@ describe('view-segment', function() {
     
     it('should show an empty section with children', function() {
         $location.path('/2');
+
         $rootScope.$digest();
         expect(elm.find('> h4').text()).toMatch(/Section 2/);
         expect(elm.find('> div').text()).toMatch(/Nothing/);
         expect(elm.find('> div').contents().scope().test).toBe(1);
     })
+
+    it('should show an empty section with children after coming from another segment', function() {
+        $routeSegmentProvider.when('/3', 'section3.subsection31')
+            .segment('section3', {template: '<div app:view-segment="1"></div>'})
+            .within().segment('subsection31', {template: 'TEST'})
+
+        $location.path('/3');
+
+        $rootScope.$digest();
+        expect(elm.find('> div').text()).toMatch(/TEST/);
+
+        $location.path('/2');
+
+        $rootScope.$digest();
+        expect(elm.find('> div').text()).toMatch(/Nothing/);
+    })
     
     it('should show a section with an active child', function() {
         $location.path('/2/1');
+
         $rootScope.$digest();
         expect(elm.find('> h4').text()).toMatch(/Section 2/);
         expect(elm.find('> div > h4').text()).toMatch(/Subsection 2-1/);
@@ -83,22 +102,28 @@ describe('view-segment', function() {
     it('should keep parent controller untouched', function() {
         
         $location.path('/2');
+
         $rootScope.$digest();
         expect(elm.find('> span').text()).toBe('1');
         
         elm.find('> div').contents().scope().test = 10;
+
         $rootScope.$digest();
         expect(elm.find('> span').text()).toBe('10');
         
         elm.find('> span').addClass('testClass');
+
         expect(elm.find('> span')).toHaveClass('testClass');
+
         $location.path('/2/1');
+
         $rootScope.$digest();
         expect(elm.find('> div > span').text()).toBe('CONTROLLER OVERRIDED');
         expect(elm.find('> span').text()).toBe('10');
         expect(elm.find('> span')).toHaveClass('testClass');
         
         $location.path('/2/2');
+
         $rootScope.$digest();
         expect(elm.find('> div > span').text()).toBe('10');
         expect(elm.find('> span').text()).toBe('10');
@@ -117,18 +142,22 @@ describe('view-segment', function() {
         })
         
         $location.path('/2/details/1/info');
+
         $rootScope.$digest();
         expect(elm.find('> div > h4').text()).toBe('Details item 1');
         
         elm.find('> div').contents().scope().name = 'TEST';
+
         $rootScope.$digest();
         expect(elm.find('> div > h4').text()).toBe('Details TEST');
         
         $location.path('/2/details/1/edit');
+
         $rootScope.$digest();
         expect(elm.find('> div > h4').text()).toBe('Details TEST');
         
         $location.path('/2/details/2/edit');
+
         $rootScope.$digest();
         expect(elm.find('> div > h4').text()).toBe('Details item 2');
     }))
