@@ -37,7 +37,7 @@
 <p>Example site is located here: </p>
 
 <blockquote>
-<p><a href="src/example/"><strong>DEMO SITE</strong></a></p>
+<p><a href="http://angular-route-segment.com/src/example/"><strong>DEMO SITE</strong></a></p>
 </blockquote>
 
 <p>The sources of this example can be found in the folder <a href="https://github.com/artch/angular-route-segment/tree/master/example">/example</a>.</p>
@@ -47,7 +47,7 @@
 <pre><code>bower install angular-route-segment
 </code></pre>
 
-<p>Tested with AngularJS 1.1.5 and 1.2.0rc1  (you must include <code>ngRoute</code> module in 1.2.x!).</p>
+<p>Tested with AngularJS 1.1.5 and 1.2.0rc1 (you must include <code>ngRoute</code> module in 1.2.x!).</p>
 
 <h2>
 <a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview</h2>
@@ -58,7 +58,7 @@
 
 <p><code>$routeSegment</code> is meant to be used instead of built-in Angular <code>$route</code> service. Its provider exposes configuration methods which can be used to traverse the tree of route segments and setup it properly:</p>
 
-<div class="highlight"><pre><span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">'app'</span><span class="p">).</span><span class="nx">config</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">$routeSegmentProvider</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">'app'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'ngRoute'</span><span class="p">]).</span><span class="nx">config</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">$routeSegmentProvider</span><span class="p">)</span> <span class="p">{</span>
 
 <span class="nx">$routeSegmentProvider</span><span class="p">.</span>
 
