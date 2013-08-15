@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="angular-route-segment : A feature-packed routing library for AngularJS which supports tree-like nested views and routes hierarchy, and advanced loading flow handling." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>angular-route-segment</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/artch/angular-route-segment">View on GitHub</a>
+
+          <h1 id="project_title">angular-route-segment</h1>
+          <h2 id="project_tagline">A feature-packed routing library for AngularJS which supports tree-like nested views and routes hierarchy, and advanced loading flow handling.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/artch/angular-route-segment/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/artch/angular-route-segment/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h2>
+<a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting Started</h2>
+
+<p>Example site is located here: <a href="http://artch.ru/angular-route-segment/example/">http://artch.ru/angular-route-segment/example/</a>.</p>
+
+<p>The sources of this example can be found in the folder '<a href="https://github.com/artch/angular-route-segment/tree/master/example">example</a>'.</p>
+
+<p>You can install the library via <a href="http://bower.io/">Bower</a>:</p>
+
+<pre><code>bower install angular-route-segment
+</code></pre>
+
+<h2>
+<a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview</h2>
+
+<p>This library is intended to provide the lacking functionality of nested routing to AngularJS applications. It is widely known, there are no ways to keep a controller instance alive when only part of it should be updated via routing mechanics - the <code>$route</code> service re-creates the whole scope after a route is changed, losing its state completely. <strong>route-segment</strong> gives you a way to handle this.</p>
+
+<p>The library provides two pieces of code: <code>$routeSegment</code> service and <code>app-view-segment</code> directive.</p>
+
+<p><code>$routeSegment</code> is meant to be used instead of built-in Angular <code>$route</code> service. Its provider exposes configuration methods which can be used to traverse the tree of route segments and setup it properly:</p>
+
+<div class="highlight"><pre><span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">'app'</span><span class="p">).</span><span class="nx">config</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">$routeSegmentProvider</span><span class="p">)</span> <span class="p">{</span>
+
+<span class="nx">$routeSegmentProvider</span><span class="p">.</span>
+
+    <span class="nx">when</span><span class="p">(</span><span class="s1">'/section1'</span><span class="p">,</span>          <span class="s1">'s1.home'</span><span class="p">).</span>
+    <span class="nx">when</span><span class="p">(</span><span class="s1">'/section1/prefs'</span><span class="p">,</span>    <span class="s1">'s1.prefs'</span><span class="p">).</span>
+    <span class="nx">when</span><span class="p">(</span><span class="s1">'/section1/:id'</span><span class="p">,</span>      <span class="s1">'s1.itemInfo.overview'</span><span class="p">).</span>
+    <span class="nx">when</span><span class="p">(</span><span class="s1">'/section1/:id/edit'</span><span class="p">,</span> <span class="s1">'s1.itemInfo.edit'</span><span class="p">).</span>
+    <span class="nx">when</span><span class="p">(</span><span class="s1">'/section2'</span><span class="p">,</span>          <span class="s1">'s2'</span><span class="p">).</span>
+
+    <span class="nx">segment</span><span class="p">(</span><span class="s1">'s1'</span><span class="p">,</span> <span class="p">{</span>
+        <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1.html'</span><span class="p">,</span>
+        <span class="nx">controller</span><span class="o">:</span> <span class="nx">MainCtrl</span><span class="p">}).</span>
+
+    <span class="nx">within</span><span class="p">().</span>
+
+        <span class="nx">segment</span><span class="p">(</span><span class="s1">'home'</span><span class="p">,</span> <span class="p">{</span>
+            <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/home.html'</span><span class="p">}).</span>
+
+        <span class="nx">segment</span><span class="p">(</span><span class="s1">'itemInfo'</span><span class="p">,</span> <span class="p">{</span>
+            <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/item.html'</span><span class="p">,</span>
+            <span class="nx">controller</span><span class="o">:</span> <span class="nx">Section1ItemCtrl</span><span class="p">,</span>
+            <span class="nx">dependencies</span><span class="o">:</span> <span class="p">[</span><span class="s1">'id'</span><span class="p">]}).</span>
+
+        <span class="nx">within</span><span class="p">().</span>
+
+            <span class="nx">segment</span><span class="p">(</span><span class="s1">'overview'</span><span class="p">,</span> <span class="p">{</span>
+                <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/item/overview.html'</span><span class="p">}).</span>
+
+            <span class="nx">segment</span><span class="p">(</span><span class="s1">'edit'</span><span class="p">,</span> <span class="p">{</span>
+                 <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/item/edit.html'</span><span class="p">}).</span>
+
+            <span class="nx">up</span><span class="p">().</span>
+
+        <span class="nx">segment</span><span class="p">(</span><span class="s1">'prefs'</span><span class="p">,</span> <span class="p">{</span>
+            <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/prefs.html'</span><span class="p">}).</span>
+
+        <span class="nx">up</span><span class="p">().</span>
+
+    <span class="nx">segment</span><span class="p">(</span><span class="s1">'s2'</span><span class="p">,</span> <span class="p">{</span>
+        <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section2.html'</span><span class="p">,</span>
+        <span class="nx">controller</span><span class="o">:</span> <span class="nx">MainCtrl</span><span class="p">});</span>
+</pre></div>
+
+<p>Alternatively, you can use this syntax instead of traversing:</p>
+
+<div class="highlight"><pre><span class="nx">$routeSegmentProvider</span><span class="p">.</span><span class="nx">segment</span><span class="p">(</span><span class="s1">'s1'</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1.html'</span><span class="p">,</span>
+    <span class="nx">controller</span><span class="o">:</span> <span class="nx">MainCtrl</span><span class="p">});</span>
+
+<span class="nx">$routeSegmentProvider</span><span class="p">.</span><span class="nx">within</span><span class="p">(</span><span class="s1">'s1'</span><span class="p">).</span><span class="nx">segment</span><span class="p">(</span><span class="s1">'home'</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/home.html'</span><span class="p">});</span>
+
+<span class="nx">$routeSegmentProvider</span><span class="p">.</span><span class="nx">within</span><span class="p">(</span><span class="s1">'s1'</span><span class="p">).</span><span class="nx">segment</span><span class="p">(</span><span class="s1">'itemInfo'</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/item.html'</span><span class="p">,</span>
+    <span class="nx">controller</span><span class="o">:</span> <span class="nx">Section1ItemCtrl</span><span class="p">,</span>
+    <span class="nx">dependencies</span><span class="o">:</span> <span class="p">[</span><span class="s1">'id'</span><span class="p">]});</span>
+</pre></div>
+
+<p>Then, any <code>app-view-segment</code> tags (which are similar to built-in <code>ng-view</code>) in the DOM will be populated with the corresponding route segment item. You must provide a segment index as an argument to this directive to make it aware about which segment in the tree it should be linked to.</p>
+
+<p><strong>index.html:</strong></p>
+
+<div class="highlight"><pre><span class="nt">&lt;ul&gt;</span>
+    <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">"/section1"</span><span class="nt">&gt;</span>Section 1<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">"/section2"</span><span class="nt">&gt;</span>Section 2<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+<span class="nt">&lt;/ul&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"contents"</span> <span class="na">app-view-segment=</span><span class="s">"0"</span><span class="nt">&gt;&lt;/div&gt;</span>
+</pre></div>
+
+<p><strong>section1.html:</strong> (it will be loaded to <code>div#contents</code> in <code>index.html</code>)</p>
+
+<div class="highlight"><pre><span class="nt">&lt;h4&gt;</span>Section 1<span class="nt">&lt;/h4&gt;</span>
+Section 1 contents.
+<span class="nt">&lt;div</span> <span class="na">app-view-segment=</span><span class="s">"1"</span><span class="nt">&gt;&lt;/div&gt;</span>
+</pre></div>
+
+<p>...etc. You can reach any nesting level here.</p>
+
+<h2>
+<a name="documentation" class="anchor" href="#documentation"><span class="octicon octicon-link"></span></a>Documentation</h2>
+
+<p>Please note that you may read the <a href="https://github.com/artch/angular-route-segment/tree/master/test/unit">test specs</a> to learn features usage.</p>
+
+<h3>
+<a name="routesegmentprovider" class="anchor" href="#routesegmentprovider"><span class="octicon octicon-link"></span></a>$routeSegmentProvider</h3>
+
+<p><strong>options</strong></p>
+
+<p>A hash object which can be used to set up the service on config stage:</p>
+
+<ul>
+<li>
+<p><em>options.autoLoadTemplates</em></p>
+
+<p>When true, it will resolve <code>templateUrl</code> automatically via $http service and put its contents into <code>template</code>.</p>
+</li>
+<li>
+<p><em>options.strictMode</em> </p>
+
+<p>When true, all attempts to call <code>within</code> method on non-existing segments will throw an error (you would usually want this behavior in production). When false, it will transparently create new empty segment (can be useful in isolated tests).</p>
+</li>
+</ul><p><strong>when(route, name)</strong></p>
+
+<p>The shorthand for $routeProvider.when() method with specified fully qualified route name.</p>
+
+<ul>
+<li>
+<p><em>route</em></p>
+
+<p>Route URL, e.g. <code>/foo/bar</code></p>
+</li>
+<li>
+<p><em>name</em></p>
+
+<p>Fully qualified route name, e.g. <code>foo.bar</code></p>
+</li>
+</ul><p><strong>segment(name, params)</strong></p>
+
+<p>Adds new segment at current pointer level.</p>
+
+<ul>
+<li>
+<p><em>name</em></p>
+
+<p>Name of a segment item, e.g. <code>bar</code></p>
+</li>
+<li>
+<p><em>params</em></p>
+
+<p>Segment's parameters hash. The following params are supported:</p>
+
+<ul>
+<li>
+<code>template</code> provides HTML for the given segment view;</li>
+<li>
+<code>templateUrl</code> is a template which should be fetched from the network via this URL;</li>
+<li>
+<code>controller</code> is attached to the given segment view when compiled and linked, this can be any controller definition AngularJS supports;</li>
+<li>
+<code>dependencies</code> is an array of route param names which are forcing the view to recreate when changed;</li>
+<li>
+<code>watcher</code> is a $watch-function for recreating the view when its returning value is changed;</li>
+<li>
+<code>resolve</code> is a hash of functions or injectable names which should be resolved prior to instantiating the template and the controller;</li>
+<li>
+<code>untilResolved</code> is the alternate set of params (e.g. <code>template</code> and <code>controller</code>) which should be used before resolving is completed; </li>
+<li>
+<code>resolveFailed</code> is the alternate set of params which should be used if resolving failed.</li>
+</ul>
+</li>
+</ul><p><strong>within(childName)</strong></p>
+
+<p>Traverses into an existing segment, so that subsequent <code>segment</code> calls will add new segments as its descendants.</p>
+
+<ul>
+<li>
+<p><em>childName</em> </p>
+
+<p>An existing segment's name. An optional argument. If undefined, then the last added segment is selected.</p>
+</li>
+</ul><p><strong>up()</strong>   </p>
+
+<p>Traverses up in the tree.</p>
+
+<p><strong>root()</strong>   </p>
+
+<p>Traverses to the root.</p>
+
+<h3>
+<a name="routesegment" class="anchor" href="#routesegment"><span class="octicon octicon-link"></span></a>$routeSegment</h3>
+
+<p><strong>name</strong></p>
+
+<p>Fully qualified name of current active route.</p>
+
+<p><strong>chain</strong></p>
+
+<p>An array of segments splitted by each level separately. Each item contains the following properties:</p>
+
+<ul>
+<li>
+<code>name</code> is the name of a segment;</li>
+<li>
+<code>params</code> is the config params hash of a segment;</li>
+<li>
+<code>locals</code> is a hash which contains resolve results if any;</li>
+<li>
+<code>reload</code> is a function to reload a segment (restart resolving, reinstantiate a controller, etc)</li>
+</ul><p><strong>startsWith(val)</strong></p>
+
+<p>Helper method for checking whether current route starts with the given string.</p>
+
+<p><strong>contains(val)</strong></p>
+
+<p>Helper method for checking whether current route contains the given string.</p>
+
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>The MIT License (MIT)</p>
+
+<p>Copyright (c) 2013 Artem Chivchalov</p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">angular-route-segment maintained by <a href="https://github.com/artch">artch</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
