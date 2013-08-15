@@ -157,7 +157,7 @@ app.config(function($routeSegmentProvider, $routeProvider) {
 app.value('loader', {show: false});
 
 function MainCtrl($scope, $routeSegment, loader) {
-    
+
     $scope.$routeSegment = $routeSegment;
     $scope.loader = loader;
 }

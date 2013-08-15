@@ -8,26 +8,30 @@
 </head>
 <body>
     
-    <div class="ng-cloak">
-    
-        <div class="container" ng-controller="MainCtrl">
-                            
-            <div class="navbar navbar-inverse">        
-                <div class="navbar-inner">                
+    <div class="ng-cloak" ng-controller="MainCtrl">
+
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="pull-right label">Current route: <span ng-bind="$routeSegment.name"></span></div>
+                    <a class="brand" href="https://github.com/artch/angular-route-segment/">angular-route-segment</a>
                     <ul class="nav">
                         <li ng-class="{active: $routeSegment.startsWith('s1')}"><a href="#/section1">Section 1</a></li>
                         <li ng-class="{active: $routeSegment.startsWith('s2')}"><a href="#/section2">Section 2</a></li>
                         <li ng-class="{active: $routeSegment.startsWith('s3')}"><a href="#/section3">Section 3</a></li>
-                    </ul>                   
-                </div>            
+                    </ul>
+                </div>
             </div>
-                        
+        </div>
+    
+        <div class="container" id="content">
             <div class="row" app-view-segment="0" ng-animate="{enter: 'anim-opacity-enter'}"></div>
-            
-        </div>        
+        </div>
+
+        <div id=loading class=alert ng-show="loader.show">Loading...</div>
     
     </div>
-        
+
     
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.4/angular.min.js"></script>
     <script src="../build/angular-route-segment.min.js"></script>

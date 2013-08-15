@@ -1,3 +1,11 @@
+#content {
+    margin-top: 60px;
+}
+
+.navbar .label {
+    position: relative;
+    top: 11px;
+}
 
 .top-row {
 	text-align: center;
@@ -24,4 +32,5 @@
     top: 10px;
     left: 500px;
     box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+    z-index: 1040;
 }
