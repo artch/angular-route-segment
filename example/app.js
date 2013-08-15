@@ -89,6 +89,7 @@ app.config(function($routeSegmentProvider, $routeProvider) {
         .when('/invalid-data', 's1.invalidData')
         .when('/slow-data', 's1.slowDataSimple')
         .when('/slow-data-loading', 's1.slowDataLoading')
+        .when('/section1/:id/slow',    's1.itemInfo.tabSlow')
         
         .within('s1')
             .segment('invalidTemplate', {
@@ -132,6 +133,21 @@ app.config(function($routeSegmentProvider, $routeProvider) {
                     templateUrl: 'templates/loading.html'
                 }
             })
+
+            .within('itemInfo')
+                .segment('tabSlow', {
+                    templateUrl: 'templates/section1/slow-data.html',
+                    controller: 'SlowDataCtrl',
+                    resolve: {
+                        data: function($timeout) {
+                            return $timeout(function() { return 'SLOW DATA CONTENT'; }, 2000);
+                        }
+                    },
+                    untilResolved: {
+                        templateUrl: 'templates/loading.html'
+                    }
+                })
+
                 
         
         

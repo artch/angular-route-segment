@@ -16,7 +16,10 @@
     </li>
     <li ng-class="{active: $routeSegment.contains('tab3')}">
         <a href="#/section1/{{item.id}}/Z">Tab 3</a>
-    </li>        
+    </li>
+    <li ng-class="{active: $routeSegment.contains('tabSlow')}">
+        <a href="#/section1/{{item.id}}/slow">Slow</a>
+    </li>
 </ul>
 
 <div app-view-segment="2" ng-animate="{enter: 'anim-opacity-enter'}">No tab selected.</div>
