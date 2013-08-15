@@ -111,6 +111,15 @@ Section 1 contents.
 
 ...etc. You can reach any nesting level here. Every view will be handled independently, keeping the state of top-level views.
 
+Difference from UI-Router
+-------------------------
+
+While it seems that this library has very similar goal to what [UI-Router](https://github.com/angular-ui/ui-router/) provides, there are some important differences between their implementations, though.
+
+*UI-Router* implements its own URL routing mechanics with its own "state" concept on top of it. *angular-route-segment* doesn't try to replace something in AngularJS. It is based on built-in `$route` engine, so that it tries to extend it rather than to replace. `$routeSegmentProvider.when` method is just a shorthand to `$routeProvider.when` with the simplified syntax. Inner segment-handling logic is built on top of events propagated by `$route` service, with internal usage of some route params from it.
+
+Such approach makes it possible to accomplish the desirable nested routing task in more simpler manner, which produces less code, less complexity and potential bugs, provides better cohesion with Angular core engine and is easier to understand, use and debug.
+
 Documentation
 -------------
 
