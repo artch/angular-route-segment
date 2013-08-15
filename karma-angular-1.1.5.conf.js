@@ -7,11 +7,11 @@ module.exports = function(config) {
 
         files: [
             'test/lib/jquery.min.js',
-            'test/lib/angular.js',
-            'test/lib/angular-mocks.js',
-            'test/lib/**/*.js',
+            'test/lib/helpers.js',
+            'test/lib/angular-1.1.5/angular.js',
+            'test/lib/angular-1.1.5/angular-*.js',
             'src/**/*.js',
-            'test/unit/**/*.js',
+            'test/unit/**/*.js'
         ],
 
         autoWatch: true,

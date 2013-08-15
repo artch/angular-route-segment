@@ -17,13 +17,16 @@
 	line-height: 12px;
 }
 
-.anim-opacity-enter-setup {
+.anim.ng-enter {
 	transition: opacity 1s;
 	opacity: 0.0;
 }
 
-.anim-opacity-enter-start {
+.anim.ng-enter-active {
 	opacity: 1.0;
+}
+.anim.ng-leave {
+    display: none;
 }
 
 #loading {
