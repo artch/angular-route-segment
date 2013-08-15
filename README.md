@@ -29,7 +29,7 @@ The library provides two pieces of code: `$routeSegment` service and `app-view-s
 `$routeSegment` is meant to be used instead of built-in Angular `$route` service. Its provider exposes configuration methods which can be used to traverse the tree of route segments and setup it properly:
 
 ```javascript
-angular.module('app').config(function ($routeSegmentProvider) {
+angular.module('app', ['ngRoute']).config(function ($routeSegmentProvider) {
 
 $routeSegmentProvider.
 
