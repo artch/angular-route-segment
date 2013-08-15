@@ -1,6 +1,6 @@
 /**
- * angular-route-segment v1.0.0
- * https://github.com/artch/angular-route-segment
+ * angular-route-segment v1.0.1
+ * https://angular-route-segment.com
  * @author Artem Chivchalov
  * @license MIT License http://opensource.org/licenses/MIT
  */
