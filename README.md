@@ -90,8 +90,12 @@ Then, any `app-view-segment` tags (which are similar to built-in `ng-view`) in t
 **index.html:**
 ```html
 <ul>
-    <li><a href="/section1">Section 1</a></li>
-    <li><a href="/section2">Section 2</a></li>
+    <li ng-class="{active: $routeSegment.startsWith('s1')}">
+        <a href="/section1">Section 1</a>
+    </li>
+    <li ng-class="{active: $routeSegment.startsWith('s2')}">
+        <a href="/section2">Section 2</a>
+    </li>
 </ul>
 <div id="contents" app-view-segment="0"></div>
 ```
