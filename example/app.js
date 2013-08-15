@@ -1,4 +1,4 @@
-var app = angular.module('app', ['route-segment', 'view-segment']);
+var app = angular.module('app', ['ngRoute', 'ngAnimate', 'route-segment', 'view-segment']);
 
 app.config(function($routeSegmentProvider, $routeProvider) {
     

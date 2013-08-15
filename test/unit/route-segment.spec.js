@@ -1,7 +1,7 @@
 'use strict';
 
 describe('route segment', function() {
-    
+
     beforeEach(module('route-segment'));
         
     var $routeSegment, $routeSegmentProvider, $rootScope, $httpBackend, $location, $provide;
