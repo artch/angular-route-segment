@@ -8,7 +8,7 @@ Getting Started
 
 Example site is located here: 
 
-> [**DEMO SITE**](http://angular-route-segment.com/src/example/)
+> [**DEMO SITE**](http://artch.github.io/angular-route-segment/src/example/)
 
 The sources of this example can be found in the folder [/example](https://github.com/artch/angular-route-segment/tree/master/example).
 
