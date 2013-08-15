@@ -1,5 +1,5 @@
 /**
- * angular-route-segment v1.0.2
+ * angular-route-segment v1.0.3
  * https://angular-route-segment.com
  * @author Artem Chivchalov
  * @license MIT License http://opensource.org/licenses/MIT
@@ -428,6 +428,11 @@ angular.module( 'view-segment', [ 'route-segment' ] ).directive( 'appViewSegment
 
     
                 function update(segment) {
+
+                    if(isDefault) {
+                        isDefault = false;
+                        tElement.replaceWith(anchor);
+                    }
                    
                    if(!segment) {
                        clearContent();
@@ -438,10 +443,7 @@ angular.module( 'view-segment', [ 'route-segment' ] ).directive( 'appViewSegment
                        return;
                    }
 
-                    if(isDefault) {
-                        isDefault = false;
-                        tElement.replaceWith(anchor);
-                    }
+
                     
                     var locals = angular.extend({}, segment.locals),
                         template = locals && locals.$template;
