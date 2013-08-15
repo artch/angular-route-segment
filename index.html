@@ -140,6 +140,15 @@ Section 1 contents.
 <p>...etc. You can reach any nesting level here. Every view will be handled independently, keeping the state of top-level views.</p>
 
 <h2>
+<a name="difference-from-ui-router" class="anchor" href="#difference-from-ui-router"><span class="octicon octicon-link"></span></a>Difference from UI-Router</h2>
+
+<p>While it seems that this library has very similar goal to what <a href="https://github.com/angular-ui/ui-router/">UI-Router</a> provides, there are some important differences between their implementations, though.</p>
+
+<p><em>UI-Router</em> implements its own URL routing mechanics with its own "state" concept on top of it. <em>angular-route-segment</em> doesn't try to replace something in AngularJS. It is based on built-in <code>$route</code> engine, so that it tries to extend it rather than to replace. <code>$routeSegmentProvider.when</code> method is just a shorthand to <code>$routeProvider.when</code> with the simplified syntax. Inner segment-handling logic is built on top of events propagated by <code>$route</code> service, with internal usage of some route params from it.</p>
+
+<p>Such approach makes it possible to accomplish the desirable nested routing task in more simpler manner, which produces less code, less complexity and potential bugs, provides better cohesion with Angular core engine and is easier to understand, use and debug.</p>
+
+<h2>
 <a name="documentation" class="anchor" href="#documentation"><span class="octicon octicon-link"></span></a>Documentation</h2>
 
 <p>Please note that you may read the <a href="https://github.com/artch/angular-route-segment/tree/master/test/unit">test specs</a> to learn features usage.</p>
