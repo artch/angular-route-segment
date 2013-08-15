@@ -17,6 +17,8 @@ You can install the library via [Bower](http://bower.io/):
 bower install angular-route-segment
 ```
 
+Tested with AngularJS 1.1.5 and 1.2.0rc1.
+
 Overview
 --------
 
