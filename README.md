@@ -107,7 +107,7 @@ Section 1 contents.
 <div app-view-segment="1"></div>
 ```
 
-...etc. You can reach any nesting level here.
+...etc. You can reach any nesting level here. Every view will be handled independently, keeping the state of top-level views.
 
 Documentation
 -------------
