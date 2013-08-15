@@ -6,9 +6,11 @@ A feature-packed routing library for [AngularJS](http://angularjs.org/) which su
 Getting Started
 -------
 
-Example site is located here: http://artch.ru/angular-route-segment/example/.
+Example site is located here: 
 
-The sources of this example can be found in the folder '[example](https://github.com/artch/angular-route-segment/tree/master/example)'.
+> [**DEMO SITE**](http://angular-route-segment.com/src/example/)
+
+The sources of this example can be found in the folder [/example](https://github.com/artch/angular-route-segment/tree/master/example).
 
 You can install the library via [Bower](http://bower.io/):
 ```
