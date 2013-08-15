@@ -2,7 +2,7 @@
 
 (function(angular) {
 
-angular.module( 'route-segment', [] ).provider( '$routeSegment', 
+angular.module( 'route-segment', [] ).provider( '$routeSegment',
         ['$routeProvider', function($routeProvider) {
     
     var $routeSegmentProvider = this;
