@@ -1,0 +1,4 @@
+[submodule "src"]
+	path = src
+	url = https://github.com/artch/angular-route-segment.git
+	branch = master
