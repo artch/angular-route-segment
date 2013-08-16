@@ -18,7 +18,7 @@ module.exports = function(grunt) {
         concat: {
             options: {
                 separator: ';',
-                banner: "/**\n * angular-route-segment <%=grunt.config('gitdescribe')[1]%>\n * https://angular-route-segment.com\n * @author Artem Chivchalov\n * @license MIT License http://opensource.org/licenses/MIT\n */\n"
+                banner: "/**\n * angular-route-segment <%=(grunt.config('gitdescribe') && grunt.config('gitdescribe')[1])%>\n * https://angular-route-segment.com\n * @author Artem Chivchalov\n * @license MIT License http://opensource.org/licenses/MIT\n */\n"
             },
             prod: {
                 src: ['src/**/*.js'],
@@ -60,5 +60,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-git-describe');
         
-    grunt.registerTask('default', ['git-describe:run', 'concat:prod', 'uglify']);
+    grunt.registerTask('default', ['concat:prod']);
+    grunt.registerTask('prod', ['git-describe:run', 'concat:prod', 'uglify']);
 };
