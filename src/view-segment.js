@@ -72,6 +72,11 @@
 
                         function update(segment) {
 
+                            if(isDefault) {
+                                isDefault = false;
+                                tElement.replaceWith(anchor);
+                            }
+
                             if(!segment) {
                                 clearContent();
                                 currentElement = tElement.clone();
@@ -79,11 +84,6 @@
                                 animate.enter( currentElement, null, anchor );
                                 $compile(currentElement, false, 499)($scope);
                                 return;
-                            }
-
-                            if(isDefault) {
-                                isDefault = false;
-                                tElement.replaceWith(anchor);
                             }
 
                             var locals = angular.extend({}, segment.locals),
