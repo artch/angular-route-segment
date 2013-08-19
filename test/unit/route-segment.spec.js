@@ -459,6 +459,53 @@ describe('route segment', function() {
                 $rootScope.$digest();
                 expect($routeSegment.name).not.toEqual('section3');
             }))
+
+            it('should not restore previous yet unresolved segment after new one is selected', inject(function($q) {
+
+                var defer = $q.defer();
+                resolve.param1 = function() { return defer.promise; };
+                $location.path('/3');
+                $rootScope.$digest();
+
+                $location.path('/1');
+
+                $rootScope.$digest();
+                expect($routeSegment.name).toEqual('section-first');
+
+                defer.resolve();
+
+                $rootScope.$digest();
+                expect(callback.calls.length).toBe(1);
+                expect($routeSegment.chain[0].name).toEqual('section-first');
+                expect($routeSegment.name).toEqual('section-first');
+            }))
+
+            it('should not restore previous yet unresolved segment after new one is selected in 2nd level',
+                inject(function($q) {
+
+                $location.path('/2/X');
+                $rootScope.$digest();
+
+                callback = jasmine.createSpy('event');
+                $rootScope.$on('routeSegmentChange', callback);
+                var defer = $q.defer();
+                resolve.param1 = function() { return defer.promise; };
+                $location.path('/3');
+                $rootScope.$digest();
+
+                $location.path('/2/X');
+
+                $rootScope.$digest();
+                expect($routeSegment.name).toEqual('section2.section21');
+
+                defer.resolve();
+
+                $rootScope.$digest();
+                expect(callback).not.toHaveBeenCalled();
+                expect($routeSegment.chain[0].name).toEqual('section2');
+                expect($routeSegment.chain[1].name).toEqual('section21');
+                expect($routeSegment.name).toEqual('section2.section21');
+            }))
         })
         
         describe('with `untilResolved`', function() {

@@ -160,6 +160,10 @@ function MainCtrl($scope, $routeSegment, loader) {
 
     $scope.$routeSegment = $routeSegment;
     $scope.loader = loader;
+
+    $scope.$on('routeSegmentChange', function() {
+        loader.show = false;
+    })
 }
 
 function Section1Ctrl($scope, $routeSegment, $routeParams) {

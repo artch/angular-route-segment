@@ -111,7 +111,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
             },
             
             /**
-             * Traverses to the root.             * 
+             * Traverses to the root.
              * @returns The root pointer.
              */
             root: function() {
@@ -181,7 +181,9 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                 }
         };    
         
-        var lastParams = angular.copy($routeParams);        
+        var lastParams = angular.copy($routeParams);
+
+        var resolvingSemaphoreChain = {};
         
         // When a route changes, all interested parties should be notified about new segment chain
         $rootScope.$on('$routeChangeSuccess', function(event, args) {
@@ -196,11 +198,13 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                 for(var i=0; i < segmentNameChain.length; i++) {
                     
                     var newSegment = getSegmentInChain( i, segmentNameChain );
-                    
-                    if(!$routeSegment.chain[i] || $routeSegment.chain[i].name != newSegment.name ||
-                            isDependenciesChanged(newSegment)) {
-                       
-                        updates.push(updateSegment(i, newSegment));
+
+                    if(resolvingSemaphoreChain[i] != newSegment.name || isDependenciesChanged(newSegment)) {
+                        /*if($routeSegment.chain[i] && $routeSegment.chain[i].name == newSegment.name &&
+                            !isDependenciesChanged(newSegment))
+                            resolvingSemaphoreChain[i] = newSegment.name;
+                        else */
+                            updates.push(updateSegment(i, newSegment));
                     }    
                 }
 
@@ -238,9 +242,12 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
             }
 
             if(!segment) {
+                resolvingSemaphoreChain[index] = null;
                 $rootScope.$broadcast( 'routeSegmentChange', { index: index, segment: null } );
                 return;
             }
+
+            resolvingSemaphoreChain[index] = segment.name;
             
             if(segment.params.untilResolved) {
                 return resolveAndBroadcast(index, segment.name, segment.params.untilResolved)
@@ -273,7 +280,10 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
             return $q.all(locals).then(
                     
                     function(resolvedLocals) {
-                        
+
+                        if(resolvingSemaphoreChain[index] != name)
+                            return $q.reject();
+
                         $routeSegment.chain[index] = {
                                 name: name,
                                 params: params,
