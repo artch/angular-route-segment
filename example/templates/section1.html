@@ -8,7 +8,7 @@
                 <li class="nav-header">Items</li>
                 
                 <li ng-repeat="i in items" 
-                    ng-class="{active: $routeSegment.startsWith('s1.itemInfo') && $routeParams.id == i}">
+                    ng-class="{active: $routeSegment.startsWith('s1.itemInfo') && $routeSegment.$routeParams.id == i}">
                     
                     <a ng-href="#/section1/{{i}}">Item {{i}}</a>
                     

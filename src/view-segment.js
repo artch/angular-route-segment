@@ -50,6 +50,9 @@
                         }
                         catch(e) {}
 
+                        if($routeSegment.chain[viewSegmentIndex])
+                            update($routeSegment.chain[viewSegmentIndex]);
+
                         // Watching for the specified route segment and updating contents
                         $scope.$on('routeSegmentChange', function(event, args) {
                             if(args.index == viewSegmentIndex)

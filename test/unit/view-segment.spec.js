@@ -161,6 +161,19 @@ describe('view-segment', function() {
         $rootScope.$digest();
         expect(elm.find('> div > div > h4').text()).toBe('Details item 2');
     }))
+
+    it('should populate a view initially, when location is already set before compiling', function() {
+        $location.path('/1');
+        $rootScope.$digest();
+
+        scope = $rootScope.$new();
+        elm = angular.element('<div class="container" app:view-segment="0"></div>');
+        $compile(elm)(scope);
+        scope.$digest();
+
+        expect(elm).toHaveClass('container');
+        expect(elm.find('> div > h4').text()).toMatch(/Section 1/);
+    })
     
      
 });  

@@ -1,5 +1,5 @@
 /**
- * angular-route-segment v1.0.3
+ * angular-route-segment v1.1.0
  * https://angular-route-segment.com
  * @author Artem Chivchalov
  * @license MIT License http://opensource.org/licenses/MIT
@@ -145,7 +145,15 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                  * Fully qualified name of current active route
                  * @type {string}
                  */
-                name: '',    
+                name: '',
+
+                /**
+                 * A copy of `$routeParams` in its state of the latest successful segment update. It may be not equal
+                 * to `$routeParams` while some resolving is not completed yet. Should be used instead of original
+                 * `$routeParams` in most cases.
+                 * @type {Object}
+                 */
+                $routeParams: angular.copy($routeParams),
                 
                 /**
                  * Array of segments splitted by each level separately. Each item contains the following properties:
@@ -180,8 +188,6 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                     return false;
                 }
         };    
-        
-        var lastParams = angular.copy($routeParams);
 
         var resolvingSemaphoreChain = {};
         
@@ -200,27 +206,37 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                     var newSegment = getSegmentInChain( i, segmentNameChain );
 
                     if(resolvingSemaphoreChain[i] != newSegment.name || isDependenciesChanged(newSegment)) {
-                        /*if($routeSegment.chain[i] && $routeSegment.chain[i].name == newSegment.name &&
+
+                        if($routeSegment.chain[i] && $routeSegment.chain[i].name == newSegment.name &&
                             !isDependenciesChanged(newSegment))
+                            // if we went back to the same state as we were before resolving new segment
                             resolvingSemaphoreChain[i] = newSegment.name;
-                        else */
+                        else
                             updates.push(updateSegment(i, newSegment));
                     }    
                 }
 
-                $q.all(updates).then(function() {
+                $q.all(updates).then(function(result) {
 
                     $routeSegment.name = segmentName;
+                    $routeSegment.$routeParams = angular.copy($routeParams);
+
+                    for(var i=0; i < result.length; i++) {
+                        if(result[i].success != undefined)
+                            broadcast(result[i].success);
+                    }
 
                     // Removing redundant segment in case if new segment chain is shorter than old one
                     if($routeSegment.chain.length > segmentNameChain.length) {
-                        for(var i=segmentNameChain.length; i < $routeSegment.chain.length; i++)
+                        var oldLength = $routeSegment.chain.length;
+                        var shortenBy = $routeSegment.chain.length - segmentNameChain.length;
+                        $routeSegment.chain.splice(-shortenBy, shortenBy);
+                        for(var i=segmentNameChain.length; i < oldLength; i++)
                             updateSegment(i, null);
-                        $routeSegment.chain.splice(-1, $routeSegment.chain.length - segmentNameChain.length);
                     }
                 });
                 
-                lastParams = angular.copy($routeParams);
+
             }
         });
         
@@ -229,7 +245,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
             var result = false;
             if(segment.params.dependencies)
                 angular.forEach(segment.params.dependencies, function(name) {
-                    if(!angular.equals(lastParams[name], $routeParams[name]))
+                    if(!angular.equals($routeSegment.$routeParams[name], $routeParams[name]))
                         result = true;
                 });
             return result;
@@ -243,23 +259,25 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
 
             if(!segment) {
                 resolvingSemaphoreChain[index] = null;
-                $rootScope.$broadcast( 'routeSegmentChange', { index: index, segment: null } );
+                broadcast(index);
                 return;
             }
 
             resolvingSemaphoreChain[index] = segment.name;
             
             if(segment.params.untilResolved) {
-                return resolveAndBroadcast(index, segment.name, segment.params.untilResolved)
-                    .then(function() {
-                        resolveAndBroadcast(index, segment.name, segment.params);
+                return resolve(index, segment.name, segment.params.untilResolved)
+                    .then(function(result) {
+                        if(result.success != undefined)
+                            broadcast(index);
+                        return resolve(index, segment.name, segment.params);
                     })
             }
             else
-                return resolveAndBroadcast(index, segment.name, segment.params);
+                return resolve(index, segment.name, segment.params);
         }
         
-        function resolveAndBroadcast(index, name, params) {
+        function resolve(index, name, params) {
             
             var locals = angular.extend({}, params.resolve);
             
@@ -289,7 +307,10 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                                 params: params,
                                 locals: resolvedLocals,
                                 reload: function() {
-                                    updateSegment(index, this);
+                                    updateSegment(index, this).then(function(result) {
+                                        if(result.success != undefined)
+                                            broadcast(index);
+                                    })
                                 }
                             };
 
@@ -316,22 +337,26 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                                     $routeSegment.chain[index].reload();
                                 })
                         }
-                        
-                        $rootScope.$broadcast( 'routeSegmentChange', {
-                            index: index,
-                            segment: $routeSegment.chain[index] } );
+
+                        return {success: index};
                     },
                     
                     function(error) {
                         
                         if(params.resolveFailed) {
                             var newResolve = {error: function() { return $q.when(error); }};
-                            resolveAndBroadcast(index, name, angular.extend({resolve: newResolve}, params.resolveFailed));                                            
+                            return resolve(index, name, angular.extend({resolve: newResolve}, params.resolveFailed));
                         }
                         else
                             throw new Error('Resolving failed with a reason `'+error+'`, but no `resolveFailed` ' +
                                             'provided for segment `'+name+'`');
                     })
+        }
+
+        function broadcast(index) {
+            $rootScope.$broadcast( 'routeSegmentChange', {
+                index: index,
+                segment: $routeSegment.chain[index] || null } );
         }
         
         function getSegmentInChain(segmentIdx, segmentNameChain) {
@@ -416,6 +441,9 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                             animate = $injector.get('$animate');
                         }
                         catch(e) {}
+
+                        if($routeSegment.chain[viewSegmentIndex])
+                            update($routeSegment.chain[viewSegmentIndex]);
 
                         // Watching for the specified route segment and updating contents
                         $scope.$on('routeSegmentChange', function(event, args) {

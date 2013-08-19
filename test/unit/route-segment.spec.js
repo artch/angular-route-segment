@@ -265,22 +265,30 @@ describe('route segment', function() {
                 name: 'section2', params: {test: 'B'}, locals: {}, reload: jasmine.any(Function)}});
             expect(callback.calls[1].args[1]).toEqual({index: 1, segment: {
                 name: 'details', params: {dependencies: ['id']}, locals: {}, reload: jasmine.any(Function)}});
+            expect($routeSegment.$routeParams.id).toBe('1');
+            expect($routeSegment.$routeParams.tab).toBe('info');
 
             callback = jasmine.createSpy('event');
             $rootScope.$on('routeSegmentChange', callback);
+
             $location.path('/2/details/1/edit');
 
             $rootScope.$digest();
             expect(callback).not.toHaveBeenCalled();
+            expect($routeSegment.$routeParams.id).toBe('1');
+            expect($routeSegment.$routeParams.tab).toBe('edit');
 
             callback = jasmine.createSpy('event');
             $rootScope.$on('routeSegmentChange', callback);
+
             $location.path('/2/details/2/edit');
 
             $rootScope.$digest();
             expect(callback.calls.length).toBe(1);
             expect(callback.calls[0].args[1]).toEqual({index: 1, segment: {
                 name: 'details', params: {dependencies: ['id']}, locals: {}, reload: jasmine.any(Function)}});
+            expect($routeSegment.$routeParams.id).toBe('2');
+            expect($routeSegment.$routeParams.tab).toBe('edit');
         })
 
         it('should update a segment by reload()', function() {
@@ -296,6 +304,17 @@ describe('route segment', function() {
             expect(callback.calls.length).toBe(2);
             expect(callback.calls[1].args[1].index).toBe(0);
             expect(callback.calls[1].args[1].segment.name).toBe('section2');
+        })
+
+        it('should shorten $routeSegment.chain.length from 3 to 1', function() {
+
+            $location.path('/2/1/bar');
+            $rootScope.$digest();
+
+            $location.path('/2');
+
+            $rootScope.$digest();
+            expect($routeSegment.chain.length).toBe(1);
         })
 
         describe('watcher', function() {

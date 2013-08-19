@@ -8,7 +8,7 @@
         <ul class="nav nav-pills">
             
             <li ng-repeat="i in items"
-                ng-class="{active: $routeParams.id==i}">
+                ng-class="{active: $routeSegment.$routeParams.id==i}">
                 
                 <a ng-href="#/section2/{{i}}">Item {{i}}</a>
                 

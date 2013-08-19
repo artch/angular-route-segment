@@ -127,7 +127,7 @@ Documentation
 
 Please note that you may read the [test specs](https://github.com/artch/angular-route-segment/tree/master/test/unit) to learn features usage.
 
-### $routeSegmentProvider ###
+### $routeSegmentProvider properties ###
 
 **options**
 
@@ -190,11 +190,16 @@ Traverses up in the tree.
  
 Traverses to the root.
  
-### $routeSegment ###
+### $routeSegment properties ###
  
 **name**
 
 Fully qualified name of current active route.
+
+**$routeParams**
+
+A copy of `$routeParams` in its state of the latest successful segment update. It may be not equal to `$routeParams`
+while some resolving is not completed yet. Should be used instead of original `$routeParams` in most cases.
 
 **chain**
 
