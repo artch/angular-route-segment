@@ -174,6 +174,26 @@ describe('view-segment', function() {
         expect(elm).toHaveClass('container');
         expect(elm.find('> div > h4').text()).toMatch(/Section 1/);
     })
+
+    it('should work with controllerAs syntax', function() {
+        $routeSegmentProvider.when('/3', 'section3');
+        $routeSegmentProvider.segment('section3', {
+            template: '<div></div>',
+            controller: function($scope) {},
+            controllerAs: 'ctrl'
+        })
+
+        scope = $rootScope.$new();
+        elm = angular.element('<div class="container" app:view-segment="0"></div>');
+        $compile(elm)(scope);
+        scope.$digest();
+
+        $location.path('/3');
+        $rootScope.$digest();
+
+        expect(elm.find('> div').scope().ctrl).toBeDefined();
+        expect(elm.find('> div').scope().ctrl).toBe(elm.find('> div').controller());
+    })
     
      
 });  

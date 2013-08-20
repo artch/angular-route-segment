@@ -498,6 +498,8 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                                 if (segment.params.controller) {
                                     locals.$scope = currentScope;
                                     controller = $controller(segment.params.controller, locals);
+                                    if(segment.params.controllerAs)
+                                        currentScope[segment.params.controllerAs] = controller;
                                     currentElement.data('$ngControllerController', controller);
                                     currentElement.children().data('$ngControllerController', controller);
                                 }

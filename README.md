@@ -168,6 +168,8 @@ Adds new segment at current pointer level.
     - `template` provides HTML for the given segment view;
     - `templateUrl` is a template which should be fetched from the network via this URL;
     - `controller` is attached to the given segment view when compiled and linked, this can be any controller definition AngularJS supports;
+    - `controllerAs` is a controller alias name, if present the controller will be published to scope under the
+    controllerAs name;
     - `dependencies` is an array of route param names which are forcing the view to recreate when changed;
     - `watcher` is a $watch-function for recreating the view when its returning value is changed;
     - `resolve` is a hash of functions or injectable names which should be resolved prior to instantiating the template and the controller;
