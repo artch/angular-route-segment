@@ -156,7 +156,7 @@ Section 1 contents.
 <p>Please note that you may read the <a href="https://github.com/artch/angular-route-segment/tree/master/test/unit">test specs</a> to learn features usage.</p>
 
 <h3>
-<a name="routesegmentprovider" class="anchor" href="#routesegmentprovider"><span class="octicon octicon-link"></span></a>$routeSegmentProvider</h3>
+<a name="routesegmentprovider-properties" class="anchor" href="#routesegmentprovider-properties"><span class="octicon octicon-link"></span></a>$routeSegmentProvider properties</h3>
 
 <p><strong>options</strong></p>
 
@@ -211,6 +211,9 @@ Section 1 contents.
 <li>
 <code>controller</code> is attached to the given segment view when compiled and linked, this can be any controller definition AngularJS supports;</li>
 <li>
+<code>controllerAs</code> is a controller alias name, if present the controller will be published to scope under the
+controllerAs name;</li>
+<li>
 <code>dependencies</code> is an array of route param names which are forcing the view to recreate when changed;</li>
 <li>
 <code>watcher</code> is a $watch-function for recreating the view when its returning value is changed;</li>
@@ -241,11 +244,16 @@ Section 1 contents.
 <p>Traverses to the root.</p>
 
 <h3>
-<a name="routesegment" class="anchor" href="#routesegment"><span class="octicon octicon-link"></span></a>$routeSegment</h3>
+<a name="routesegment-properties" class="anchor" href="#routesegment-properties"><span class="octicon octicon-link"></span></a>$routeSegment properties</h3>
 
 <p><strong>name</strong></p>
 
 <p>Fully qualified name of current active route.</p>
+
+<p><strong>$routeParams</strong></p>
+
+<p>A copy of <code>$routeParams</code> in its state of the latest successful segment update. It may be not equal to <code>$routeParams</code>
+while some resolving is not completed yet. Should be used instead of original <code>$routeParams</code> in most cases.</p>
 
 <p><strong>chain</strong></p>
 
