@@ -129,7 +129,7 @@ Please note that you may read the [test specs](https://github.com/artch/angular-
 
 ### $routeSegmentProvider properties ###
 
-**options**
+##### options
 
 A hash object which can be used to set up the service on config stage:
 
@@ -141,7 +141,7 @@ A hash object which can be used to set up the service on config stage:
 
     When true, all attempts to call `within` method on non-existing segments will throw an error (you would usually want this behavior in production). When false, it will transparently create new empty segment (can be useful in isolated tests).
 
-**when(route, name)**
+##### when(route, name)
 
 The shorthand for $routeProvider.when() method with specified fully qualified route name.
 
@@ -153,7 +153,7 @@ The shorthand for $routeProvider.when() method with specified fully qualified ro
     
     Fully qualified route name, e.g. `foo.bar`
 
-**segment(name, params)**
+##### segment(name, params)
 
 Adds new segment at current pointer level.
 
@@ -176,7 +176,7 @@ Adds new segment at current pointer level.
     - `untilResolved` is the alternate set of params (e.g. `template` and `controller`) which should be used before resolving is completed; 
     - `resolveFailed` is the alternate set of params which should be used if resolving failed.
     
-**within(childName)**
+##### within(childName)
 
 Traverses into an existing segment, so that subsequent `segment` calls will add new segments as its descendants.
              
@@ -184,26 +184,26 @@ Traverses into an existing segment, so that subsequent `segment` calls will add 
 
     An existing segment's name. An optional argument. If undefined, then the last added segment is selected.
     
-**up()**   
+##### up()
  
 Traverses up in the tree.
 
-**root()**   
+##### root()
  
 Traverses to the root.
  
 ### $routeSegment properties ###
  
-**name**
+##### name
 
 Fully qualified name of current active route.
 
-**$routeParams**
+##### $routeParams
 
 A copy of `$routeParams` in its state of the latest successful segment update. It may be not equal to `$routeParams`
 while some resolving is not completed yet. Should be used instead of original `$routeParams` in most cases.
 
-**chain**
+##### chain
 
 An array of segments splitted by each level separately. Each item contains the following properties:
 
@@ -212,11 +212,11 @@ An array of segments splitted by each level separately. Each item contains the f
 - `locals` is a hash which contains resolve results if any;
 - `reload` is a function to reload a segment (restart resolving, reinstantiate a controller, etc)
 
-**startsWith(val)**
+##### startsWith(val)
 
 Helper method for checking whether current route starts with the given string.
 
-**contains(val)**
+##### contains(val)
 
 Helper method for checking whether current route contains the given string.
 
