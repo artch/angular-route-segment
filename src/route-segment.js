@@ -194,6 +194,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                 var segmentName = route.segment;
                 var segmentNameChain = segmentName.split(".");
                 var updates = [];
+                var removes = [];
                 
                 for(var i=0; i < segmentNameChain.length; i++) {
                     
@@ -226,8 +227,13 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                         var shortenBy = $routeSegment.chain.length - segmentNameChain.length;
                         $routeSegment.chain.splice(-shortenBy, shortenBy);
                         for(var i=segmentNameChain.length; i < oldLength; i++)
-                            updateSegment(i, null);
+                            removes.push(updateSegment(i, null));
                     }
+
+                    $q.all(removes).then(function() {
+                        var newIndex = $routeSegment.chain.length - 1;
+                        $rootScope.$broadcast( 'routeSegmentChangesSuccess', { index: newIndex, segment: getSegmentInChain( newIndex, segmentNameChain ) } );
+                    });
                 });
                 
 
