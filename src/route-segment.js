@@ -230,9 +230,10 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                             removes.push(updateSegment(i, null));
                     }
 
-                    $q.all(removes).then(function() {
-                        var newIndex = $routeSegment.chain.length - 1;
-                        $rootScope.$broadcast( 'routeSegmentChangesSuccess', { index: newIndex, segment: getSegmentInChain( newIndex, segmentNameChain ) } );
+                    $q.all(removes).then(function(result) {
+                        if (updates.length > 0 || removes.length > 0) {
+                            broadcastSuccess($routeSegment.chain && $routeSegment.chain.length - 1)
+                        }
                     });
                 });
                 
@@ -296,7 +297,6 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                         });
                                      
             return $q.all(locals).then(
-                    
                     function(resolvedLocals) {
 
                         if(resolvingSemaphoreChain[index] != name)
@@ -308,8 +308,10 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                                 locals: resolvedLocals,
                                 reload: function() {
                                     updateSegment(index, this).then(function(result) {
-                                        if(result.success != undefined)
+                                        if(result.success != undefined) {
                                             broadcast(index);
+                                            broadcastSuccess(index);
+                                        }
                                     })
                                 }
                             };
@@ -355,6 +357,12 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
 
         function broadcast(index) {
             $rootScope.$broadcast( 'routeSegmentChange', {
+                index: index,
+                segment: $routeSegment.chain[index] || null } );
+        }
+
+        function broadcastSuccess(index) {
+            $rootScope.$broadcast( 'routeSegmentChangesSuccess', {
                 index: index,
                 segment: $routeSegment.chain[index] || null } );
         }
