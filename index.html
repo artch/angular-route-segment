@@ -54,11 +54,15 @@
 
 <p>This library is intended to provide the lacking functionality of nested routing to AngularJS applications. It is widely known, there are no ways to keep the page state unchanged when only a part of it should be updated via routing mechanics - the <code>$route</code> service re-creates the whole scope after a route is changed, losing its state completely. <strong>route-segment</strong> gives you a way to handle this.</p>
 
-<p>The library provides two pieces of code: <code>$routeSegment</code> service and <code>app-view-segment</code> directive.</p>
+<p>The library provides two pieces of code: <code>$routeSegment</code> service and <code>app-view-segment</code> directive. Both are placed in their own modules which you must include as dependencies in your app module:</p>
 
-<p><code>$routeSegment</code> is meant to be used instead of built-in Angular <code>$route</code> service. Its provider exposes configuration methods which can be used to traverse the tree of route segments and setup it properly:</p>
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">'app'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'ngRoute'</span><span class="p">,</span> <span class="s1">'route-segment'</span><span class="p">,</span> <span class="s1">'view-segment'</span><span class="p">]);</span>
+</pre></div>
 
-<div class="highlight"><pre><span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">'app'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'ngRoute'</span><span class="p">]).</span><span class="nx">config</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">$routeSegmentProvider</span><span class="p">)</span> <span class="p">{</span>
+<p><code>$routeSegment</code> is meant to be used instead of built-in Angular <code>$route</code> service. Its provider exposes configuration methods which can be used to traverse the tree of route segments and setup it properly.</p>
+
+<div class="highlight"><pre>
+<span class="nx">app</span><span class="p">.</span><span class="nx">config</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">$routeSegmentProvider</span><span class="p">)</span> <span class="p">{</span>
 
 <span class="nx">$routeSegmentProvider</span><span class="p">.</span>
 
@@ -117,7 +121,7 @@
     <span class="nx">dependencies</span><span class="o">:</span> <span class="p">[</span><span class="s1">'id'</span><span class="p">]});</span>
 </pre></div>
 
-<p>Then, any <code>app-view-segment</code> tags (which are similar to built-in <code>ng-view</code>) in the DOM will be populated with the corresponding route segment item. You must provide a segment index as an argument to this directive to make it aware about which segment in the tree it should be linked to.</p>
+<p>Then, any <code>app-view-segment</code> tags (which are similar to built-in <code>ng-view</code>) in the DOM will be populated with the corresponding route segment item. You must provide a segment index as an argument to this directive to make it aware about which segment level in the tree it should be linked to.</p>
 
 <p><strong>index.html:</strong></p>
 
@@ -158,7 +162,8 @@ Section 1 contents.
 <h3>
 <a name="routesegmentprovider-properties" class="anchor" href="#routesegmentprovider-properties"><span class="octicon octicon-link"></span></a>$routeSegmentProvider properties</h3>
 
-<p><strong>options</strong></p>
+<h5>
+<a name="options" class="anchor" href="#options"><span class="octicon octicon-link"></span></a>options</h5>
 
 <p>A hash object which can be used to set up the service on config stage:</p>
 
@@ -173,7 +178,8 @@ Section 1 contents.
 
 <p>When true, all attempts to call <code>within</code> method on non-existing segments will throw an error (you would usually want this behavior in production). When false, it will transparently create new empty segment (can be useful in isolated tests).</p>
 </li>
-</ul><p><strong>when(route, name)</strong></p>
+</ul><h5>
+<a name="whenroute-name" class="anchor" href="#whenroute-name"><span class="octicon octicon-link"></span></a>when(route, name)</h5>
 
 <p>The shorthand for $routeProvider.when() method with specified fully qualified route name.</p>
 
@@ -188,7 +194,8 @@ Section 1 contents.
 
 <p>Fully qualified route name, e.g. <code>foo.bar</code></p>
 </li>
-</ul><p><strong>segment(name, params)</strong></p>
+</ul><h5>
+<a name="segmentname-params" class="anchor" href="#segmentname-params"><span class="octicon octicon-link"></span></a>segment(name, params)</h5>
 
 <p>Adds new segment at current pointer level.</p>
 
@@ -225,7 +232,8 @@ controllerAs name;</li>
 <code>resolveFailed</code> is the alternate set of params which should be used if resolving failed.</li>
 </ul>
 </li>
-</ul><p><strong>within(childName)</strong></p>
+</ul><h5>
+<a name="withinchildname" class="anchor" href="#withinchildname"><span class="octicon octicon-link"></span></a>within(childName)</h5>
 
 <p>Traverses into an existing segment, so that subsequent <code>segment</code> calls will add new segments as its descendants.</p>
 
@@ -235,27 +243,32 @@ controllerAs name;</li>
 
 <p>An existing segment's name. An optional argument. If undefined, then the last added segment is selected.</p>
 </li>
-</ul><p><strong>up()</strong>   </p>
+</ul><h5>
+<a name="up" class="anchor" href="#up"><span class="octicon octicon-link"></span></a>up()</h5>
 
 <p>Traverses up in the tree.</p>
 
-<p><strong>root()</strong>   </p>
+<h5>
+<a name="root" class="anchor" href="#root"><span class="octicon octicon-link"></span></a>root()</h5>
 
 <p>Traverses to the root.</p>
 
 <h3>
 <a name="routesegment-properties" class="anchor" href="#routesegment-properties"><span class="octicon octicon-link"></span></a>$routeSegment properties</h3>
 
-<p><strong>name</strong></p>
+<h5>
+<a name="name" class="anchor" href="#name"><span class="octicon octicon-link"></span></a>name</h5>
 
 <p>Fully qualified name of current active route.</p>
 
-<p><strong>$routeParams</strong></p>
+<h5>
+<a name="routeparams" class="anchor" href="#routeparams"><span class="octicon octicon-link"></span></a>$routeParams</h5>
 
 <p>A copy of <code>$routeParams</code> in its state of the latest successful segment update. It may be not equal to <code>$routeParams</code>
 while some resolving is not completed yet. Should be used instead of original <code>$routeParams</code> in most cases.</p>
 
-<p><strong>chain</strong></p>
+<h5>
+<a name="chain" class="anchor" href="#chain"><span class="octicon octicon-link"></span></a>chain</h5>
 
 <p>An array of segments splitted by each level separately. Each item contains the following properties:</p>
 
@@ -268,11 +281,13 @@ while some resolving is not completed yet. Should be used instead of original <c
 <code>locals</code> is a hash which contains resolve results if any;</li>
 <li>
 <code>reload</code> is a function to reload a segment (restart resolving, reinstantiate a controller, etc)</li>
-</ul><p><strong>startsWith(val)</strong></p>
+</ul><h5>
+<a name="startswithval" class="anchor" href="#startswithval"><span class="octicon octicon-link"></span></a>startsWith(val)</h5>
 
 <p>Helper method for checking whether current route starts with the given string.</p>
 
-<p><strong>contains(val)</strong></p>
+<h5>
+<a name="containsval" class="anchor" href="#containsval"><span class="octicon octicon-link"></span></a>contains(val)</h5>
 
 <p>Helper method for checking whether current route contains the given string.</p>
 
