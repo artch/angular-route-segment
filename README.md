@@ -24,12 +24,17 @@ Overview
 
 This library is intended to provide the lacking functionality of nested routing to AngularJS applications. It is widely known, there are no ways to keep the page state unchanged when only a part of it should be updated via routing mechanics - the `$route` service re-creates the whole scope after a route is changed, losing its state completely. **route-segment** gives you a way to handle this.
 
-The library provides two pieces of code: `$routeSegment` service and `app-view-segment` directive.
-
-`$routeSegment` is meant to be used instead of built-in Angular `$route` service. Its provider exposes configuration methods which can be used to traverse the tree of route segments and setup it properly:
+The library provides two pieces of code: `$routeSegment` service and `app-view-segment` directive. Both are placed in their own modules which you must include as dependencies in your app module:
 
 ```javascript
-angular.module('app', ['ngRoute']).config(function ($routeSegmentProvider) {
+var app = angular.module('app', ['ngRoute', 'route-segment', 'view-segment']);
+```
+
+`$routeSegment` is meant to be used instead of built-in Angular `$route` service. Its provider exposes configuration methods which can be used to traverse the tree of route segments and setup it properly.
+
+```javascript
+
+app.config(function ($routeSegmentProvider) {
 
 $routeSegmentProvider.
 
@@ -89,7 +94,7 @@ $routeSegmentProvider.within('s1').segment('itemInfo', {
     dependencies: ['id']});
 ```
 
-Then, any `app-view-segment` tags (which are similar to built-in `ng-view`) in the DOM will be populated with the corresponding route segment item. You must provide a segment index as an argument to this directive to make it aware about which segment in the tree it should be linked to.
+Then, any `app-view-segment` tags (which are similar to built-in `ng-view`) in the DOM will be populated with the corresponding route segment item. You must provide a segment index as an argument to this directive to make it aware about which segment level in the tree it should be linked to.
 
 **index.html:**
 ```html
