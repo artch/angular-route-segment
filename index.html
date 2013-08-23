@@ -119,6 +119,9 @@
     <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/item.html'</span><span class="p">,</span>
     <span class="nx">controller</span><span class="o">:</span> <span class="nx">Section1ItemCtrl</span><span class="p">,</span>
     <span class="nx">dependencies</span><span class="o">:</span> <span class="p">[</span><span class="s1">'id'</span><span class="p">]});</span>
+
+<span class="nx">$routeSegmentProvider</span><span class="p">.</span><span class="nx">within</span><span class="p">(</span><span class="s1">'s1'</span><span class="p">).</span><span class="nx">within</span><span class="p">(</span><span class="s1">'itemInfo'</span><span class="p">).</span><span class="nx">segment</span><span class="p">(</span><span class="s1">'overview'</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/item/overview.html'</span><span class="p">});</span>
 </pre></div>
 
 <p>Then, any <code>app-view-segment</code> tags (which are similar to built-in <code>ng-view</code>) in the DOM will be populated with the corresponding route segment item. You must provide a segment index as an argument to this directive to make it aware about which segment level in the tree it should be linked to.</p>
