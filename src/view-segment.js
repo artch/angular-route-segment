@@ -1,20 +1,9 @@
 'use strict';
 
 /**
- * The directive app:view is more powerful replacement of built-in ng:view. It allows views to be nested, where each
- * following view in the chain corresponds to the next route segment (see $routeSegment service).
- *
- * Sample:
- * <div>
- *     <h4>Section</h4>
- *     <div app:view>Nothing selected</div>
- * </div>
- *
- * Initial contents of an element with app:view will display if corresponding route segment doesn't exist.
- *
- * View resolving are depends on route segment params:
- * - `template` define contents of the view
- * - `controller` is attached to view contents when compiled and linked
+ * appViewSegment directive
+ * It is based on ngView directive code: 
+ * https://github.com/angular/angular.js/blob/master/src/ngRoute/directive/ngView.js
  */
 
 (function(angular) {
