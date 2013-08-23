@@ -92,6 +92,9 @@ $routeSegmentProvider.within('s1').segment('itemInfo', {
     templateUrl: 'templates/section1/item.html',
     controller: Section1ItemCtrl,
     dependencies: ['id']});
+    
+$routeSegmentProvider.within('s1').within('itemInfo').segment('overview', {
+    templateUrl: 'templates/section1/item/overview.html'});
 ```
 
 Then, any `app-view-segment` tags (which are similar to built-in `ng-view`) in the DOM will be populated with the corresponding route segment item. You must provide a segment index as an argument to this directive to make it aware about which segment level in the tree it should be linked to.
