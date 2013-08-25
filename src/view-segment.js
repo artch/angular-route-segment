@@ -24,7 +24,7 @@
 
                     return function($scope) {
 
-                        var currentScope, currentElement, onloadExp = tAttrs.onload || '', animate,
+                        var currentScope, currentElement, currentSegment, onloadExp = tAttrs.onload || '', animate,
                         viewSegmentIndex = parseInt(tAttrs.appViewSegment);
 
                         try {
@@ -44,7 +44,7 @@
 
                         // Watching for the specified route segment and updating contents
                         $scope.$on('routeSegmentChange', function(event, args) {
-                            if(args.index == viewSegmentIndex)
+                            if(args.index == viewSegmentIndex && currentSegment != args.segment)
                                 update(args.segment);
                         });
 
@@ -63,6 +63,8 @@
 
 
                         function update(segment) {
+
+                            currentSegment = segment;
 
                             if(isDefault) {
                                 isDefault = false;

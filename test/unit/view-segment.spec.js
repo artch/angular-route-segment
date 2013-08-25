@@ -194,6 +194,42 @@ describe('view-segment', function() {
         expect(elm.find('> div').scope().ctrl).toBeDefined();
         expect(elm.find('> div').scope().ctrl).toBe(elm.find('> div').controller());
     })
+
+    it('should call the controller of a sub-segment only once', inject(function() {
+
+        var spy = jasmine.createSpy('controller');
+
+        $routeSegmentProvider.when('/3', 'section3.section31');
+        $routeSegmentProvider.segment('section3', {
+            template: '<div app:view-segment="1"></div>'
+        }).within().segment('section31', {
+            template: '<div></div>',
+            controller: spy
+        })
+
+        $location.path('/3');
+
+        $rootScope.$digest();
+        expect(spy.calls.length).toBe(1);
+    }))
+
+    it('should call the controller twice after reload', inject(function() {
+
+        var spy = jasmine.createSpy('controller');
+
+        $routeSegmentProvider.when('/3', 'section3');
+        $routeSegmentProvider.segment('section3', {
+            template: '<div></div>',
+            controller: spy
+        });
+        $location.path('/3');
+        $rootScope.$digest();
+
+        $routeSegment.chain[0].reload();
+
+        $rootScope.$digest();
+        expect(spy.calls.length).toBe(2);
+    }))
     
      
 });  
