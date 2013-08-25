@@ -5,7 +5,7 @@ describe('route segment', function() {
     beforeEach(module('route-segment'));
         
     var $routeSegment, $routeSegmentProvider, $rootScope, $httpBackend, $location, $provide;
-    var callback;
+    var callback, callbackSuccess, initCallbacks;
     
     beforeEach(module(function(_$routeSegmentProvider_, _$provide_) {
         
@@ -44,7 +44,15 @@ describe('route segment', function() {
         $routeSegmentProvider.options.autoLoadTemplates = false;    // We don't want to perform any XHRs here
         $routeSegmentProvider.options.strictMode = true;
     }))
-    
+
+    initCallbacks = function() {
+        callback = jasmine.createSpy('callback');
+        $rootScope.$on('routeSegmentChange', callback);
+
+        callbackSuccess = jasmine.createSpy('callbackSuccess');
+        $rootScope.$on('routeSegmentChangesSuccess', callbackSuccess);
+    };
+
     beforeEach(function() {
         inject(function(_$routeSegment_, _$rootScope_, _$httpBackend_, _$location_) {    
             $routeSegment = _$routeSegment_;
@@ -53,9 +61,8 @@ describe('route segment', function() {
             $location = _$location_;
         });
         
-        callback = jasmine.createSpy('callback');
-        $rootScope.$on('routeSegmentChange', callback); 
-    });    
+        initCallbacks();
+    });
 
     it('creating segments hash', function() {
         
@@ -111,6 +118,8 @@ describe('route segment', function() {
             expect(callback.calls.length).toBe(1);
             expect(callback.calls[0].args[1]).toEqual({index: 0, segment: {
                 name: 'section-first', params: {test: 'A'}, locals: {}, reload: jasmine.any(Function)}});
+            expect(callbackSuccess.calls.length).toBe(1);
+            expect(callbackSuccess.calls[0].args[1]).toEqual(callback.calls[0].args[1]);
         });
 
         it('second level', function () {
@@ -122,6 +131,8 @@ describe('route segment', function() {
                 name: 'section2', params: {test: 'B'}, locals: {}, reload: jasmine.any(Function)}});
             expect(callback.calls[1].args[1]).toEqual({index: 1, segment: {
                 name: 'section21', params: {test: 'C'}, locals: {}, reload: jasmine.any(Function)}});
+            expect(callbackSuccess.calls.length).toBe(1);
+            expect(callbackSuccess.calls[0].args[1]).toEqual(callback.calls[1].args[1]);
         });
 
         it('second level segment with first level url', function () {
@@ -133,6 +144,8 @@ describe('route segment', function() {
                 name: 'section2', params: {test: 'B'}, locals: {}, reload: jasmine.any(Function)}});
             expect(callback.calls[1].args[1]).toEqual({index: 1, segment: {
                 name: 'section22', params: {test: 'D'}, locals: {}, reload: jasmine.any(Function)}});
+            expect(callbackSuccess.calls.length).toBe(1);
+            expect(callbackSuccess.calls[0].args[1]).toEqual(callback.calls[1].args[1]);
         });
 
         it('third level', function () {
@@ -146,12 +159,15 @@ describe('route segment', function() {
                 name: 'section21', params: {test: 'C'}, locals: {}, reload: jasmine.any(Function)}});
             expect(callback.calls[2].args[1]).toEqual({index: 2, segment: {
                 name: 'section211', params: {test: 'E'}, locals: {}, reload: jasmine.any(Function)}});
+            expect(callbackSuccess.calls.length).toBe(1);
+            expect(callbackSuccess.calls[0].args[1]).toEqual(callback.calls[2].args[1]);
         });
 
         it('a route with no segment', function () {
             $rootScope.$broadcast('$routeChangeSuccess', {$$route: {}});
             $rootScope.$digest();
             expect(callback).not.toHaveBeenCalled();
+            expect(callbackSuccess).not.toHaveBeenCalled();
         });
 
         it('should throw an error when invalid section', function () {
@@ -179,6 +195,7 @@ describe('route segment', function() {
             $rootScope.$digest();
             $httpBackend.flush();
             expect(callback.calls[0].args[1].segment.locals.$template).toEqual('TEST');
+            expect(callbackSuccess.calls[0].args[1].segment.locals.$template).toEqual('TEST');
         });
 
         it('`startsWith` should work', function () {
@@ -207,8 +224,7 @@ describe('route segment', function() {
             $location.path('/2');
             $rootScope.$digest();
 
-            callback = jasmine.createSpy('event');
-            $rootScope.$on('routeSegmentChange', callback);
+            initCallbacks();
 
             $location.path('/2/X');
 
@@ -216,6 +232,8 @@ describe('route segment', function() {
             expect(callback.calls.length).toBe(1);
             expect(callback.calls[0].args[1]).toEqual({index: 1, segment: {
                 name: 'section21', params: {test: 'C'}, locals: {}, reload: jasmine.any(Function)}});
+            expect(callbackSuccess.calls.length).toBe(1);
+            expect(callbackSuccess.calls[0].args[1]).toEqual(callback.calls[0].args[1]);
         })
 
         it('should go up to parent after going to a child, sending null for previously loaded child segment', function () {
@@ -223,14 +241,15 @@ describe('route segment', function() {
             $location.path('/2/X');
 
             $rootScope.$digest();
-            callback = jasmine.createSpy('event');
-            $rootScope.$on('routeSegmentChange', callback);
+            initCallbacks();
 
             $location.path('/2');
 
             $rootScope.$digest();
             expect(callback.calls.length).toBe(1);
             expect(callback.calls[0].args[1]).toEqual({index: 1, segment: null});
+            expect(callbackSuccess.calls.length).toBe(1);
+            expect(callbackSuccess.calls[0].args[1].segment.name).toBe('section2');
             expect($routeSegment.chain.length).toBe(1);
             expect($routeSegment.chain[0].name).toBe('section2');
         })
@@ -240,8 +259,7 @@ describe('route segment', function() {
             $location.path('/2/X');
             $rootScope.$digest();
 
-            callback = jasmine.createSpy('callback');
-            $rootScope.$on('routeSegmentChange', callback);
+            initCallbacks();
 
             $location.path('/1');
 
@@ -250,6 +268,8 @@ describe('route segment', function() {
             expect(callback.calls.length).toBe(2);
             expect(callback.calls[0].args[1].segment.name).toBe('section-first');
             expect(callback.calls[1].args[1].segment).toBe(null);
+            expect(callbackSuccess.calls.length).toBe(1);
+            expect(callbackSuccess.calls[0].args[1].segment.name).toBe('section-first');
         })
 
         it('should update when dependencies are changed', function () {
@@ -265,21 +285,22 @@ describe('route segment', function() {
                 name: 'section2', params: {test: 'B'}, locals: {}, reload: jasmine.any(Function)}});
             expect(callback.calls[1].args[1]).toEqual({index: 1, segment: {
                 name: 'details', params: {dependencies: ['id']}, locals: {}, reload: jasmine.any(Function)}});
+            expect(callbackSuccess.calls.length).toBe(1);
+            expect(callbackSuccess.calls[0].args[1]).toEqual(callback.calls[1].args[1]);
             expect($routeSegment.$routeParams.id).toBe('1');
             expect($routeSegment.$routeParams.tab).toBe('info');
 
-            callback = jasmine.createSpy('event');
-            $rootScope.$on('routeSegmentChange', callback);
+            initCallbacks();
 
             $location.path('/2/details/1/edit');
 
             $rootScope.$digest();
             expect(callback).not.toHaveBeenCalled();
+            expect(callbackSuccess).not.toHaveBeenCalled();
             expect($routeSegment.$routeParams.id).toBe('1');
             expect($routeSegment.$routeParams.tab).toBe('edit');
 
-            callback = jasmine.createSpy('event');
-            $rootScope.$on('routeSegmentChange', callback);
+            initCallbacks();
 
             $location.path('/2/details/2/edit');
 
@@ -287,6 +308,8 @@ describe('route segment', function() {
             expect(callback.calls.length).toBe(1);
             expect(callback.calls[0].args[1]).toEqual({index: 1, segment: {
                 name: 'details', params: {dependencies: ['id']}, locals: {}, reload: jasmine.any(Function)}});
+            expect(callbackSuccess.calls.length).toBe(1);
+            expect(callbackSuccess.calls[0].args[1]).toEqual(callback.calls[0].args[1]);
             expect($routeSegment.$routeParams.id).toBe('2');
             expect($routeSegment.$routeParams.tab).toBe('edit');
         })
@@ -297,6 +320,7 @@ describe('route segment', function() {
 
             $rootScope.$digest();
             expect(callback.calls.length).toBe(1);
+            expect(callbackSuccess.calls.length).toBe(1);
 
             $routeSegment.chain[0].reload();
 
@@ -304,6 +328,9 @@ describe('route segment', function() {
             expect(callback.calls.length).toBe(2);
             expect(callback.calls[1].args[1].index).toBe(0);
             expect(callback.calls[1].args[1].segment.name).toBe('section2');
+            expect(callbackSuccess.calls.length).toBe(2);
+            expect(callbackSuccess.calls[1].args[1].index).toBe(0);
+            expect(callbackSuccess.calls[1].args[1].segment.name).toBe('section2');
         })
 
         it('should shorten $routeSegment.chain.length from 3 to 1', function() {
@@ -337,11 +364,13 @@ describe('route segment', function() {
 
                 $rootScope.$digest();
                 expect(callback.calls.length).toBe(1);
+                expect(callbackSuccess.calls.length).toBe(1);
 
                 watchedObj.value = 1;
 
                 $rootScope.$digest();
                 expect(callback.calls.length).toBe(2);
+                expect(callbackSuccess.calls.length).toBe(2);
 
             })
 
@@ -372,16 +401,19 @@ describe('route segment', function() {
 
                 $rootScope.$digest();
                 expect(callback.calls.length).toBe(1);
+                expect(callbackSuccess.calls.length).toBe(1);
 
                 $location.path('/2');
 
                 $rootScope.$digest();
                 expect(callback.calls.length).toBe(2);
+                expect(callbackSuccess.calls.length).toBe(2);
 
                 watchedObj.value = 1;
 
                 $rootScope.$digest();
                 expect(callback.calls.length).toBe(2);
+                expect(callbackSuccess.calls.length).toBe(2);
             })
 
         })
@@ -409,14 +441,17 @@ describe('route segment', function() {
                 
                 $location.path('/3');
                 
-                $rootScope.$digest();            
+                $rootScope.$digest();
                 expect(callback).not.toHaveBeenCalled();
+                expect(callbackSuccess).not.toHaveBeenCalled();
                 
                 defer.resolve();
                 
                 $rootScope.$digest();
                 expect(callback).toHaveBeenCalled();
-                expect(callback.calls[0].args[1].segment.name).toBe('section3');     
+                expect(callback.calls[0].args[1].segment.name).toBe('section3');
+                expect(callbackSuccess).toHaveBeenCalled();
+                expect(callbackSuccess.calls[0].args[1].segment.name).toBe('section3');
             }))
             
             it('should resolve a param as an injectable by its string name', inject(function($q) {
@@ -431,12 +466,15 @@ describe('route segment', function() {
                 
                 $rootScope.$digest();            
                 expect(callback).not.toHaveBeenCalled();
+                expect(callbackSuccess).not.toHaveBeenCalled();
                 
                 defer.resolve();
                 
                 $rootScope.$digest();            
                 expect(callback).toHaveBeenCalled();
-                expect(callback.calls[0].args[1].segment.name).toBe('section3');   
+                expect(callback.calls[0].args[1].segment.name).toBe('section3');
+                expect(callbackSuccess).toHaveBeenCalled();
+                expect(callbackSuccess.calls[0].args[1].segment.name).toBe('section3');
             }))
             
             it('should receive two resolved values in locals', inject(function($q) {
@@ -450,12 +488,15 @@ describe('route segment', function() {
                 
                 $rootScope.$digest();
                 expect(callback).not.toHaveBeenCalled();
+                expect(callbackSuccess).not.toHaveBeenCalled();
                 
                 defer2.resolve('TEST2');
                 
                 $rootScope.$digest();            
                 expect(callback.calls[0].args[1].segment.locals.param1).toBe('TEST1');
                 expect(callback.calls[0].args[1].segment.locals.param2).toBe('TEST2');
+                expect(callbackSuccess.calls[0].args[1].segment.locals.param1).toBe('TEST1');
+                expect(callbackSuccess.calls[0].args[1].segment.locals.param2).toBe('TEST2');
             }))
             
             it('should throw an error if a promise is rejected but no `resolveFailed` provided', inject(function($q) {
@@ -495,6 +536,7 @@ describe('route segment', function() {
 
                 $rootScope.$digest();
                 expect(callback.calls.length).toBe(1);
+                expect(callbackSuccess.calls.length).toBe(1);
                 expect($routeSegment.chain[0].name).toEqual('section-first');
                 expect($routeSegment.name).toEqual('section-first');
             }))
@@ -505,8 +547,8 @@ describe('route segment', function() {
                 $location.path('/2/X');
                 $rootScope.$digest();
 
-                callback = jasmine.createSpy('event');
-                $rootScope.$on('routeSegmentChange', callback);
+                initCallbacks();
+
                 var defer = $q.defer();
                 resolve.param1 = function() { return defer.promise; };
                 $location.path('/3');
@@ -521,6 +563,7 @@ describe('route segment', function() {
 
                 $rootScope.$digest();
                 expect(callback).not.toHaveBeenCalled();
+                expect(callbackSuccess).not.toHaveBeenCalled();
                 expect($routeSegment.chain[0].name).toEqual('section2');
                 expect($routeSegment.chain[1].name).toEqual('section21');
                 expect($routeSegment.name).toEqual('section2.section21');
@@ -547,12 +590,15 @@ describe('route segment', function() {
                 $rootScope.$digest();            
                 expect(callback.calls.length).toBe(1);
                 expect(callback.calls[0].args[1].segment.params.stage).toBe('BEFORE');
+                expect(callbackSuccess).not.toHaveBeenCalled();
                 
                 defer.resolve();
                 
                 $rootScope.$digest();
                 expect(callback.calls.length).toBe(2);
-                expect(callback.calls[1].args[1].segment.params.stage).toBe('AFTER');     
+                expect(callback.calls[1].args[1].segment.params.stage).toBe('AFTER');
+                expect(callbackSuccess.calls.length).toBe(1);
+                expect(callbackSuccess.calls[0].args[1].segment.params.stage).toBe('AFTER');
             }))
             
         })
@@ -570,12 +616,13 @@ describe('route segment', function() {
             it('should use resolveFailed set of params if a promise is rejected', inject(function($q) {
               
                 resolve.param1 = function() { return $q.reject('foo'); }
-                
                 $location.path('/3');
                 
                 $rootScope.$digest();
                 expect(callback.calls[0].args[1].segment.params.stage).toBe('ERROR');
                 expect(callback.calls[0].args[1].segment.locals.error).toEqual('foo');
+                expect(callbackSuccess.calls[0].args[1].segment.params.stage).toBe('ERROR');
+                expect(callbackSuccess.calls[0].args[1].segment.locals.error).toEqual('foo');
             }))
             
             it('should auto-fetch failing templateUrl if resolving is failed', inject(function($q) {
@@ -592,8 +639,9 @@ describe('route segment', function() {
                 
                 $rootScope.$digest();
                 $httpBackend.flush();
-                expect(callback.calls[0].args[1].segment.locals.error).toEqual('foo');                
+                expect(callback.calls[0].args[1].segment.locals.error).toEqual('foo');
                 expect(callback.calls[0].args[1].segment.locals.$template).toEqual('TEST');
+                expect(callbackSuccess.calls[0].args[1]).toEqual(callback.calls[0].args[1]);
             }))
 
             it('should use `resolveFailed` set of params if templateUrl does not exist', function() {
@@ -610,6 +658,7 @@ describe('route segment', function() {
                 $rootScope.$digest();
                 $httpBackend.flush();
                 expect(callback.calls[0].args[1].segment.params.stage).toBe('ERROR');
+                expect(callbackSuccess.calls[0].args[1].segment.params.stage).toBe('ERROR');
             })
         })
     })
