@@ -89,6 +89,7 @@ app.config(function($routeSegmentProvider, $routeProvider) {
         .when('/invalid-data', 's1.invalidData')
         .when('/slow-data', 's1.slowDataSimple')
         .when('/slow-data-loading', 's1.slowDataLoading')
+        .when('/inline-view', 's1.inlineParent.inlineChildren')
         .when('/section1/:id/slow',    's1.itemInfo.tabSlow')
         
         .within('s1')
@@ -133,6 +134,23 @@ app.config(function($routeSegmentProvider, $routeProvider) {
                     templateUrl: 'templates/loading.html'
                 }
             })
+            .segment('inlineParent', {
+                templateUrl: 'templates/section1/inline-view.html'
+            })
+            .within()
+                .segment('inlineChildren', {
+                    // no template here
+                    controller: 'SlowDataCtrl',
+                    resolve: {
+                        data: function($timeout) {
+                            return $timeout(function() { return 'SLOW DATA CONTENT'; }, 2000);
+                        }
+                    },
+                    untilResolved: {
+                        templateUrl: 'templates/loading.html'
+                    }
+                })
+                .up()
 
             .within('itemInfo')
                 .segment('tabSlow', {
