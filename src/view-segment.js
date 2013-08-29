@@ -83,32 +83,27 @@
                             var locals = angular.extend({}, segment.locals),
                             template = locals && locals.$template;
 
-                            if (template) {
+                            clearContent();
 
-                                clearContent();
+                            currentElement = tElement.clone();
+                            currentElement.html(template ? template : defaultContent);
+                            animate.enter( currentElement, null, anchor );
 
-                                currentElement = tElement.clone();
-                                currentElement.html(template);
-                                animate.enter( currentElement, null, anchor );
+                            var link = $compile(currentElement, false, 499), controller;
 
-                                var link = $compile(currentElement, false, 499), controller;
-
-                                currentScope = $scope.$new();
-                                if (segment.params.controller) {
-                                    locals.$scope = currentScope;
-                                    controller = $controller(segment.params.controller, locals);
-                                    if(segment.params.controllerAs)
-                                        currentScope[segment.params.controllerAs] = controller;
-                                    currentElement.data('$ngControllerController', controller);
-                                    currentElement.children().data('$ngControllerController', controller);
-                                }
-
-                                link(currentScope);
-                                currentScope.$emit('$viewContentLoaded');
-                                currentScope.$eval(onloadExp);
-                            } else {
-                                clearContent();
+                            currentScope = $scope.$new();
+                            if (segment.params.controller) {
+                                locals.$scope = currentScope;
+                                controller = $controller(segment.params.controller, locals);
+                                if(segment.params.controllerAs)
+                                    currentScope[segment.params.controllerAs] = controller;
+                                currentElement.data('$ngControllerController', controller);
+                                currentElement.children().data('$ngControllerController', controller);
                             }
+
+                            link(currentScope);
+                            currentScope.$emit('$viewContentLoaded');
+                            currentScope.$eval(onloadExp);
                         }
                     }
                 }

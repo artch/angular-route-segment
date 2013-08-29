@@ -230,6 +230,66 @@ describe('view-segment', function() {
         $rootScope.$digest();
         expect(spy.calls.length).toBe(2);
     }))
+
+    describe('a view with empty template', function() {
+
+        beforeEach(function() {
+
+            $rootScope.foo = 'INIT';
+
+            $routeSegmentProvider.when('/3', 'section3');
+            $routeSegmentProvider.when('/3/1/:id', 'section3.section31');
+            $routeSegmentProvider.segment('section3', {
+                template: '<div app:view-segment="1"><div>{{foo}}</div></div>'
+            })
+            $routeSegmentProvider.within('section3').segment('section31', {
+                // no template
+                controller: function($scope) {
+                    $scope.foo = 'CONTROLLER OVERRIDDEN '+$routeSegment.$routeParams.id;
+                },
+                dependencies: ['id']
+            });
+        })
+
+        it('should work with tag\'s content', function() {
+
+            $location.path('/3');
+
+            $rootScope.$digest();
+            expect(elm.find('> div').text()).toBe('INIT');
+
+            $location.path('/3/1/1');
+
+            $rootScope.$digest();
+            expect(elm.find('> div').text()).toBe('CONTROLLER OVERRIDDEN 1');
+
+            $location.path('/3/1/2');
+
+            $rootScope.$digest();
+            expect(elm.find('> div').text()).toBe('CONTROLLER OVERRIDDEN 2');
+        })
+
+        it('should reload', function() {
+
+            $location.path('/3/1/1');
+
+            $rootScope.$digest();
+            expect(elm.find('> div').text()).toBe('CONTROLLER OVERRIDDEN 1');
+
+            elm.find('> div > div').scope().foo = 'DIRTY';
+
+            $rootScope.$digest();
+            expect(elm.find('> div').text()).toBe('DIRTY');
+
+            $routeSegment.chain[1].reload();
+
+            $rootScope.$digest();
+            expect(elm.find('> div').text()).toBe('CONTROLLER OVERRIDDEN 1');
+        })
+
+    })
+
+
     
      
 });  
