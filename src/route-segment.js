@@ -206,19 +206,30 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                             // if we went back to the same state as we were before resolving new segment
                             resolvingSemaphoreChain[i] = newSegment.name;
                         else
-                            updates.push(updateSegment(i, newSegment));
+                            updates.push({index: i, newSegment: newSegment});
                     }    
                 }
 
-                $q.all(updates).then(function(result) {
+                var curSegmentPromise = $q.when();
 
-                    $routeSegment.name = segmentName;
-                    $routeSegment.$routeParams = angular.copy($routeParams);
+                if(updates.length > 0) {
+                    for(var i=0; i<updates.length; i++) {
+                        (function(i) {
+                            curSegmentPromise = curSegmentPromise.then(function() {
 
-                    for(var i=0; i < result.length; i++) {
-                        if(result[i].success != undefined)
-                            broadcast(result[i].success);
+                                return updateSegment(updates[i].index, updates[i].newSegment);
+
+                            }).then(function(result) {
+
+                                if(result.success != undefined) {
+                                    broadcast(result.success);
+                                }
+                            })
+                        })(i);
                     }
+                }
+
+                curSegmentPromise.then(function() {
 
                     // Removing redundant segment in case if new segment chain is shorter than old one
                     if($routeSegment.chain.length > segmentNameChain.length) {
@@ -228,7 +239,8 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                         for(var i=segmentNameChain.length; i < oldLength; i++)
                             updateSegment(i, null);
                     }
-                });
+                })
+
                 
 
             }
@@ -258,7 +270,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
             }
 
             resolvingSemaphoreChain[index] = segment.name;
-            
+
             if(segment.params.untilResolved) {
                 return resolve(index, segment.name, segment.params.untilResolved)
                     .then(function(result) {
@@ -348,6 +360,14 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
         }
 
         function broadcast(index) {
+
+            $routeSegment.$routeParams = angular.copy($routeParams);
+
+            $routeSegment.name = '';
+            for(var i=0; i<$routeSegment.chain.length; i++)
+                $routeSegment.name += $routeSegment.chain[i].name+".";
+            $routeSegment.name = $routeSegment.name.substr(0, $routeSegment.name.length-1);
+
             $rootScope.$broadcast( 'routeSegmentChange', {
                 index: index,
                 segment: $routeSegment.chain[index] || null } );

@@ -276,7 +276,6 @@ describe('route segment', function() {
             $rootScope.$digest();
             expect(callback).not.toHaveBeenCalled();
             expect($routeSegment.$routeParams.id).toBe('1');
-            expect($routeSegment.$routeParams.tab).toBe('edit');
 
             callback = jasmine.createSpy('event');
             $rootScope.$on('routeSegmentChange', callback);
@@ -612,6 +611,148 @@ describe('route segment', function() {
                 expect(callback.calls[0].args[1].segment.params.stage).toBe('ERROR');
             })
         })
+
+        describe('resolving nested segment in series when all levels have some resolving', function() {
+
+            var defers;
+            beforeEach(inject(function($q) {
+                defers = [];
+                defers.push($q.defer());
+                defers.push($q.defer());
+                defers.push($q.defer());
+                $routeSegmentProvider.segment('section3', {
+                    stage: 'AFTER',
+                    resolve: {
+                        data: function() {
+                            return defers[0].promise;
+                        }
+                    },
+                    untilResolved: {
+                        stage: 'BEFORE'
+                    }
+                })
+                $routeSegmentProvider.within('section3').segment('section31', {
+                    stage: 'AFTER',
+                    resolve: {
+                        data: function() {
+                            return defers[1].promise;
+                        }
+                    },
+                    untilResolved: {
+                        stage: 'BEFORE'
+                    }
+                })
+                $routeSegmentProvider.within('section3').within('section31').segment('section311', {
+                    stage: 'AFTER',
+                    resolve: {
+                        data: function() {
+                            return defers[2].promise;
+                        }
+                    },
+                    untilResolved: {
+                        stage: 'BEFORE'
+                    }
+                })
+                $routeSegmentProvider.when('/3/1', 'section3.section31');
+                $routeSegmentProvider.when('/3/1/1', 'section3.section31.section311');
+            }))
+
+            function expectSegmentChangeCall(callIndex, segmentName, segmentStage) {
+                expect(callback.calls[callIndex].args[1].segment.name).toBe(segmentName);
+                expect(callback.calls[callIndex].args[1].segment.params.stage).toBe(segmentStage);
+            }
+
+            it('should work in order 0-1-2', function() {
+                $location.path('/3/1/1');
+
+                $rootScope.$digest();
+                expect(callback.calls.length).toBe(1);
+                expectSegmentChangeCall(0, 'section3', 'BEFORE');
+                expect($routeSegment.name).toBe('section3');
+                expect($routeSegment.chain.length).toBe(1);
+
+                defers[0].resolve();
+
+                $rootScope.$digest();
+                expect(callback.calls.length).toBe(3);
+                expectSegmentChangeCall(1, 'section3', 'AFTER');
+                expectSegmentChangeCall(2, 'section31', 'BEFORE');
+                expect($routeSegment.name).toBe('section3.section31');
+                expect($routeSegment.chain.length).toBe(2);
+
+                defers[1].resolve();
+
+                $rootScope.$digest();
+                expect(callback.calls.length).toBe(5);
+                expectSegmentChangeCall(3, 'section31', 'AFTER');
+                expectSegmentChangeCall(4, 'section311', 'BEFORE');
+                expect($routeSegment.name).toBe('section3.section31.section311');
+                expect($routeSegment.chain.length).toBe(3);
+
+                defers[2].resolve();
+
+                $rootScope.$digest();
+                expect(callback.calls.length).toBe(6);
+                expectSegmentChangeCall(5, 'section311', 'AFTER');
+                expect($routeSegment.name).toBe('section3.section31.section311');
+            })
+
+            it('should work in order 0-2-1', function() {
+                $location.path('/3/1/1');
+                defers[0].resolve();
+                $rootScope.$digest();
+
+                defers[2].resolve();
+
+                $rootScope.$digest();
+                expect(callback.calls.length).toBe(3);
+                expectSegmentChangeCall(0, 'section3', 'BEFORE');
+                expectSegmentChangeCall(1, 'section3', 'AFTER');
+                expectSegmentChangeCall(2, 'section31', 'BEFORE');
+                expect($routeSegment.name).toBe('section3.section31');
+                expect($routeSegment.chain.length).toBe(2);
+
+                defers[1].resolve();
+
+                $rootScope.$digest();
+                expect(callback.calls.length).toBe(6);
+                expectSegmentChangeCall(3, 'section31', 'AFTER');
+                expectSegmentChangeCall(4, 'section311', 'BEFORE');
+                expectSegmentChangeCall(5, 'section311', 'AFTER');
+                expect($routeSegment.name).toBe('section3.section31.section311');
+                expect($routeSegment.chain.length).toBe(3);
+            })
+
+            it('should work in order 2-1-0', function() {
+                $location.path('/3/1/1');
+                $rootScope.$digest();
+
+                defers[2].resolve();
+
+                $rootScope.$digest();
+                expect(callback.calls.length).toBe(1);
+                expectSegmentChangeCall(0, 'section3', 'BEFORE');
+
+                defers[1].resolve();
+
+                $rootScope.$digest();
+                expect(callback.calls.length).toBe(1);
+
+                defers[0].resolve();
+
+                $rootScope.$digest();
+                expect(callback.calls.length).toBe(6);
+                expectSegmentChangeCall(1, 'section3', 'AFTER');
+                expectSegmentChangeCall(2, 'section31', 'BEFORE');
+                expectSegmentChangeCall(3, 'section31', 'AFTER');
+                expectSegmentChangeCall(4, 'section311', 'BEFORE');
+                expectSegmentChangeCall(5, 'section311', 'AFTER');
+                expect($routeSegment.name).toBe('section3.section31.section311');
+                expect($routeSegment.chain.length).toBe(3);
+            })
+
+        })
+
     })
     
     
