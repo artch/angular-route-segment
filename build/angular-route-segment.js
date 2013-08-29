@@ -1,5 +1,5 @@
 /**
- * angular-route-segment v1.1.0
+ * angular-route-segment v1.2.0
  * https://angular-route-segment.com
  * @author Artem Chivchalov
  * @license MIT License http://opensource.org/licenses/MIT
@@ -212,19 +212,30 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                             // if we went back to the same state as we were before resolving new segment
                             resolvingSemaphoreChain[i] = newSegment.name;
                         else
-                            updates.push(updateSegment(i, newSegment));
+                            updates.push({index: i, newSegment: newSegment});
                     }    
                 }
 
-                $q.all(updates).then(function(result) {
+                var curSegmentPromise = $q.when();
 
-                    $routeSegment.name = segmentName;
-                    $routeSegment.$routeParams = angular.copy($routeParams);
+                if(updates.length > 0) {
+                    for(var i=0; i<updates.length; i++) {
+                        (function(i) {
+                            curSegmentPromise = curSegmentPromise.then(function() {
 
-                    for(var i=0; i < result.length; i++) {
-                        if(result[i].success != undefined)
-                            broadcast(result[i].success);
+                                return updateSegment(updates[i].index, updates[i].newSegment);
+
+                            }).then(function(result) {
+
+                                if(result.success != undefined) {
+                                    broadcast(result.success);
+                                }
+                            })
+                        })(i);
                     }
+                }
+
+                curSegmentPromise.then(function() {
 
                     // Removing redundant segment in case if new segment chain is shorter than old one
                     if($routeSegment.chain.length > segmentNameChain.length) {
@@ -234,7 +245,8 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                         for(var i=segmentNameChain.length; i < oldLength; i++)
                             updateSegment(i, null);
                     }
-                });
+                })
+
                 
 
             }
@@ -264,7 +276,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
             }
 
             resolvingSemaphoreChain[index] = segment.name;
-            
+
             if(segment.params.untilResolved) {
                 return resolve(index, segment.name, segment.params.untilResolved)
                     .then(function(result) {
@@ -354,6 +366,14 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
         }
 
         function broadcast(index) {
+
+            $routeSegment.$routeParams = angular.copy($routeParams);
+
+            $routeSegment.name = '';
+            for(var i=0; i<$routeSegment.chain.length; i++)
+                $routeSegment.name += $routeSegment.chain[i].name+".";
+            $routeSegment.name = $routeSegment.name.substr(0, $routeSegment.name.length-1);
+
             $rootScope.$broadcast( 'routeSegmentChange', {
                 index: index,
                 segment: $routeSegment.chain[index] || null } );
@@ -393,20 +413,9 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
 })(angular);;'use strict';
 
 /**
- * The directive app:view is more powerful replacement of built-in ng:view. It allows views to be nested, where each
- * following view in the chain corresponds to the next route segment (see $routeSegment service).
- *
- * Sample:
- * <div>
- *     <h4>Section</h4>
- *     <div app:view>Nothing selected</div>
- * </div>
- *
- * Initial contents of an element with app:view will display if corresponding route segment doesn't exist.
- *
- * View resolving are depends on route segment params:
- * - `template` define contents of the view
- * - `controller` is attached to view contents when compiled and linked
+ * appViewSegment directive
+ * It is based on ngView directive code: 
+ * https://github.com/angular/angular.js/blob/master/src/ngRoute/directive/ngView.js
  */
 
 (function(angular) {
@@ -427,7 +436,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
 
                     return function($scope) {
 
-                        var currentScope, currentElement, onloadExp = tAttrs.onload || '', animate,
+                        var currentScope, currentElement, currentSegment, onloadExp = tAttrs.onload || '', animate,
                         viewSegmentIndex = parseInt(tAttrs.appViewSegment);
 
                         try {
@@ -447,7 +456,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
 
                         // Watching for the specified route segment and updating contents
                         $scope.$on('routeSegmentChange', function(event, args) {
-                            if(args.index == viewSegmentIndex)
+                            if(args.index == viewSegmentIndex && currentSegment != args.segment)
                                 update(args.segment);
                         });
 
@@ -467,6 +476,8 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
 
                         function update(segment) {
 
+                            currentSegment = segment;
+
                             if(isDefault) {
                                 isDefault = false;
                                 tElement.replaceWith(anchor);
@@ -484,32 +495,27 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                             var locals = angular.extend({}, segment.locals),
                             template = locals && locals.$template;
 
-                            if (template) {
+                            clearContent();
 
-                                clearContent();
+                            currentElement = tElement.clone();
+                            currentElement.html(template ? template : defaultContent);
+                            animate.enter( currentElement, null, anchor );
 
-                                currentElement = tElement.clone();
-                                currentElement.html(template);
-                                animate.enter( currentElement, null, anchor );
+                            var link = $compile(currentElement, false, 499), controller;
 
-                                var link = $compile(currentElement, false, 499), controller;
-
-                                currentScope = $scope.$new();
-                                if (segment.params.controller) {
-                                    locals.$scope = currentScope;
-                                    controller = $controller(segment.params.controller, locals);
-                                    if(segment.params.controllerAs)
-                                        currentScope[segment.params.controllerAs] = controller;
-                                    currentElement.data('$ngControllerController', controller);
-                                    currentElement.children().data('$ngControllerController', controller);
-                                }
-
-                                link(currentScope);
-                                currentScope.$emit('$viewContentLoaded');
-                                currentScope.$eval(onloadExp);
-                            } else {
-                                clearContent();
+                            currentScope = $scope.$new();
+                            if (segment.params.controller) {
+                                locals.$scope = currentScope;
+                                controller = $controller(segment.params.controller, locals);
+                                if(segment.params.controllerAs)
+                                    currentScope[segment.params.controllerAs] = controller;
+                                currentElement.data('$ngControllerController', controller);
+                                currentElement.children().data('$ngControllerController', controller);
                             }
+
+                            link(currentScope);
+                            currentScope.$emit('$viewContentLoaded');
+                            currentScope.$eval(onloadExp);
                         }
                     }
                 }

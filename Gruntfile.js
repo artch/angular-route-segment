@@ -27,21 +27,21 @@ module.exports = function(grunt) {
         },        
         
         karma: {
-            once: {
+            angular115: {
                 options: {
                     keepalive: true,
-                    configFile: 'karma.conf.js',
+                    configFile: 'karma-angular-1.1.5.conf.js',
                     autoWatch: false,
                     singleRun: true
                 }                
             },
-            keep: {
+            angular120: {
                 options: {
                     keepalive: true,
-                    configFile: 'karma.conf.js',
-                    autoWatch: true,
-                    singleRun: false
-                }                
+                    configFile: 'karma-angular-1.2.0rc1.conf.js',
+                    autoWatch: false,
+                    singleRun: true
+                }
             }
         },
 
