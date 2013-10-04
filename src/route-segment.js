@@ -130,8 +130,8 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
     
         
     // the service factory
-    this.$get = ['$rootScope', '$q', '$http', '$templateCache', '$route', '$routeParams', '$injector',
-                 function($rootScope, $q, $http, $templateCache, $route, $routeParams, $injector) {
+    this.$get = ['$rootScope', '$q', '$http', '$templateCache', '$route', '$routeParams', '$injector', '$location',
+                 function($rootScope, $q, $http, $templateCache, $route, $routeParams, $injector, $location) {
                 
         var $routeSegment = {    
                 
@@ -207,25 +207,29 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                             resolvingSemaphoreChain[i] = newSegment.name;
                         else
                             updates.push({index: i, newSegment: newSegment});
-                    }    
+                    } else if ( i+1 == segmentNameChain.length && newSegment.params.redirectTo) {
+                            updates.push({index: i, newSegment: newSegment});
+                    }
                 }
 
                 var curSegmentPromise = $q.when();
 
                 if(updates.length > 0) {
-                    for(var i=0; i<updates.length; i++) {
-                        (function(i) {
-                            curSegmentPromise = curSegmentPromise.then(function() {
-
-                                return updateSegment(updates[i].index, updates[i].newSegment);
-
-                            }).then(function(result) {
-
-                                if(result.success != undefined) {
-                                    broadcast(result.success);
-                                }
-                            })
-                        })(i);
+                    var lastSegment = updates[updates.length-1].newSegment;
+                    if (lastSegment.params && lastSegment.params.redirectTo) {
+                        $location.url(lastSegment.params.redirectTo);
+                    } else {
+                        for(var i=0; i<updates.length; i++) {
+                            (function(i) {
+                                curSegmentPromise = curSegmentPromise.then(function() {
+                                    return updateSegment(updates[i].index, updates[i].newSegment);
+                                }).then(function(result) {
+                                    if(result.success != undefined) {
+                                        broadcast(result.success);
+                                    }
+                                })
+                            })(i);
+                         }
                     }
                 }
 
