@@ -21,6 +21,7 @@
                     anchor = angular.element(document.createComment(' view-segment '));
 
                     tElement.prepend(anchor);
+                    tElement.addClass('view-anchor-'+tAttrs.appViewSegment);
 
                     return function($scope) {
 
@@ -75,6 +76,7 @@
                                 clearContent();
                                 currentElement = tElement.clone();
                                 currentElement.html(defaultContent);
+                                currentElement = currentElement.contents();
                                 animate.enter( currentElement, null, anchor );
                                 $compile(currentElement, false, 499)($scope);
                                 return;
@@ -87,6 +89,7 @@
 
                             currentElement = tElement.clone();
                             currentElement.html(template ? template : defaultContent);
+                            currentElement = currentElement.contents();
                             animate.enter( currentElement, null, anchor );
 
                             var link = $compile(currentElement, false, 499), controller;
