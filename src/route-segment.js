@@ -1,3 +1,9 @@
+/**
+ * angular-route-segment v1.2.0
+ * https://angular-route-segment.com
+ * @author Artem Chivchalov
+ * @license MIT License http://opensource.org/licenses/MIT
+ */
 'use strict';
 
 (function(angular) {
@@ -188,15 +194,15 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
         // When a route changes, all interested parties should be notified about new segment chain
         $rootScope.$on('$routeChangeSuccess', function(event, args) {
 
-            var route = args.$route || args.$$route; 
+            var route = args.$route || args.$$route;
             if(route && route.segment) {
 
                 var segmentName = route.segment;
                 var segmentNameChain = segmentName.split(".");
                 var updates = [];
-                
+
                 for(var i=0; i < segmentNameChain.length; i++) {
-                    
+
                     var newSegment = getSegmentInChain( i, segmentNameChain );
 
                     if(resolvingSemaphoreChain[i] != newSegment.name || isDependenciesChanged(newSegment)) {
@@ -297,13 +303,53 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                         
             if(params.template)
                 locals.$template = params.template;
-            
-            if(options.autoLoadTemplates && params.templateUrl)
-                locals.$template = 
-                    $http.get(params.templateUrl, {cache: $templateCache})
-                        .then(function(response) {                            
-                            return response.data;
+
+            if(options.autoLoadTemplates && params.templateUrl) {
+                // templateUrl defined, process it
+                if (angular.isString(params.templateUrl)) {
+                    // string, original behavior
+                    locals.$template =
+                        $http.get(params.templateUrl, {cache: $templateCache})
+                            .then(function(response) {
+                                return response.data;
+                            });
+                } else {
+                    // assume that we have an object here, load all matching templates according to dependencies
+                    locals.$template = [];
+                    angular.forEach(params.dependencies, function (v) {
+                        var url = params.templateUrl[$routeParams[v]];
+                        if (url) {
+                            locals.$template.push(
+                                $http.get(url, {cache: $templateCache})
+                                    .then(function(response) {
+                                        return {
+                                            k : v,
+                                            v : response.data
+                                        };
+                                    }));
+                        } else if (locals.template) {
+                            locals.$template.push({
+                                k : v,
+                                v : locals.template
+                            });
+                        } else {
+                            // throw? new Error ('No template found for dependency ['+v+']');
+                        }
+                    });
+                    locals.$template = $q.all(locals.$template).then(
+                        function ($template) {
+                            var res = {};
+                            angular.forEach($template, function (v) {
+                                res[v.k] = v.v;
+                            });
+                            return res;
+                        },
+                        function () {
+                            $q.reject();
                         });
+                }
+
+            }
                                      
             return $q.all(locals).then(
                     
