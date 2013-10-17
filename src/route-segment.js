@@ -199,10 +199,10 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                     
                     var newSegment = getSegmentInChain( i, segmentNameChain );
 
-                    if(resolvingSemaphoreChain[i] != newSegment.name || isDependenciesChanged(newSegment)) {
+                    if(resolvingSemaphoreChain[i] != newSegment.name || updates.length > 0 || isDependenciesChanged(newSegment)) {
 
                         if($routeSegment.chain[i] && $routeSegment.chain[i].name == newSegment.name &&
-                            !isDependenciesChanged(newSegment))
+                            updates.length == 0 && !isDependenciesChanged(newSegment))
                             // if we went back to the same state as we were before resolving new segment
                             resolvingSemaphoreChain[i] = newSegment.name;
                         else

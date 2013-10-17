@@ -162,6 +162,30 @@ describe('view-segment', function() {
         expect(elm.find('> div > div > h4').text()).toBe('Details item 2');
     }))
 
+    it('should recreate when parent segment is changed and sub-segment name is the same', inject(function() {
+
+        $routeSegmentProvider.when('/1/details', 'section1.details');
+        $routeSegmentProvider.when('/2/details', 'section2.details');
+        $routeSegmentProvider.segment('section1', {
+            template: '<div app:view-segment="1"></div>'})
+        $routeSegmentProvider.segment('section1', {
+            template: '<div app:view-segment="1"></div>'})
+        $routeSegmentProvider.within('section1').segment('details', {
+            template: '<h4>Detail 1</h4>'})
+        $routeSegmentProvider.within('section2').segment('details', {
+            template: '<h4>Detail 2</h4>'})
+
+        $location.path('/1/details');
+        $rootScope.$digest();
+
+        expect(elm.find('> div >div > h4').text()).toBe('Detail 1');
+
+        $location.path('/2/details');
+        $rootScope.$digest();
+
+        expect(elm.find('> div > div > h4').text()).toBe('Detail 2');
+    }))
+
     it('should populate a view initially, when location is already set before compiling', function() {
         $location.path('/1');
         $rootScope.$digest();
