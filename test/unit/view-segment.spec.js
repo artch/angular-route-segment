@@ -168,7 +168,7 @@ describe('view-segment', function() {
         $routeSegmentProvider.when('/2/details', 'section2.details');
         $routeSegmentProvider.segment('section1', {
             template: '<div app:view-segment="1"></div>'})
-        $routeSegmentProvider.segment('section1', {
+        $routeSegmentProvider.segment('section2', {
             template: '<div app:view-segment="1"></div>'})
         $routeSegmentProvider.within('section1').segment('details', {
             template: '<h4>Detail 1</h4>'})
