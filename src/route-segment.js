@@ -124,6 +124,32 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
         return this;
     };
     
+    
+    $routeSegmentProvider.chargeSegments = function (segmentsArray) {
+        var segmentId, segment, w, parts, action, partId, part, context;
+        for (segmentId in segmentsArray ) {
+          parts = segmentId.split('|');
+          action = parts.join('.');
+          segment = segmentsArray[segmentId];
+          if (!!segment.when && segment.when.length > 0) {
+            for (w = 0; w < segment.when.length; w++) {
+              $routeSegmentProvider.when(segment.when[w], action);
+            }
+          }
+          if (parts.length===1) {
+            context = $routeSegmentProvider.segment(parts[0], segment.view);
+          }
+          else {
+            context = $routeSegmentProvider.within(parts[0]);
+            for (partId = 1; partId < parts.length-1; partId++) {
+              part = parts[partId];
+              context = context.within(part);
+            }
+            context.segment(parts[parts.length-1], segment.view);
+          }
+        }
+    };
+    
     // Extending the provider with the methods of rootPointer
     // to start configuration.
     angular.extend($routeSegmentProvider, rootPointer);
