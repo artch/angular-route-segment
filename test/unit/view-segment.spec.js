@@ -313,6 +313,52 @@ describe('view-segment', function() {
 
     })
 
+    describe('with resolving', function() {
+
+        var defer;
+
+        beforeEach(inject(function($q) {
+
+            defer = $q.defer();
+
+            $routeSegmentProvider.when('/3', 'section3');
+            $routeSegmentProvider.when('/3/1', 'section3.section31');
+            $routeSegmentProvider.segment('section3', {
+                template: '<div app:view-segment="1"></div>'
+            })
+            $routeSegmentProvider.within('section3').segment('section31', {
+                template: '<div>{{data}}</div>',
+                controller: function($scope, data) {
+                    $scope.data = data;
+                },
+                resolve: {
+                    data: function() {
+                        return defer.promise;
+                    }
+                }
+            });
+        }))
+
+        it('should work with resolving', function() {
+            $location.path('/2/2');
+
+            $rootScope.$digest();
+            expect(elm.find('> div > div > span').text()).toBe('1');
+
+            $location.path('/3/1')
+
+            $rootScope.$digest();
+            expect(elm.find('> div > div').text()).toBe('');
+
+            defer.resolve('RESOLVED');
+
+            $rootScope.$digest();
+            expect(elm.find('> div > div').text()).toBe('RESOLVED');
+
+        })
+
+    })
+
 
     
      

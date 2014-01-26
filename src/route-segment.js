@@ -213,6 +213,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                 var curSegmentPromise = $q.when();
 
                 if(updates.length > 0) {
+
                     for(var i=0; i<updates.length; i++) {
                         (function(i) {
                             curSegmentPromise = curSegmentPromise.then(function() {
@@ -222,12 +223,26 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                             }).then(function(result) {
 
                                 if(result.success != undefined) {
+
                                     broadcast(result.success);
+
+                                    for(var j = updates[i].index + 1; j < $routeSegment.chain.length; j++) {
+
+                                        if($routeSegment.chain[j]) {
+                                            $routeSegment.chain[j] = null;
+                                            updateSegment(j, null);
+                                        }
+                                    }
+
+
                                 }
                             })
                         })(i);
                     }
+
                 }
+
+
 
                 curSegmentPromise.then(function() {
 
@@ -256,7 +271,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                 });
             return result;
         }
-        
+
         function updateSegment(index, segment) {
 
             if($routeSegment.chain[index] && $routeSegment.chain[index].clearWatcher) {
@@ -300,7 +315,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                         .then(function(response) {                            
                             return response.data;
                         });
-                                     
+
             return $q.all(locals).then(
                     
                     function(resolvedLocals) {
@@ -365,7 +380,8 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
 
             $routeSegment.name = '';
             for(var i=0; i<$routeSegment.chain.length; i++)
-                $routeSegment.name += $routeSegment.chain[i].name+".";
+                if($routeSegment.chain[i])
+                    $routeSegment.name += $routeSegment.chain[i].name+".";
             $routeSegment.name = $routeSegment.name.substr(0, $routeSegment.name.length-1);
 
             $rootScope.$broadcast( 'routeSegmentChange', {

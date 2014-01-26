@@ -247,8 +247,10 @@ describe('route segment', function() {
 
             $rootScope.$digest();
             expect($routeSegment.name).toBe('section-first');
-            expect(callback.calls.length).toBe(2);
+            //expect(callback.calls.length).toBe(2);
+            expect(callback.calls[0].args[1].index).toBe(0);
             expect(callback.calls[0].args[1].segment.name).toBe('section-first');
+            expect(callback.calls[1].args[1].index).toBe(1);
             expect(callback.calls[1].args[1].segment).toBe(null);
         })
 
@@ -388,17 +390,19 @@ describe('route segment', function() {
     
     describe('resolving', function() {       
         
-        var resolve;
+        var resolve, resolveInner;
         
         beforeEach(function() {
-            resolve = {};
-            $routeSegmentProvider.when('/3', 'section3');            
+            resolve = {}, resolveInner = {};
+            $routeSegmentProvider.when('/3', 'section3');
+            $routeSegmentProvider.when('/3/1', 'section3.section31');
         })        
         
         describe('without `untilResolved`', function() {
             
             beforeEach(function() {
                 $routeSegmentProvider.segment('section3', {resolve: resolve});
+                $routeSegmentProvider.within('section3').segment('section31', {resolve: resolveInner});
             })
         
             it('should resolve a param as function', inject(function($q) {
@@ -520,9 +524,32 @@ describe('route segment', function() {
 
                 $rootScope.$digest();
                 expect(callback).not.toHaveBeenCalled();
+
                 expect($routeSegment.chain[0].name).toEqual('section2');
                 expect($routeSegment.chain[1].name).toEqual('section21');
                 expect($routeSegment.name).toEqual('section2.section21');
+            }))
+
+            it('should reset 2nd-level segment while loading when first-level is changed', inject(function($q) {
+
+                var defer = $q.defer();
+                resolveInner.param1 = function() { return defer.promise; };
+
+                $location.path('/2/X');
+                $rootScope.$digest();
+                $location.path('/3/1');
+
+                $rootScope.$digest();
+                expect($routeSegment.name).toBe('section3');
+                expect($routeSegment.chain[1]).toBe(null);
+
+
+                defer.resolve();
+
+                $rootScope.$digest();
+                expect($routeSegment.name).toBe('section3.section31');
+                expect($routeSegment.chain.length).toBe(2);
+
             }))
         })
         

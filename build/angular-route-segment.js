@@ -1,5 +1,5 @@
 /**
- * angular-route-segment v1.2.0
+ * angular-route-segment 
  * https://angular-route-segment.com
  * @author Artem Chivchalov
  * @license MIT License http://opensource.org/licenses/MIT
@@ -205,10 +205,10 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                     
                     var newSegment = getSegmentInChain( i, segmentNameChain );
 
-                    if(resolvingSemaphoreChain[i] != newSegment.name || isDependenciesChanged(newSegment)) {
+                    if(resolvingSemaphoreChain[i] != newSegment.name || updates.length > 0 || isDependenciesChanged(newSegment)) {
 
                         if($routeSegment.chain[i] && $routeSegment.chain[i].name == newSegment.name &&
-                            !isDependenciesChanged(newSegment))
+                            updates.length == 0 && !isDependenciesChanged(newSegment))
                             // if we went back to the same state as we were before resolving new segment
                             resolvingSemaphoreChain[i] = newSegment.name;
                         else
@@ -219,6 +219,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                 var curSegmentPromise = $q.when();
 
                 if(updates.length > 0) {
+
                     for(var i=0; i<updates.length; i++) {
                         (function(i) {
                             curSegmentPromise = curSegmentPromise.then(function() {
@@ -228,12 +229,26 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                             }).then(function(result) {
 
                                 if(result.success != undefined) {
+
                                     broadcast(result.success);
+
+                                    for(var j = updates[i].index + 1; j < $routeSegment.chain.length; j++) {
+
+                                        if($routeSegment.chain[j]) {
+                                            $routeSegment.chain[j] = null;
+                                            updateSegment(j, null);
+                                        }
+                                    }
+
+
                                 }
                             })
                         })(i);
                     }
+
                 }
+
+
 
                 curSegmentPromise.then(function() {
 
@@ -262,8 +277,11 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                 });
             return result;
         }
-        
-        function updateSegment(index, segment) {
+
+        function updateSegment(index, segment, isBroadcast) {
+
+            if(typeof isBroadcast === 'undefined')
+                isBroadcast = true;
 
             if($routeSegment.chain[index] && $routeSegment.chain[index].clearWatcher) {
                 $routeSegment.chain[index].clearWatcher();
@@ -271,7 +289,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
 
             if(!segment) {
                 resolvingSemaphoreChain[index] = null;
-                broadcast(index);
+                isBroadcast && broadcast(index);
                 return;
             }
 
@@ -281,7 +299,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                 return resolve(index, segment.name, segment.params.untilResolved)
                     .then(function(result) {
                         if(result.success != undefined)
-                            broadcast(index);
+                            isBroadcast && broadcast(index);
                         return resolve(index, segment.name, segment.params);
                     })
             }
@@ -306,7 +324,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                         .then(function(response) {                            
                             return response.data;
                         });
-                                     
+
             return $q.all(locals).then(
                     
                     function(resolvedLocals) {
@@ -371,7 +389,8 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
 
             $routeSegment.name = '';
             for(var i=0; i<$routeSegment.chain.length; i++)
-                $routeSegment.name += $routeSegment.chain[i].name+".";
+                if($routeSegment.chain[i])
+                    $routeSegment.name += $routeSegment.chain[i].name+".";
             $routeSegment.name = $routeSegment.name.substr(0, $routeSegment.name.length-1);
 
             $rootScope.$broadcast( 'routeSegmentChange', {
