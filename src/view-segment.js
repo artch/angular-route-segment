@@ -9,8 +9,8 @@
 (function(angular) {
 
     angular.module( 'view-segment', [ 'route-segment' ] ).directive( 'appViewSegment',
-    ['$route', '$compile', '$controller', '$routeParams', '$routeSegment', '$q', '$injector',
-        function($route, $compile, $controller, $routeParams, $routeSegment, $q, $injector) {
+    ['$route', '$compile', '$controller', '$routeParams', '$routeSegment', '$q', '$injector', '$timeout',
+        function($route, $compile, $controller, $routeParams, $routeSegment, $q, $injector, $timeout) {
 
             return {
                 restrict : 'ECA',
@@ -40,10 +40,13 @@
                         catch(e) {}
 
                         if($routeSegment.chain[viewSegmentIndex])
-                            update($routeSegment.chain[viewSegmentIndex]);
+                            $timeout(function() {
+                                update($routeSegment.chain[viewSegmentIndex]);
+                            }, 0);
 
                         // Watching for the specified route segment and updating contents
                         $scope.$on('routeSegmentChange', function(event, args) {
+
                             if(args.index == viewSegmentIndex && currentSegment != args.segment)
                                 update(args.segment);
                         });

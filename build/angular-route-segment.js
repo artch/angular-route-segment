@@ -1,5 +1,5 @@
 /**
- * angular-route-segment 
+ * angular-route-segment v1.2.0
  * https://angular-route-segment.com
  * @author Artem Chivchalov
  * @license MIT License http://opensource.org/licenses/MIT
@@ -278,10 +278,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
             return result;
         }
 
-        function updateSegment(index, segment, isBroadcast) {
-
-            if(typeof isBroadcast === 'undefined')
-                isBroadcast = true;
+        function updateSegment(index, segment) {
 
             if($routeSegment.chain[index] && $routeSegment.chain[index].clearWatcher) {
                 $routeSegment.chain[index].clearWatcher();
@@ -289,7 +286,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
 
             if(!segment) {
                 resolvingSemaphoreChain[index] = null;
-                isBroadcast && broadcast(index);
+                broadcast(index);
                 return;
             }
 
@@ -299,7 +296,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                 return resolve(index, segment.name, segment.params.untilResolved)
                     .then(function(result) {
                         if(result.success != undefined)
-                            isBroadcast && broadcast(index);
+                            broadcast(index);
                         return resolve(index, segment.name, segment.params);
                     })
             }
@@ -440,8 +437,8 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
 (function(angular) {
 
     angular.module( 'view-segment', [ 'route-segment' ] ).directive( 'appViewSegment',
-    ['$route', '$compile', '$controller', '$routeParams', '$routeSegment', '$q', '$injector',
-        function($route, $compile, $controller, $routeParams, $routeSegment, $q, $injector) {
+    ['$route', '$compile', '$controller', '$routeParams', '$routeSegment', '$q', '$injector', '$timeout',
+        function($route, $compile, $controller, $routeParams, $routeSegment, $q, $injector, $timeout) {
 
             return {
                 restrict : 'ECA',
@@ -471,10 +468,13 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                         catch(e) {}
 
                         if($routeSegment.chain[viewSegmentIndex])
-                            update($routeSegment.chain[viewSegmentIndex]);
+                            $timeout(function() {
+                                update($routeSegment.chain[viewSegmentIndex]);
+                            }, 0);
 
                         // Watching for the specified route segment and updating contents
                         $scope.$on('routeSegmentChange', function(event, args) {
+                            console.log('event',args);
                             if(args.index == viewSegmentIndex && currentSegment != args.segment)
                                 update(args.segment);
                         });
@@ -501,6 +501,8 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                                 isDefault = false;
                                 tElement.replaceWith(anchor);
                             }
+
+                            console.log('update',segment);
 
                             if(!segment) {
                                 clearContent();

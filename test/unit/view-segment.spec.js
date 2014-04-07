@@ -30,7 +30,7 @@ describe('view-segment', function() {
             .when('/2/2', 'section2.subsection22')
         
             .segment('section1', {
-                template: '<h4>Section 1</h4>'})
+                template: '<h4>Section 1</h4><div app:view-segment="1">Nothing</div>'})
             
             .segment('section2', {
                 template: '<h4>Section 2</h4><span>{{test}}</span><div app:view-segment="1">Nothing</div>'})
@@ -186,7 +186,7 @@ describe('view-segment', function() {
         expect(elm.find('> div > div > h4').text()).toBe('Detail 2');
     }))
 
-    it('should populate a view initially, when location is already set before compiling', function() {
+    it('should populate a view initially, when location is already set before compiling', inject(function($timeout) {
         $location.path('/1');
         $rootScope.$digest();
 
@@ -194,10 +194,11 @@ describe('view-segment', function() {
         elm = angular.element('<div class="container" app:view-segment="0"></div>');
         $compile(elm)(scope);
         scope.$digest();
+        $timeout.flush();
 
         expect(elm).toHaveClass('container');
         expect(elm.find('> div > h4').text()).toMatch(/Section 1/);
-    })
+    }))
 
     it('should work with controllerAs syntax', function() {
         $routeSegmentProvider.when('/3', 'section3');
@@ -254,6 +255,30 @@ describe('view-segment', function() {
         $rootScope.$digest();
         expect(spy.calls.length).toBe(2);
     }))
+
+    it('should not call the controller of a sub-segment called previously', function() {
+
+        var spy = jasmine.createSpy('controller');
+
+        $routeSegmentProvider.when('/3/1', 'section3.section31');
+        $routeSegmentProvider.segment('section3', {
+            template: '<div app:view-segment="1"></div>'
+        }).within().segment('section31', {
+            template: '<div></div>',
+            controller: spy
+        })
+
+        $location.path('/3/1');
+
+        $rootScope.$digest();
+        expect(spy.calls.length).toBe(1);
+
+        $location.path('/1');
+
+        $rootScope.$digest();
+        expect(spy.calls.length).toBe(1);
+
+    })
 
     describe('a view with empty template', function() {
 
