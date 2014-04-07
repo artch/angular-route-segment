@@ -20,7 +20,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
          * contents into `template`.
          * @type {boolean}
          */
-        autoLoadTemplates: false,
+        autoLoadTemplates: true,
         
         /**
          * When true, all attempts to call `within` method on non-existing segments will throw an error (you would
@@ -474,7 +474,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
 
                         // Watching for the specified route segment and updating contents
                         $scope.$on('routeSegmentChange', function(event, args) {
-                            console.log('event',args);
+
                             if(args.index == viewSegmentIndex && currentSegment != args.segment)
                                 update(args.segment);
                         });
@@ -501,8 +501,6 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                                 isDefault = false;
                                 tElement.replaceWith(anchor);
                             }
-
-                            console.log('update',segment);
 
                             if(!segment) {
                                 clearContent();

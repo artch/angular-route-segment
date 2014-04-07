@@ -14,7 +14,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
          * contents into `template`.
          * @type {boolean}
          */
-        autoLoadTemplates: false,
+        autoLoadTemplates: true,
         
         /**
          * When true, all attempts to call `within` method on non-existing segments will throw an error (you would
