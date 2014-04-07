@@ -1,6 +1,6 @@
 {
   "name": "angular-route-segment",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "main": "build/angular-route-segment.js",
   "ignore": [
     "**/.*",
@@ -14,6 +14,6 @@
     "karma-angular-1.2.0rc1.conf.js",
     "package.json",
     "src",
-    "build/angular-route-segment.min.js"
+    "**/*.min.js"
   ]
 }

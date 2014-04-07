@@ -1,6 +1,6 @@
 {
     "name": "angular-route-segment",
-    "version": "1.0.0",
+    "version": "1.2.3",
     "dependencies": {
         "grunt": "",
         "grunt-contrib-uglify": "",

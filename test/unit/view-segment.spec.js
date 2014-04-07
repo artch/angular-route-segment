@@ -256,7 +256,7 @@ describe('view-segment', function() {
         expect(spy.calls.length).toBe(2);
     }))
 
-    it('should not call the controller of a sub-segment called previously', function() {
+    it('should not call the controller of a sub-segment called previously if new segment doesnt have a sub-segment', function() {
 
         var spy = jasmine.createSpy('controller');
 
@@ -279,6 +279,31 @@ describe('view-segment', function() {
         expect(spy.calls.length).toBe(1);
 
     })
+
+    it('should not call the controller of a sub-segment called previously if new segment has a sub-segment', inject(function($timeout) {
+
+        var spy = jasmine.createSpy('controller');
+
+        $routeSegmentProvider.when('/3/1', 'section3.section31');
+        $routeSegmentProvider.segment('section3', {
+            template: '<div app:view-segment="1"></div>'
+        }).within().segment('section31', {
+            template: '<div></div>',
+            controller: spy
+        })
+
+        $location.path('/2/1');
+        $rootScope.$digest();
+        $location.path('/3/1');
+
+        $rootScope.$digest();
+        try {
+            $timeout.flush();
+        }
+        catch(e) {}
+        expect(spy.calls.length).toBe(1);
+
+    }))
 
     describe('a view with empty template', function() {
 

@@ -1,5 +1,5 @@
 /**
- * angular-route-segment v1.2.0
+ * angular-route-segment 1.2.3
  * https://angular-route-segment.com
  * @author Artem Chivchalov
  * @license MIT License http://opensource.org/licenses/MIT
@@ -453,7 +453,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                     return function($scope) {
 
                         var currentScope, currentElement, currentSegment, onloadExp = tAttrs.onload || '', animate,
-                        viewSegmentIndex = parseInt(tAttrs.appViewSegment);
+                        viewSegmentIndex = parseInt(tAttrs.appViewSegment), updatePromise;
 
                         try {
                             // angular 1.1.x
@@ -468,12 +468,15 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                         catch(e) {}
 
                         if($routeSegment.chain[viewSegmentIndex])
-                            $timeout(function() {
+                            updatePromise = $timeout(function() {
                                 update($routeSegment.chain[viewSegmentIndex]);
                             }, 0);
 
                         // Watching for the specified route segment and updating contents
                         $scope.$on('routeSegmentChange', function(event, args) {
+
+                            if(updatePromise)
+                                $timeout.cancel(updatePromise);
 
                             if(args.index == viewSegmentIndex && currentSegment != args.segment)
                                 update(args.segment);

@@ -25,7 +25,7 @@
                     return function($scope) {
 
                         var currentScope, currentElement, currentSegment, onloadExp = tAttrs.onload || '', animate,
-                        viewSegmentIndex = parseInt(tAttrs.appViewSegment);
+                        viewSegmentIndex = parseInt(tAttrs.appViewSegment), updatePromise;
 
                         try {
                             // angular 1.1.x
@@ -40,12 +40,15 @@
                         catch(e) {}
 
                         if($routeSegment.chain[viewSegmentIndex])
-                            $timeout(function() {
+                            updatePromise = $timeout(function() {
                                 update($routeSegment.chain[viewSegmentIndex]);
                             }, 0);
 
                         // Watching for the specified route segment and updating contents
                         $scope.$on('routeSegmentChange', function(event, args) {
+
+                            if(updatePromise)
+                                $timeout.cancel(updatePromise);
 
                             if(args.index == viewSegmentIndex && currentSegment != args.segment)
                                 update(args.segment);
