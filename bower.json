@@ -13,6 +13,7 @@
     "karma-angular-1.1.5.conf.js",
     "karma-angular-1.2.0rc1.conf.js",
     "package.json",
-    "src"
+    "src",
+    "build/angular-route-segment.min.js"
   ]
 }
