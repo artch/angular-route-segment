@@ -1,5 +1,5 @@
 /**
- * angular-route-segment 1.2.3
+ * angular-route-segment 1.2.4
  * https://angular-route-segment.com
  * @author Artem Chivchalov
  * @license MIT License http://opensource.org/licenses/MIT
