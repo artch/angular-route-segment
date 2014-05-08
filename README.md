@@ -1,7 +1,7 @@
 angular-route-segment [![Build Status](https://secure.travis-ci.org/artch/angular-route-segment.png?branch=master)](https://travis-ci.org/artch/angular-route-segment)
 =====================
 
-An extension for [AngularJS](http://angularjs.org/) [$route](http://docs.angularjs.org/api/ngRoute.$route) service which supports tree-like nested views and routes hierarchy, and advanced loading flow handling.
+A lightweight extension for [AngularJS](http://angularjs.org/) [$route](http://docs.angularjs.org/api/ngRoute.$route) service which supports tree-like nested views and routes hierarchy, and advanced loading flow handling.
 
 Getting Started
 -------
@@ -82,7 +82,7 @@ $routeSegmentProvider.
         controller: MainCtrl});
 ```
 
-Alternatively, you can use this syntax instead of traversing:
+Alternatively, you can use this syntax instead of traversing (useful if you want modules to have their own separately defined routes):
 
 ```javascript
 $routeSegmentProvider.segment('s1', {
@@ -177,8 +177,8 @@ Adds new segment at current pointer level.
 
     Segment's parameters hash. The following params are supported:
     
-    - `template` provides HTML for the given segment view;
-    - `templateUrl` is a template which should be fetched from the network via this URL;
+    - `template` provides HTML for the given segment view; 
+    - `templateUrl` is a template which should be fetched from the network via this URL; if neither `template` nor `templateUrl` parameters are defined, the DOM element's transcluded content will be used;
     - `controller` is attached to the given segment view when compiled and linked, this can be any controller definition AngularJS supports;
     - `controllerAs` is a controller alias name, if present the controller will be published to scope under the
     controllerAs name;
