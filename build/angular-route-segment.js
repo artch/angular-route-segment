@@ -183,7 +183,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                  */
                 contains: function (val) {
                     for(var i=0; i<this.chain.length; i++)
-                        if(this.chain[i].name == val)
+                        if(this.chain[i] && this.chain[i].name == val)
                             return true;
                     return false;
                 }
