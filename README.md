@@ -1,4 +1,4 @@
-angular-route-segment
+angular-route-segment [![Build Status](https://secure.travis-ci.org/artch/angular-route-segment.png?branch=master)](https://travis-ci.org/artch/angular-route-segment)
 =====================
 
 An extension for [AngularJS](http://angularjs.org/) [$route](http://docs.angularjs.org/api/ngRoute.$route) service which supports tree-like nested views and routes hierarchy, and advanced loading flow handling.
@@ -21,12 +21,12 @@ Or use this CDN link (thanks to [cdnjs.com](http://cdnjs.com)):
 <script src="//cdnjs.cloudflare.com/ajax/libs/angular-route-segment/1.2.3/angular-route-segment.min.js"></script>
 ```
 
-Tested with AngularJS 1.1.5 and 1.2.0rc1 (you must include `ngRoute` module in 1.2.x!).
+Tested with AngularJS 1.1.5, 1.2.16 and 1.3.0-beta.7.
 
 Overview
 --------
 
-This library is intended to provide the lacking functionality of nested routing to AngularJS applications. It is widely known, there are no ways to keep the page state unchanged when only a part of it should be updated via routing mechanics - the `$route` service re-creates the whole scope after a route is changed, losing its state completely. **route-segment** gives you a way to handle this.
+This library is intended to provide the lacking functionality of nested routing to AngularJS applications. It is widely known, there are no ways to keep the parent state unchanged when children are updated via routing mechanics - the `$route` service re-creates the whole scope after a route is changed, losing its state completely. **route-segment** gives you a way to handle this.
 
 The library provides two pieces of code: `$routeSegment` service and `app-view-segment` directive. Both are placed in their own modules which you must include as dependencies in your app module:
 

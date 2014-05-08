@@ -11,5 +11,8 @@
         "karma-phantomjs-launcher": "",
         "karma-junit-reporter": "",
         "grunt-git-describe": ""
+    },
+    "scripts": {
+        "test": "grunt karma"
     }
 }

@@ -2,6 +2,9 @@
 
 describe('route segment', function() {
 
+    if(angular.version.major > 1 || angular.version.minor >= 2)
+        beforeEach(module('ngRoute'));
+
     beforeEach(module('route-segment'));
         
     var $routeSegment, $routeSegmentProvider, $rootScope, $httpBackend, $location, $provide;

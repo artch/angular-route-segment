@@ -1,6 +1,9 @@
 'use strict';
 
 describe('view-segment', function() {
+
+    if(angular.version.major > 1 || angular.version.minor >= 2)
+        beforeEach(module('ngRoute'));
     
     beforeEach(module('view-segment'));
     
