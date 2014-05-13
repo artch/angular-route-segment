@@ -606,6 +606,27 @@ describe('route segment', function() {
                 expect(callback.calls[0].args[1].segment.params.stage).toBe('ERROR');
                 expect(callback.calls[0].args[1].segment.locals.error).toEqual('foo');
             }))
+
+            it('should return to successful params after fail when error has gone', inject(function($q) {
+                resolve.param1 = function() { return $q.reject('foo'); }
+
+                $location.path('/3');
+
+                $rootScope.$digest();
+                expect(callback.calls[0].args[1].segment.params.stage).toBe('ERROR');
+
+                $routeSegment.chain[0].reload();
+
+                $rootScope.$digest();
+                expect(callback.calls[1].args[1].segment.params.stage).toBe('ERROR');
+
+                // Error has gone
+                resolve.param1 = function() { return $q.when(); }
+                $routeSegment.chain[0].reload();
+
+                $rootScope.$digest();
+                expect(callback.calls[2].args[1].segment.params.stage).toBe('OK');
+            }))
             
             it('should auto-fetch failing templateUrl if resolving is failed', inject(function($q) {
                 resolve.param1 = function() { return $q.reject('foo'); }

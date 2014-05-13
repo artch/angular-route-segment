@@ -328,7 +328,8 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                                 params: params,
                                 locals: resolvedLocals,
                                 reload: function() {
-                                    updateSegment(index, this).then(function(result) {
+                                    var originalSegment = getSegmentInChain(index, $routeSegment.name.split("."));
+                                    updateSegment(index, originalSegment).then(function(result) {
                                         if(result.success != undefined)
                                             broadcast(index);
                                     })
