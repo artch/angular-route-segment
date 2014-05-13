@@ -232,6 +232,63 @@ Helper method for checking whether current route starts with the given string.
 
 Helper method for checking whether current route contains the given string.
 
+##### getSegmentUrl(segmentName, routeParams)
+
+A method for reverse routing which can return the route URL for the specified segment name.
+
+- *segmentName*
+
+    The name of a segment as defined in `when()`.
+
+- *routeParams*
+
+    Route params hash to be put into route URL template. Standard `$routeParams` object is used first;
+    it is extended (overrided) with this provided object then.
+
+```javascript
+$routeSegment.getSegmentUrl('s1.home');                         // -> '/section1'
+$routeSegment.getSegmentUrl('s1.prefs');                        // -> '/section1/prefs'
+$routeSegment.getSegmentUrl('s1.itemInfo', {id: 123});          // -> '/section1/123'
+$routeSegment.getSegmentUrl('s1.itemInfo.edit', {id: 123});     // -> '/section1/123/edit'
+```
+
+### Filters ###
+
+##### routeSegmentEqualsTo
+
+A wrapper for `$routeSegment.name == value`.
+```html
+<li ng-class="{active: ('s1' | routeSegmentEqualsTo)}">
+```
+
+##### routeSegmentStartsWith
+
+A wrapper for `$routeSegment.startsWith(value)`.
+```html
+<li ng-class="{active: ('s1' | routeSegmentStartsWith)}">
+```
+
+##### routeSegmentContains
+
+A wrapper for `$routeSegment.contains(value)`.
+```html
+<li ng-class="{active: ('s1' | routeSegmentContains)}">
+```
+
+##### routeSegmentParam
+
+A wrapper for `$routeSegment.$routeParams[value]`.
+```html
+<li ng-class="{active: ('s1.itemInfo' | routeSegmentEqualsTo) && ('id' | routeSegmentParam) == 123}">
+```
+
+##### routeSegmentUrl
+
+A wrapper for `$routeSegment.getSegmentUrl`.
+```html
+<a ng-href="{{ 's1.home' | routeSegmentUrl }}">
+<a ng-href="{{ 's1.itemInfo.edit' | routeSegmentUrl: {id: 123} }}">
+```
 
 License
 -------

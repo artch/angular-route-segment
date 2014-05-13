@@ -2,7 +2,8 @@
 
 (function(angular) {
 
-angular.module( 'route-segment', [] ).provider( '$routeSegment',
+var mod = angular.module( 'route-segment', [] );
+mod.provider( '$routeSegment',
         ['$routeProvider', function($routeProvider) {
     
     var $routeSegmentProvider = this;
@@ -26,7 +27,8 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
     };
     
     var segments = this.segments = {},
-        rootPointer = pointer(segments, null);
+        rootPointer = pointer(segments, null),
+        segmentRoutes = {};
     
     function camelCase(name) {
         return name.replace(/([\:\-\_]+(.))/g, function(_, separator, letter, offset) {
@@ -121,6 +123,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
      */
     $routeSegmentProvider.when = function(route, name) {
         $routeProvider.when(route, {segment: name});
+        segmentRoutes[name] = route;
         return this;
     };
     
@@ -180,6 +183,31 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                         if(this.chain[i] && this.chain[i].name == val)
                             return true;
                     return false;
+                },
+
+                /**
+                 * A method for reverse routing which can return the route URL for the specified segment name
+                 * @param {string} segmentName The name of a segment as defined in `when()`
+                 * @param {Object} routeParams Route params hash to be put into route URL template
+                 */
+                getSegmentUrl: function(segmentName, routeParams) {
+                    var url, i, m;
+                    if(!segmentRoutes[segmentName])
+                        throw new Error('Can not get URL for segment with name `'+segmentName+'`');
+
+                    routeParams = angular.extend({}, $routeParams, routeParams || {});
+
+                    url = segmentRoutes[segmentName];
+                    for(i in routeParams) {
+                        var regexp = new RegExp('\:'+i+'[\*\?]?','g');
+                        url = url.replace(regexp, routeParams[i]);
+                    }
+                    url = url.replace(/\/\:.*?\?/g, '');
+
+                    if(m = url.match(/\/\:([^\/]*)/))
+                        throw new Error('Route param `'+m[1]+'` is not specified for route `'+segmentRoutes[segmentName]+'`');
+
+                    return url;
                 }
         };    
 
@@ -239,10 +267,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                             })
                         })(i);
                     }
-
                 }
-
-
 
                 curSegmentPromise.then(function() {
 
@@ -255,9 +280,6 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                             updateSegment(i, null);
                     }
                 })
-
-                
-
             }
         });
         
@@ -418,7 +440,58 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
         
         return $routeSegment;
     }];
-}])
+}]);
+
+/**
+ * Usage:
+ * <a ng-href="{{ 'index.list' | routeSegmentUrl }}">
+ * <a ng-href="{{ 'index.list.itemInfo' | routeSegmentUrl: {id: 123} }}">
+ */
+mod.filter('routeSegmentUrl', ['$routeSegment', function($routeSegment) {
+    return function(segmentName, params) {
+        return $routeSegment.getSegmentUrl(segmentName, params);
+    }
+}]);
+
+/**
+ * Usage:
+ * <li ng-class="{active: ('index.list' | routeSegmentEqualsTo)}">
+ */
+mod.filter('routeSegmentEqualsTo', ['$routeSegment', function($routeSegment) {
+    return function(value) {
+        return $routeSegment.name == value;
+    }
+}]);
+
+/**
+ * Usage:
+ * <li ng-class="{active: ('section1' | routeSegmentStartsWith)}">
+ */
+mod.filter('routeSegmentStartsWith', ['$routeSegment', function($routeSegment) {
+    return function(value) {
+        return $routeSegment.startsWith(value);
+    }
+}]);
+
+/**
+ * Usage:
+ * <li ng-class="{active: ('itemInfo' | routeSegmentContains)}">
+ */
+mod.filter('routeSegmentContains', ['$routeSegment', function($routeSegment) {
+    return function(value) {
+        return $routeSegment.contains(value);
+    }
+}]);
+
+/**
+ * Usage:
+ * <li ng-class="{active: ('index.list.itemInfo' | routeSegmentEqualsTo) && ('id' | routeSegmentParam) == 123}">
+ */
+mod.filter('routeSegmentParam', ['$routeSegment', function($routeSegment) {
+    return function(value) {
+        return $routeSegment.$routeParams[value];
+    }
+}]);
 
 
 })(angular);

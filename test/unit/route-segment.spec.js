@@ -806,5 +806,111 @@ describe('route segment', function() {
 
     })
     
-    
+    describe('reverse routes', function() {
+
+        it('should get simple reverse route without params', function() {
+            var url = $routeSegment.getSegmentUrl('section-first');
+            expect(url).toBe('/1');
+        })
+
+        it('should get 2nd level route without params', function() {
+            var url = $routeSegment.getSegmentUrl('section2.section21');
+            expect(url).toBe('/2/X');
+        })
+
+        it('should get a route with the specified params', function() {
+            var url = $routeSegment.getSegmentUrl('section2.section23', {id: 'TEST'});
+            expect(url).toBe('/2/TEST');
+        })
+
+        it('should get a route with param using * mark', function() {
+            $routeSegmentProvider.when('/foo/:param*/bar', 'foo.bar');
+            var url = $routeSegment.getSegmentUrl('foo.bar', {param: 'TEST'});
+            expect(url).toBe('/foo/TEST/bar');
+        })
+
+        it('should get a route with an optional param using ? mark', function() {
+            $routeSegmentProvider.when('/foo/:param?/bar', 'foo.bar');
+            var url = $routeSegment.getSegmentUrl('foo.bar', {param: 'TEST'});
+            expect(url).toBe('/foo/TEST/bar');
+
+            url = $routeSegment.getSegmentUrl('foo.bar', {});
+            expect(url).toBe('/foo/bar');
+        })
+
+        it('should get a route using injected $routeParams', inject(function($routeParams) {
+            $routeParams.param1 = 'TEST1';
+            $routeParams.param2 = 'TEST2';
+
+            $routeSegmentProvider.when('/foo/:param1/bar', 'foo.bar');
+            $routeSegmentProvider.when('/foo/:param1/bar/:param2', 'foo.bar.baz');
+
+            var url = $routeSegment.getSegmentUrl('foo.bar');
+            expect(url).toBe('/foo/TEST1/bar');
+
+            url = $routeSegment.getSegmentUrl('foo.bar', {param1: 'OVERRIDED1'});
+            expect(url).toBe('/foo/OVERRIDED1/bar');
+
+            url = $routeSegment.getSegmentUrl('foo.bar', {param2: 'OVERRIDED1'});
+            expect(url).toBe('/foo/TEST1/bar');
+
+            url = $routeSegment.getSegmentUrl('foo.bar.baz', {param1: 'OVERRIDED1'});
+            expect(url).toBe('/foo/OVERRIDED1/bar/TEST2');
+        }));
+
+        it('should throw an error for unknown segment', function() {
+            expect(function() {
+                $routeSegment.getSegmentUrl('unknown-segment');
+            }).toThrow();
+        })
+
+        it('should throw an error when required params not specified', function() {
+            expect(function() {
+                $routeSegment.getSegmentUrl('section2.section23');
+            }).toThrow();
+        })
+    });
+
+    describe('filters', function() {
+
+        it('routeSegmentUrl', inject(function($filter) {
+            spyOn($routeSegment,'getSegmentUrl').andReturn('foo');
+            var params = {};
+
+            expect($filter('routeSegmentUrl')('URL', params)).toBe('foo');
+            expect($routeSegment.getSegmentUrl).toHaveBeenCalledWith('URL', params);
+        }))
+
+        it('routeSegmentEqualsTo', inject(function($filter) {
+            $location.path('/1');
+            $rootScope.$digest();
+            expect($filter('routeSegmentEqualsTo')('section-first')).toBe(true);
+
+            $location.path('/2/X');
+            $rootScope.$digest();
+            expect($filter('routeSegmentEqualsTo')('section-first')).toBe(false);
+            expect($filter('routeSegmentEqualsTo')('section2.section21')).toBe(true);
+        }))
+
+        it('routeSegmentEqualsTo', inject(function($filter) {
+            $location.path('/2/X');
+            $rootScope.$digest();
+            expect($filter('routeSegmentStartsWith')('section-first')).toBe(false);
+            expect($filter('routeSegmentStartsWith')('section2')).toBe(true);
+            expect($filter('routeSegmentStartsWith')('section2.section21')).toBe(true);
+        }))
+
+        it('routeSegmentEqualsTo', inject(function($filter) {
+            $location.path('/2/X');
+            $rootScope.$digest();
+            expect($filter('routeSegmentContains')('section-first')).toBe(false);
+            expect($filter('routeSegmentContains')('section2')).toBe(true);
+            expect($filter('routeSegmentContains')('section21')).toBe(true);
+        }))
+
+        it('routeSegmentParam', inject(function($filter) {
+            $routeSegment.$routeParams.qux = 'quux';
+            expect($filter('routeSegmentParam')('qux')).toBe('quux');
+        }))
+    })
 })
