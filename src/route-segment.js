@@ -359,15 +359,25 @@ mod.provider( '$routeSegment',
                 locals[key] = angular.isString(value) ? $injector.get(value) : $injector.invoke(value);
             });
                         
-            if(params.template)
+            if(params.template) {
+
                 locals.$template = params.template;
+                if(angular.isFunction(locals.$template))
+                    locals.$template = $injector.invoke(locals.$template);
+            }
             
-            if(options.autoLoadTemplates && params.templateUrl)
-                locals.$template = 
-                    $http.get(params.templateUrl, {cache: $templateCache})
-                        .then(function(response) {                            
+            if(options.autoLoadTemplates && params.templateUrl) {
+
+                locals.$template = params.templateUrl;
+                if(angular.isFunction(locals.$template))
+                    locals.$template = $injector.invoke(locals.$template);
+
+                locals.$template =
+                    $http.get(locals.$template, {cache: $templateCache})
+                        .then(function (response) {
                             return response.data;
                         });
+            }
 
             return $q.all(locals).then(
                     

@@ -179,8 +179,8 @@ Adds new segment at current pointer level.
 
     Segment's parameters hash. The following params are supported:
     
-    - `template` provides HTML for the given segment view; 
-    - `templateUrl` is a template which should be fetched from the network via this URL; if neither `template` nor `templateUrl` parameters are defined, the DOM element's transcluded content will be used;
+    - `template` provides HTML for the given segment view; if `template` is a function, it will be called with injectable arguments;
+    - `templateUrl` is a template which should be fetched from the network via this URL; if `templateUrl` is a function, it will be called with injectable arguments; if neither `template` nor `templateUrl` parameters are defined, the DOM element's transcluded content will be used;
     - `controller` is attached to the given segment view when compiled and linked, this can be any controller definition AngularJS supports;
     - `controllerAs` is a controller alias name, if present the controller will be published to scope under the
     controllerAs name;

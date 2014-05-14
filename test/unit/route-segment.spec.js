@@ -184,6 +184,34 @@ describe('route segment', function() {
             expect(callback.calls[0].args[1].segment.locals.$template).toEqual('TEST');
         });
 
+        it('should work with template set as a function', function () {
+
+            $routeSegmentProvider.segment('section3', {
+                template: function(injectable) { return injectable.foo }
+            });
+            $provide.value('injectable', {foo: 'bar'});
+
+            $rootScope.$broadcast('$routeChangeSuccess', {$route: {segment: 'section3'}});
+            $rootScope.$digest();
+            expect(callback.calls[0].args[1].segment.locals.$template).toEqual('bar');
+        });
+
+        it('should work with templateUrl set as a function', function () {
+
+            $routeSegmentProvider.options.autoLoadTemplates = true;
+            $routeSegmentProvider.segment('section3', {
+                templateUrl: function(injectable) { return injectable.foo }
+            });
+            $provide.value('injectable', {foo: '/abc/def'});
+
+            $httpBackend.expectGET('/abc/def').respond(200, 'TEST');
+            $rootScope.$broadcast('$routeChangeSuccess', {$route: {segment: 'section3'}});
+
+            $rootScope.$digest();
+            $httpBackend.flush();
+            expect(callback.calls[0].args[1].segment.locals.$template).toEqual('TEST');
+        });
+
         it('`startsWith` should work', function () {
             $location.path('/X-foo');
 
