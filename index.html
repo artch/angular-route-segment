@@ -49,7 +49,7 @@
 
 <p>Or use this CDN link (thanks to <a href="http://cdnjs.com">cdnjs.com</a>):</p>
 
-<div class="highlight highlight-html"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"//cdnjs.cloudflare.com/ajax/libs/angular-route-segment/1.2.3/angular-route-segment.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<div class="highlight highlight-html"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"//cdnjs.cloudflare.com/ajax/libs/angular-route-segment/1.3.0/angular-route-segment.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
 </pre></div>
 
 <p>Tested with AngularJS 1.1.5, 1.2.16 and 1.3.0-beta.7.</p>
@@ -71,9 +71,9 @@
 
 <span class="nx">$routeSegmentProvider</span><span class="p">.</span>
 
-    <span class="nx">when</span><span class="p">(</span><span class="s1">'/section1'</span><span class="p">,</span>          <span class="s1">'s1.home'</span><span class="p">).</span>
+    <span class="nx">when</span><span class="p">(</span><span class="s1">'/section1'</span><span class="p">,</span>          <span class="s1">'s1'</span><span class="p">).</span>
     <span class="nx">when</span><span class="p">(</span><span class="s1">'/section1/prefs'</span><span class="p">,</span>    <span class="s1">'s1.prefs'</span><span class="p">).</span>
-    <span class="nx">when</span><span class="p">(</span><span class="s1">'/section1/:id'</span><span class="p">,</span>      <span class="s1">'s1.itemInfo.overview'</span><span class="p">).</span>
+    <span class="nx">when</span><span class="p">(</span><span class="s1">'/section1/:id'</span><span class="p">,</span>      <span class="s1">'s1.itemInfo'</span><span class="p">).</span>
     <span class="nx">when</span><span class="p">(</span><span class="s1">'/section1/:id/edit'</span><span class="p">,</span> <span class="s1">'s1.itemInfo.edit'</span><span class="p">).</span>
     <span class="nx">when</span><span class="p">(</span><span class="s1">'/section2'</span><span class="p">,</span>          <span class="s1">'s2'</span><span class="p">).</span>
 
@@ -84,6 +84,7 @@
     <span class="nx">within</span><span class="p">().</span>
 
         <span class="nx">segment</span><span class="p">(</span><span class="s1">'home'</span><span class="p">,</span> <span class="p">{</span>
+            <span class="k">default</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
             <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/home.html'</span><span class="p">}).</span>
 
         <span class="nx">segment</span><span class="p">(</span><span class="s1">'itemInfo'</span><span class="p">,</span> <span class="p">{</span>
@@ -94,6 +95,7 @@
         <span class="nx">within</span><span class="p">().</span>
 
             <span class="nx">segment</span><span class="p">(</span><span class="s1">'overview'</span><span class="p">,</span> <span class="p">{</span>
+                <span class="k">default</span><span class="o">:</span> <span class="kc">true</span>
                 <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/item/overview.html'</span><span class="p">}).</span>
 
             <span class="nx">segment</span><span class="p">(</span><span class="s1">'edit'</span><span class="p">,</span> <span class="p">{</span>
@@ -220,9 +222,9 @@ Section 1 contents.
 
 <ul>
 <li>
-<code>template</code> provides HTML for the given segment view; </li>
+<code>template</code> provides HTML for the given segment view; if <code>template</code> is a function, it will be called with injectable arguments;</li>
 <li>
-<code>templateUrl</code> is a template which should be fetched from the network via this URL; if neither <code>template</code> nor <code>templateUrl</code> parameters are defined, the DOM element's transcluded content will be used;</li>
+<code>templateUrl</code> is a template which should be fetched from the network via this URL; if <code>templateUrl</code> is a function, it will be called with injectable arguments; if neither <code>template</code> nor <code>templateUrl</code> parameters are defined, the DOM element's transcluded content will be used;</li>
 <li>
 <code>controller</code> is attached to the given segment view when compiled and linked, this can be any controller definition AngularJS supports;</li>
 <li>
@@ -237,7 +239,9 @@ controllerAs name;</li>
 <li>
 <code>untilResolved</code> is the alternate set of params (e.g. <code>template</code> and <code>controller</code>) which should be used before resolving is completed; </li>
 <li>
-<code>resolveFailed</code> is the alternate set of params which should be used if resolving failed.</li>
+<code>resolveFailed</code> is the alternate set of params which should be used if resolving failed;</li>
+<li>
+<code>default</code> is a boolean value which can be set to true if this child segment should be loaded by default when no child is specified in the route.</li>
 </ul>
 </li>
 </ul><h5>
@@ -298,6 +302,73 @@ while some resolving is not completed yet. Should be used instead of original <c
 <a name="containsval" class="anchor" href="#containsval"><span class="octicon octicon-link"></span></a>contains(val)</h5>
 
 <p>Helper method for checking whether current route contains the given string.</p>
+
+<h5>
+<a name="getsegmenturlsegmentname-routeparams" class="anchor" href="#getsegmenturlsegmentname-routeparams"><span class="octicon octicon-link"></span></a>getSegmentUrl(segmentName, routeParams)</h5>
+
+<p>A method for reverse routing which can return the route URL for the specified segment name.</p>
+
+<ul>
+<li>
+<p><em>segmentName</em></p>
+
+<p>The name of a segment as defined in <code>when()</code>.</p>
+</li>
+<li>
+<p><em>routeParams</em></p>
+
+<p>Route params hash to be put into route URL template. Standard <code>$routeParams</code> object is used first;
+it is extended (overrided) with this provided object then.</p>
+</li>
+</ul><div class="highlight highlight-javascript"><pre><span class="nx">$routeSegment</span><span class="p">.</span><span class="nx">getSegmentUrl</span><span class="p">(</span><span class="s1">'s1'</span><span class="p">);</span>                              <span class="c1">// -&gt; '/section1'</span>
+<span class="nx">$routeSegment</span><span class="p">.</span><span class="nx">getSegmentUrl</span><span class="p">(</span><span class="s1">'s1.prefs'</span><span class="p">);</span>                        <span class="c1">// -&gt; '/section1/prefs'</span>
+<span class="nx">$routeSegment</span><span class="p">.</span><span class="nx">getSegmentUrl</span><span class="p">(</span><span class="s1">'s1.itemInfo'</span><span class="p">,</span> <span class="p">{</span><span class="nx">id</span><span class="o">:</span> <span class="mi">123</span><span class="p">});</span>          <span class="c1">// -&gt; '/section1/123'</span>
+<span class="nx">$routeSegment</span><span class="p">.</span><span class="nx">getSegmentUrl</span><span class="p">(</span><span class="s1">'s1.itemInfo.edit'</span><span class="p">,</span> <span class="p">{</span><span class="nx">id</span><span class="o">:</span> <span class="mi">123</span><span class="p">});</span>     <span class="c1">// -&gt; '/section1/123/edit'</span>
+</pre></div>
+
+<h3>
+<a name="filters" class="anchor" href="#filters"><span class="octicon octicon-link"></span></a>Filters</h3>
+
+<h5>
+<a name="routesegmentequalsto" class="anchor" href="#routesegmentequalsto"><span class="octicon octicon-link"></span></a>routeSegmentEqualsTo</h5>
+
+<p>A wrapper for <code>$routeSegment.name == value</code>.</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;li</span> <span class="na">ng-class=</span><span class="s">"{active: ('s1' | routeSegmentEqualsTo)}"</span><span class="nt">&gt;</span>
+</pre></div>
+
+<h5>
+<a name="routesegmentstartswith" class="anchor" href="#routesegmentstartswith"><span class="octicon octicon-link"></span></a>routeSegmentStartsWith</h5>
+
+<p>A wrapper for <code>$routeSegment.startsWith(value)</code>.</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;li</span> <span class="na">ng-class=</span><span class="s">"{active: ('s1' | routeSegmentStartsWith)}"</span><span class="nt">&gt;</span>
+</pre></div>
+
+<h5>
+<a name="routesegmentcontains" class="anchor" href="#routesegmentcontains"><span class="octicon octicon-link"></span></a>routeSegmentContains</h5>
+
+<p>A wrapper for <code>$routeSegment.contains(value)</code>.</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;li</span> <span class="na">ng-class=</span><span class="s">"{active: ('s1' | routeSegmentContains)}"</span><span class="nt">&gt;</span>
+</pre></div>
+
+<h5>
+<a name="routesegmentparam" class="anchor" href="#routesegmentparam"><span class="octicon octicon-link"></span></a>routeSegmentParam</h5>
+
+<p>A wrapper for <code>$routeSegment.$routeParams[value]</code>.</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;li</span> <span class="na">ng-class=</span><span class="s">"{active: ('s1.itemInfo' | routeSegmentEqualsTo) &amp;&amp; ('id' | routeSegmentParam) == 123}"</span><span class="nt">&gt;</span>
+</pre></div>
+
+<h5>
+<a name="routesegmenturl" class="anchor" href="#routesegmenturl"><span class="octicon octicon-link"></span></a>routeSegmentUrl</h5>
+
+<p>A wrapper for <code>$routeSegment.getSegmentUrl</code>.</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;a</span> <span class="na">ng-href=</span><span class="s">"{{ 's1.home' | routeSegmentUrl }}"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;a</span> <span class="na">ng-href=</span><span class="s">"{{ 's1.itemInfo.edit' | routeSegmentUrl: {id: 123} }}"</span><span class="nt">&gt;</span>
+</pre></div>
 
 <h2>
 <a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
