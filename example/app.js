@@ -12,9 +12,9 @@ app.config(function($routeSegmentProvider, $routeProvider) {
   
     $routeSegmentProvider
     
-        .when('/section1',          's1.home')
+        .when('/section1',          's1')
         .when('/section1/prefs',    's1.prefs')
-        .when('/section1/:id',      's1.itemInfo.tab1')
+        .when('/section1/:id',      's1.itemInfo')
         .when('/section1/:id/X',    's1.itemInfo.tab1')
         .when('/section1/:id/Y',    's1.itemInfo.tab2')
         
@@ -30,6 +30,7 @@ app.config(function($routeSegmentProvider, $routeProvider) {
         .within()
             
             .segment('home', {
+                default: true,
                 templateUrl: 'templates/section1/home.html'})
                 
             .segment('itemInfo', {
@@ -40,6 +41,7 @@ app.config(function($routeSegmentProvider, $routeProvider) {
             .within() 
                 
                 .segment('tab1', {
+                    default: true,
                     templateUrl: 'templates/section1/tabs/tab1.html'})
                     
                 .segment('tab2', {
@@ -89,7 +91,7 @@ app.config(function($routeSegmentProvider, $routeProvider) {
         .when('/invalid-data', 's1.invalidData')
         .when('/slow-data', 's1.slowDataSimple')
         .when('/slow-data-loading', 's1.slowDataLoading')
-        .when('/inline-view', 's1.inlineParent.inlineChildren')
+        .when('/inline-view', 's1.inlineParent')
         .when('/section1/:id/slow',    's1.itemInfo.tabSlow')
         
         .within('s1')
@@ -141,6 +143,7 @@ app.config(function($routeSegmentProvider, $routeProvider) {
                 .segment('inlineChildren', {
                     // no template here
                     controller: 'SlowDataCtrl',
+                    default: true,
                     resolve: {
                         data: function($timeout) {
                             return $timeout(function() { return 'SLOW DATA CONTENT'; }, 2000);

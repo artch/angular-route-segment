@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Route Segment Demo</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/app.css">    
+    <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
     
@@ -16,9 +16,15 @@
                     <div class="pull-right label">Current route: <span ng-bind="$routeSegment.name"></span></div>
                     <a class="brand" href="http://angular-route-segment.com">angular-route-segment</a>
                     <ul class="nav">
-                        <li ng-class="{active: $routeSegment.startsWith('s1')}"><a href="#/section1">Section 1</a></li>
-                        <li ng-class="{active: $routeSegment.startsWith('s2')}"><a href="#/section2">Section 2</a></li>
-                        <li ng-class="{active: $routeSegment.startsWith('s3')}"><a href="#/section3">Section 3</a></li>
+                        <li ng-class="{active: ('s1' | routeSegmentStartsWith)}">
+                            <a href="#{{'s1' | routeSegmentUrl}}">Section 1</a>
+                        </li>
+                        <li ng-class="{active: ('s2' | routeSegmentStartsWith)}">
+                            <a href="#{{'s2' | routeSegmentUrl}}">Section 2</a>
+                        </li>
+                        <li ng-class="{active: ('s3' | routeSegmentStartsWith)}">
+                            <a href="#{{'s3' | routeSegmentUrl}}">Section 3</a>
+                        </li>
                     </ul>
                 </div>
             </div>
