@@ -42,9 +42,9 @@ app.config(function ($routeSegmentProvider) {
 
 $routeSegmentProvider.
 
-    when('/section1',          's1.home').
+    when('/section1',          's1').
     when('/section1/prefs',    's1.prefs').
-    when('/section1/:id',      's1.itemInfo.overview').
+    when('/section1/:id',      's1.itemInfo').
     when('/section1/:id/edit', 's1.itemInfo.edit').
     when('/section2',          's2').
 
@@ -55,6 +55,7 @@ $routeSegmentProvider.
     within().
 
         segment('home', {
+            default: true,
             templateUrl: 'templates/section1/home.html'}).
 
         segment('itemInfo', {
@@ -65,6 +66,7 @@ $routeSegmentProvider.
         within().
 	    
             segment('overview', {
+                default: true
                 templateUrl: 'templates/section1/item/overview.html'}).
 
             segment('edit', {
@@ -186,7 +188,8 @@ Adds new segment at current pointer level.
     - `watcher` is a $watch-function for recreating the view when its returning value is changed;
     - `resolve` is a hash of functions or injectable names which should be resolved prior to instantiating the template and the controller;
     - `untilResolved` is the alternate set of params (e.g. `template` and `controller`) which should be used before resolving is completed; 
-    - `resolveFailed` is the alternate set of params which should be used if resolving failed.
+    - `resolveFailed` is the alternate set of params which should be used if resolving failed;
+    - `default` is a boolean value which can be set to true if this child segment should be loaded by default when no child is specified in the route.
     
 ##### within(childName)
 
@@ -246,7 +249,7 @@ A method for reverse routing which can return the route URL for the specified se
     it is extended (overrided) with this provided object then.
 
 ```javascript
-$routeSegment.getSegmentUrl('s1.home');                         // -> '/section1'
+$routeSegment.getSegmentUrl('s1');                              // -> '/section1'
 $routeSegment.getSegmentUrl('s1.prefs');                        // -> '/section1/prefs'
 $routeSegment.getSegmentUrl('s1.itemInfo', {id: 123});          // -> '/section1/123'
 $routeSegment.getSegmentUrl('s1.itemInfo.edit', {id: 123});     // -> '/section1/123/edit'

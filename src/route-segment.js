@@ -221,7 +221,7 @@ mod.provider( '$routeSegment',
 
                 var segmentName = route.segment;
                 var segmentNameChain = segmentName.split(".");
-                var updates = [];
+                var updates = [], lastUpdateIndex = -1;
                 
                 for(var i=0; i < segmentNameChain.length; i++) {
                     
@@ -233,8 +233,10 @@ mod.provider( '$routeSegment',
                             updates.length == 0 && !isDependenciesChanged(newSegment))
                             // if we went back to the same state as we were before resolving new segment
                             resolvingSemaphoreChain[i] = newSegment.name;
-                        else
+                        else {
                             updates.push({index: i, newSegment: newSegment});
+                            lastUpdateIndex = i;
+                        }
                     }    
                 }
 
@@ -261,8 +263,6 @@ mod.provider( '$routeSegment',
                                             updateSegment(j, null);
                                         }
                                     }
-
-
                                 }
                             })
                         })(i);
@@ -276,10 +276,41 @@ mod.provider( '$routeSegment',
                         var oldLength = $routeSegment.chain.length;
                         var shortenBy = $routeSegment.chain.length - segmentNameChain.length;
                         $routeSegment.chain.splice(-shortenBy, shortenBy);
-                        for(var i=segmentNameChain.length; i < oldLength; i++)
+                        for(var i=segmentNameChain.length; i < oldLength; i++) {
                             updateSegment(i, null);
+                            lastUpdateIndex = $routeSegment.chain.length-1;
+                        }
                     }
-                })
+                }).then(function() {
+
+                    var defaultChildUpdatePromise = $q.when();
+
+                    if(lastUpdateIndex == $routeSegment.chain.length-1) {
+
+                        var curSegment = getSegmentInChain(lastUpdateIndex, $routeSegment.name.split("."));
+
+                        while(curSegment) {
+                            var children = curSegment.children, index = lastUpdateIndex+1;
+                            curSegment = null;
+                            for (var i in children) {
+                                (function(i, children, index) {
+                                    if (children[i].params.default) {
+                                        defaultChildUpdatePromise = defaultChildUpdatePromise.then(function () {
+                                            return updateSegment(index, {name: i, params: children[i].params})
+                                                .then(function (result) {
+                                                    if (result.success) broadcast(result.success);
+                                                });
+                                        });
+                                        curSegment = children[i];
+                                        lastUpdateIndex = index;
+                                    }
+                                })(i, children, index);
+                            }
+                        }
+                    }
+
+                    return defaultChildUpdatePromise;
+                });
             }
         });
         
@@ -434,7 +465,8 @@ mod.provider( '$routeSegment',
             
             return {
                 name: nextName,
-                params: curSegment.params
+                params: curSegment.params,
+                children: curSegment.children
             };
         }
         
