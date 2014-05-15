@@ -155,6 +155,18 @@ Section 1 contents.
 
 <p>...etc. You can reach any nesting level here. Every view will be handled independently, keeping the state of top-level views.</p>
 
+<p>You can also use filters to define link hrefs. It will resolve segment URLs automatically:</p>
+
+<div class="highlight highlight-html"><pre><span class="nt">&lt;ul&gt;</span>
+    <span class="nt">&lt;li</span> <span class="na">ng-class=</span><span class="s">"{active: ('s1' | routeSegmentStartsWith)}"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"{{ 's1' | routeSegmentUrl }}"</span><span class="nt">&gt;</span>Section 1<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;/li&gt;</span>
+    <span class="nt">&lt;li</span> <span class="na">ng-class=</span><span class="s">"{active: ('s2' | routeSegmentStartsWith)}"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"{{ 's2' | routeSegmentUrl }}"</span><span class="nt">&gt;</span>Section 2<span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;/li&gt;</span>
+<span class="nt">&lt;/ul&gt;</span>
+</pre></div>
+
 <h2>
 <a name="difference-from-ui-router" class="anchor" href="#difference-from-ui-router"><span class="octicon octicon-link"></span></a>Difference from UI-Router</h2>
 
