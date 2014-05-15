@@ -127,6 +127,18 @@ Section 1 contents.
 
 ...etc. You can reach any nesting level here. Every view will be handled independently, keeping the state of top-level views.
 
+You can also use filters to define link hrefs. It will resolve segment URLs automatically:
+```html
+<ul>
+    <li ng-class="{active: ('s1' | routeSegmentStartsWith)}">
+        <a href="{{ 's1' | routeSegmentUrl }}">Section 1</a>
+    </li>
+    <li ng-class="{active: ('s2' | routeSegmentStartsWith)}">
+        <a href="{{ 's2' | routeSegmentUrl }}">Section 2</a>
+    </li>
+</ul>
+```
+
 Difference from UI-Router
 -------------------------
 
