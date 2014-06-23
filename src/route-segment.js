@@ -129,7 +129,7 @@ mod.provider( '$routeSegment',
 
     /**
      * The shorthand for $routeProvider.otherwise() method with specified route.
-     * @param {string} route Route URL, e.g. '/'
+     * @param {string|function} route Route URL, e.g. '/'; or function that return a URL
      */
     $routeSegmentProvider.otherwise = function(route) {
         $routeProvider.otherwise({redirectTo: route});
@@ -418,7 +418,7 @@ mod.provider( '$routeSegment',
                                     params.watcher,
                                     {},
                                     {segment: $routeSegment.chain[index]});
-                            }
+                            };
 
                             var lastWatcherValue = getWatcherValue();
 
