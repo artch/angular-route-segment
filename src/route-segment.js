@@ -126,7 +126,16 @@ mod.provider( '$routeSegment',
         segmentRoutes[name] = route;
         return this;
     };
-    
+
+    /**
+     * The shorthand for $routeProvider.otherwise() method with specified route.
+     * @param {string} route Route URL, e.g. '/'
+     */
+    $routeSegmentProvider.otherwise = function(route) {
+        $routeProvider.otherwise({redirectTo: route});
+        return this;
+    };
+
     // Extending the provider with the methods of rootPointer
     // to start configuration.
     angular.extend($routeSegmentProvider, rootPointer);
