@@ -25,7 +25,7 @@ app.config(function($routeSegmentProvider, $routeProvider) {
         
         .segment('s1', {
             templateUrl: 'templates/section1.html',
-            controller: MainCtrl})
+            controller: 'MainCtrl'})
             
         .within()
             
@@ -35,7 +35,7 @@ app.config(function($routeSegmentProvider, $routeProvider) {
                 
             .segment('itemInfo', {
                 templateUrl: 'templates/section1/item.html',
-                controller: Section1ItemCtrl,
+                controller: 'Section1ItemCtrl',
                 dependencies: ['id']})
                 
             .within() 
@@ -56,7 +56,7 @@ app.config(function($routeSegmentProvider, $routeProvider) {
         
         .segment('s2', {
             templateUrl: 'templates/section2.html',
-            controller: MainCtrl})
+            controller: 'MainCtrl'})
             
         .within()
             
@@ -177,7 +177,7 @@ app.config(function($routeSegmentProvider, $routeProvider) {
 
 app.value('loader', {show: false});
 
-function MainCtrl($scope, $routeSegment, loader) {
+app.controller('MainCtrl', function($scope, $routeSegment, loader) {
 
     $scope.$routeSegment = $routeSegment;
     $scope.loader = loader;
@@ -185,35 +185,35 @@ function MainCtrl($scope, $routeSegment, loader) {
     $scope.$on('routeSegmentChange', function() {
         loader.show = false;
     })
-}
+});
 
-function Section1Ctrl($scope, $routeSegment) {
+app.controller('Section1Ctrl', function($scope, $routeSegment) {
     
     $scope.$routeSegment = $routeSegment;
     $scope.test = { btnClicked: false };
     $scope.items = [ 1,2,3,4,5 ];
-}
+});
 
-function Section1ItemCtrl($scope, $routeSegment) {
+app.controller('Section1ItemCtrl', function($scope, $routeSegment) {
 
     $scope.$routeSegment = $routeSegment;
     $scope.item = { id: $routeSegment.$routeParams.id };
     $scope.test = { textValue: '' };
-}
+});
 
-function Section2Ctrl($scope, $routeSegment) {
+app.controller('Section2Ctrl', function($scope, $routeSegment) {
 
     $scope.$routeSegment = $routeSegment;
     $scope.test = { textValue: '' };
     $scope.items = [ 1,2,3,4,5,6,7,8,9 ];
-}
+});
 
-function ErrorCtrl($scope, error) {
+app.controller('ErrorCtrl', function($scope, error) {
     $scope.error = error;
-}
+});
 
-function SlowDataCtrl($scope, data, loader) {
+app.controller('SlowDataCtrl', function($scope, data, loader) {
     loader.show = false;
     $scope.data = data;
-}
+});
 
