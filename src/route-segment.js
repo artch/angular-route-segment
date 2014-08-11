@@ -294,7 +294,7 @@ mod.provider( '$routeSegment',
                             curSegment = null;
                             for (var i in children) {
                                 (function(i, children, index) {
-                                    if (children[i].params.default) {
+                                    if (children[i].params['default']) {
                                         defaultChildUpdatePromise = defaultChildUpdatePromise.then(function () {
                                             return updateSegment(index, {name: i, params: children[i].params})
                                                 .then(function (result) {
