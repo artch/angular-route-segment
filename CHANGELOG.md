@@ -1,3 +1,7 @@
+# 1.3.1 (2014-08-12)
+
+- Fixed a compatibility bug in IE8 ([0aaa2](https://github.com/artch/angular-route-segment/commit/0aaa25be27a8d0b7e36f2e07a9a303b9b3f3c3f5)) thanks to [jincod](https://github.com/jincod).
+
 # 1.3.0 (2014-05-15)
 
 ## Features

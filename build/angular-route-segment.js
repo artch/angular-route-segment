@@ -1,5 +1,5 @@
 /**
- * angular-route-segment 1.3.0
+ * angular-route-segment 1.3.1
  * https://angular-route-segment.com
  * @author Artem Chivchalov
  * @license MIT License http://opensource.org/licenses/MIT
@@ -300,7 +300,7 @@ mod.provider( '$routeSegment',
                             curSegment = null;
                             for (var i in children) {
                                 (function(i, children, index) {
-                                    if (children[i].params.default) {
+                                    if (children[i].params['default']) {
                                         defaultChildUpdatePromise = defaultChildUpdatePromise.then(function () {
                                             return updateSegment(index, {name: i, params: children[i].params})
                                                 .then(function (result) {
@@ -311,6 +311,8 @@ mod.provider( '$routeSegment',
                                         lastUpdateIndex = index;
                                     }
                                 })(i, children, index);
+                                
+
                             }
                         }
                     }
@@ -542,7 +544,8 @@ mod.filter('routeSegmentParam', ['$routeSegment', function($routeSegment) {
 }]);
 
 
-})(angular);;'use strict';
+})(angular);
+;'use strict';
 
 /**
  * appViewSegment directive

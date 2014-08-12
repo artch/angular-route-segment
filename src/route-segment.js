@@ -305,6 +305,8 @@ mod.provider( '$routeSegment',
                                         lastUpdateIndex = index;
                                     }
                                 })(i, children, index);
+                                
+
                             }
                         }
                     }
