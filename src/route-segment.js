@@ -254,8 +254,6 @@ mod.provider( '$routeSegment',
 
                                 if(result.success != undefined) {
 
-                                    broadcast(result.success);
-
                                     for(var j = updates[i].index + 1; j < $routeSegment.chain.length; j++) {
 
                                         if($routeSegment.chain[j]) {
@@ -263,6 +261,8 @@ mod.provider( '$routeSegment',
                                             updateSegment(j, null);
                                         }
                                     }
+                                    broadcast(result.success);
+
                                 }
                             })
                         })(i);
