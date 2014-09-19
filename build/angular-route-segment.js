@@ -1,5 +1,5 @@
 /**
- * angular-route-segment 1.3.1
+ * angular-route-segment 1.3.2
  * https://angular-route-segment.com
  * @author Artem Chivchalov
  * @license MIT License http://opensource.org/licenses/MIT
@@ -410,7 +410,7 @@ mod.provider( '$routeSegment',
                         if(params.watcher) {
 
                             var getWatcherValue = function() {
-                                if(!angular.isFunction(params.watcher))
+                                if(!angular.isFunction(params.watcher) && !angular.isArray(params.watcher))
                                     throw new Error('Watcher is not a function in segment `'+name+'`');
 
                                 return $injector.invoke(
