@@ -404,7 +404,7 @@ mod.provider( '$routeSegment',
                         if(params.watcher) {
 
                             var getWatcherValue = function() {
-                                if(!angular.isFunction(params.watcher))
+                                if(!angular.isFunction(params.watcher) && !angular.isArray(params.watcher))
                                     throw new Error('Watcher is not a function in segment `'+name+'`');
 
                                 return $injector.invoke(

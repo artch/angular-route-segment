@@ -30,7 +30,7 @@ app.config(function($routeSegmentProvider, $routeProvider) {
         .within()
             
             .segment('home', {
-                default: true,
+                'default': true,
                 templateUrl: 'templates/section1/home.html'})
                 
             .segment('itemInfo', {
@@ -41,7 +41,7 @@ app.config(function($routeSegmentProvider, $routeProvider) {
             .within() 
                 
                 .segment('tab1', {
-                    default: true,
+                    'default': true,
                     templateUrl: 'templates/section1/tabs/tab1.html'})
                     
                 .segment('tab2', {
@@ -143,7 +143,7 @@ app.config(function($routeSegmentProvider, $routeProvider) {
                 .segment('inlineChildren', {
                     // no template here
                     controller: 'SlowDataCtrl',
-                    default: true,
+                    'default': true,
                     resolve: {
                         data: function($timeout) {
                             return $timeout(function() { return 'SLOW DATA CONTENT'; }, 2000);
