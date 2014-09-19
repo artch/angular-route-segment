@@ -1,3 +1,7 @@
+# 1.3.2 (2014-09-19)
+
+- Fixed a case when `watcher` is provided in annotated array form rather than as a function ([84602](https://github.com/artch/angular-route-segment/commit/84602f83fbb20d336f0fdc3d34a22d7834a6489b)).
+
 # 1.3.1 (2014-08-12)
 
 - Fixed a compatibility bug in IE8 ([0aaa2](https://github.com/artch/angular-route-segment/commit/0aaa25be27a8d0b7e36f2e07a9a303b9b3f3c3f5)) thanks to [jincod](https://github.com/jincod).
