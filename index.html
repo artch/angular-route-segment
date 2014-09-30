@@ -49,10 +49,10 @@
 
 <p>Or use this CDN link (thanks to <a href="http://cdnjs.com">cdnjs.com</a>):</p>
 
-<div class="highlight highlight-html"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"//cdnjs.cloudflare.com/ajax/libs/angular-route-segment/1.3.0/angular-route-segment.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<div class="highlight highlight-html"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"//cdnjs.cloudflare.com/ajax/libs/angular-route-segment/1.3.3/angular-route-segment.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
 </pre></div>
 
-<p>Tested with AngularJS 1.1.5, 1.2.21 and 1.3.0-beta.17.</p>
+<p>Tested with AngularJS 1.1.5, 1.2.21 and 1.3.0-rc.3.</p>
 
 <h2>
 <a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview</h2>
@@ -340,6 +340,8 @@ it is extended (overrided) with this provided object then.</p>
 
 <h3>
 <a name="filters" class="anchor" href="#filters"><span class="octicon octicon-link"></span></a>Filters</h3>
+
+<p><strong>ATTENTION:</strong> filters are not stateless. While they are not intended to work with complex data structures, it can impact performance anyway. See more info at <a href="https://github.com/angular/angular.js/commit/fca6be71">angular.js commit fca6be71</a>.</p>
 
 <h5>
 <a name="routesegmentequalsto" class="anchor" href="#routesegmentequalsto"><span class="octicon octicon-link"></span></a>routeSegmentEqualsTo</h5>
