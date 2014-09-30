@@ -985,5 +985,21 @@ describe('route segment', function() {
             $routeSegment.$routeParams.qux = 'quux';
             expect($filter('routeSegmentParam')('qux')).toBe('quux');
         }))
+
+        it('should expect the filters to be stateful and not cached', inject(function($compile, $routeSegment, $rootScope) {
+            var elm = $('<div>{{"qux" | routeSegmentParam}}</div>'),
+                scope = $rootScope.$new();
+
+            $routeSegment.$routeParams.qux = 'quux';
+            $compile(elm)(scope);
+            scope.$apply();
+
+            expect(elm.text()).toBe('quux');
+
+            $routeSegment.$routeParams.qux = 'changed';
+            scope.$apply();
+
+            expect(elm.text()).toBe('changed');
+        }))
     })
 })

@@ -492,9 +492,11 @@ mod.provider( '$routeSegment',
  * <a ng-href="{{ 'index.list.itemInfo' | routeSegmentUrl: {id: 123} }}">
  */
 mod.filter('routeSegmentUrl', ['$routeSegment', function($routeSegment) {
-    return function(segmentName, params) {
+    var filter = function(segmentName, params) {
         return $routeSegment.getSegmentUrl(segmentName, params);
-    }
+    };
+    filter.$stateful = true;
+    return filter;
 }]);
 
 /**
@@ -502,9 +504,11 @@ mod.filter('routeSegmentUrl', ['$routeSegment', function($routeSegment) {
  * <li ng-class="{active: ('index.list' | routeSegmentEqualsTo)}">
  */
 mod.filter('routeSegmentEqualsTo', ['$routeSegment', function($routeSegment) {
-    return function(value) {
+    var filter = function(value) {
         return $routeSegment.name == value;
-    }
+    };
+    filter.$stateful = true;
+    return filter;
 }]);
 
 /**
@@ -512,9 +516,11 @@ mod.filter('routeSegmentEqualsTo', ['$routeSegment', function($routeSegment) {
  * <li ng-class="{active: ('section1' | routeSegmentStartsWith)}">
  */
 mod.filter('routeSegmentStartsWith', ['$routeSegment', function($routeSegment) {
-    return function(value) {
+    var filter = function(value) {
         return $routeSegment.startsWith(value);
-    }
+    };
+    filter.$stateful = true;
+    return filter;
 }]);
 
 /**
@@ -522,9 +528,11 @@ mod.filter('routeSegmentStartsWith', ['$routeSegment', function($routeSegment) {
  * <li ng-class="{active: ('itemInfo' | routeSegmentContains)}">
  */
 mod.filter('routeSegmentContains', ['$routeSegment', function($routeSegment) {
-    return function(value) {
+    var filter = function(value) {
         return $routeSegment.contains(value);
-    }
+    };
+    filter.$stateful = true;
+    return filter;
 }]);
 
 /**
@@ -532,9 +540,11 @@ mod.filter('routeSegmentContains', ['$routeSegment', function($routeSegment) {
  * <li ng-class="{active: ('index.list.itemInfo' | routeSegmentEqualsTo) && ('id' | routeSegmentParam) == 123}">
  */
 mod.filter('routeSegmentParam', ['$routeSegment', function($routeSegment) {
-    return function(value) {
+    var filter = function(value) {
         return $routeSegment.$routeParams[value];
-    }
+    };
+    filter.$stateful = true;
+    return filter;
 }]);
 
 
