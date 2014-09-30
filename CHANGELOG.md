@@ -1,3 +1,7 @@
+# 1.3.3 (2014-09-30)
+
+- Due to [angular.js@fca6be71](https://github.com/angular/angular.js/commit/fca6be71), filters are now flagged as `$stateful=true` for compatibility reasons ([03f8425](https://github.com/artch/angular-route-segment/commit/03f8425)).
+
 # 1.3.2 (2014-09-19)
 
 - Fixed a case when `watcher` is provided in annotated array form rather than as a function ([84602](https://github.com/artch/angular-route-segment/commit/84602f83fbb20d336f0fdc3d34a22d7834a6489b)).

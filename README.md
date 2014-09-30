@@ -269,6 +269,8 @@ $routeSegment.getSegmentUrl('s1.itemInfo.edit', {id: 123});     // -> '/section1
 
 ### Filters ###
 
+**ATTENTION:** filters are not stateless. While they are not intented to work with complex data structures, it can impact performance anyway. See more info at [angular.js commit fca6be71](https://github.com/angular/angular.js/commit/fca6be71).
+
 ##### routeSegmentEqualsTo
 
 A wrapper for `$routeSegment.name == value`.
