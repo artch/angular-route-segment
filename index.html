@@ -64,7 +64,7 @@
 <div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">'app'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'ngRoute'</span><span class="p">,</span> <span class="s1">'route-segment'</span><span class="p">,</span> <span class="s1">'view-segment'</span><span class="p">]);</span>
 </pre></div>
 
-<p><code>$routeSegment</code> is meant to be used instead of built-in Angular <code>$route</code> service. Its provider exposes configuration methods which can be used to traverse the tree of route segments and setup it properly.</p>
+<p><code>$routeSegment</code> is a layer on top of built-in Angular <code>$route</code> service and is meant to be used instead of it. Its provider exposes configuration methods which can be used to traverse the tree of route segments and setup it properly.</p>
 
 <div class="highlight highlight-javascript"><pre>
 <span class="nx">app</span><span class="p">.</span><span class="nx">config</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">$routeSegmentProvider</span><span class="p">)</span> <span class="p">{</span>
