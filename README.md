@@ -34,7 +34,7 @@ The library provides two pieces of code: `$routeSegment` service and `app-view-s
 var app = angular.module('app', ['ngRoute', 'route-segment', 'view-segment']);
 ```
 
-`$routeSegment` is meant to be used instead of built-in Angular `$route` service. Its provider exposes configuration methods which can be used to traverse the tree of route segments and setup it properly.
+`$routeSegment` is a layer on top of built-in Angular `$route` service and is meant to be used instead of it. Its provider exposes configuration methods which can be used to traverse the tree of route segments and setup it properly.
 
 ```javascript
 
