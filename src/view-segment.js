@@ -28,14 +28,19 @@
                         viewSegmentIndex = parseInt(tAttrs.appViewSegment), updatePromise;
 
                         try {
-                            // angular 1.1.x
-                            var $animator = $injector.get('$animator')
-                            animate = $animator($scope, tAttrs);
-                        }
-                        catch(e) {}
-                        try {
-                            // angular 1.2.x
-                            animate = $injector.get('$animate');
+                            switch(angular.version.minor) {
+                                case 1:
+                                    // angular 1.1.x
+                                    var $animator = $injector.get('$animator')
+                                    animate = $animator($scope, tAttrs);
+                                    break;
+                                case 2:
+                                case 3:
+                                case 4:
+                                    // angular 1.[2-4].x
+                                    animate = $injector.get('$animate');
+                                    break;
+                            }
                         }
                         catch(e) {}
 
