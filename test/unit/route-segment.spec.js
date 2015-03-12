@@ -352,14 +352,14 @@ describe('route segment', function() {
         describe('default=true', function() {
             beforeEach(function () {
                 $routeSegmentProvider.when('/3', 'section3');
-                $routeSegmentProvider.when('/3/1', 'section3.section31');
-                $routeSegmentProvider.when('/3/1/1', 'section3.section31.section311');
-                $routeSegmentProvider.when('/3/1/2', 'section3.section31.section312');
+                $routeSegmentProvider.when('/3/1', 'section3.section31-default');
+                $routeSegmentProvider.when('/3/1/1', 'section3.section31-default.section311');
+                $routeSegmentProvider.when('/3/1/2', 'section3.section31-default.section312-default');
                 $routeSegmentProvider.when('/3/2', 'section3.section32');
                 $routeSegmentProvider.segment('section3', {});
-                $routeSegmentProvider.within('section3').segment('section31', {default: true});
-                $routeSegmentProvider.within('section3').within('section31').segment('section311', {});
-                $routeSegmentProvider.within('section3').within('section31').segment('section312', {default: true});
+                $routeSegmentProvider.within('section3').segment('section31-default', {default: true});
+                $routeSegmentProvider.within('section3').within('section31-default').segment('section311', {});
+                $routeSegmentProvider.within('section3').within('section31-default').segment('section312-default', {default: true});
                 $routeSegmentProvider.within('section3').segment('section32', {});
             });
 
@@ -367,13 +367,13 @@ describe('route segment', function() {
                 $location.path('/3');
 
                 $rootScope.$digest();
-                expect($routeSegment.name).toBe('section3.section31.section312');
+                expect($routeSegment.name).toBe('section3.section31-default.section312-default');
                 expect($routeSegment.chain[0].name).toBe('section3');
-                expect($routeSegment.chain[1].name).toBe('section31');
-                expect($routeSegment.chain[2].name).toBe('section312');
+                expect($routeSegment.chain[1].name).toBe('section31-default');
+                expect($routeSegment.chain[2].name).toBe('section312-default');
                 expect(callback.calls[0].args[1].segment.name).toBe('section3');
-                expect(callback.calls[1].args[1].segment.name).toBe('section31');
-                expect(callback.calls[2].args[1].segment.name).toBe('section312');
+                expect(callback.calls[1].args[1].segment.name).toBe('section31-default');
+                expect(callback.calls[2].args[1].segment.name).toBe('section312-default');
             });
 
             it('should auto-select a child with default=true when coming from another child at the same level', function () {
@@ -382,15 +382,15 @@ describe('route segment', function() {
                 $location.path('/3');
 
                 $rootScope.$digest();
-                expect($routeSegment.name).toBe('section3.section31.section312');
+                expect($routeSegment.name).toBe('section3.section31-default.section312-default');
                 expect($routeSegment.chain[0].name).toBe('section3');
-                expect($routeSegment.chain[1].name).toBe('section31');
-                expect($routeSegment.chain[2].name).toBe('section312');
+                expect($routeSegment.chain[1].name).toBe('section31-default');
+                expect($routeSegment.chain[2].name).toBe('section312-default');
                 expect(callback.calls[0].args[1].segment.name).toBe('section3');
                 expect(callback.calls[1].args[1].segment.name).toBe('section32');
                 expect(callback.calls[2].args[1].segment).toBe(null);
-                expect(callback.calls[3].args[1].segment.name).toBe('section31');
-                expect(callback.calls[4].args[1].segment.name).toBe('section312');
+                expect(callback.calls[3].args[1].segment.name).toBe('section31-default');
+                expect(callback.calls[4].args[1].segment.name).toBe('section312-default');
             })
         });
 

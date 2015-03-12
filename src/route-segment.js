@@ -68,7 +68,7 @@ mod.provider( '$routeSegment',
              * @returns {Object} The same level pointer.
              */
             segment: function(name, params) {
-                segment[camelCase(name)] = {params: params};
+                segment[camelCase(name)] = {name: name, params: params};
                 lastAddedName = name;
                 return this;
             },
@@ -296,7 +296,7 @@ mod.provider( '$routeSegment',
                                 (function(i, children, index) {
                                     if (children[i].params['default']) {
                                         defaultChildUpdatePromise = defaultChildUpdatePromise.then(function () {
-                                            return updateSegment(index, {name: i, params: children[i].params})
+                                            return updateSegment(index, {name: children[i].name, params: children[i].params})
                                                 .then(function (result) {
                                                     if (result.success) broadcast(result.success);
                                                 });
