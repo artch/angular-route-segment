@@ -1,3 +1,10 @@
+# 1.4.0 (2015-03-13) 
+
+- Refactored render directive using modern `$transclude` cloning mechanism instead of manual cloning ([32dea](https://github.com/artch/angular-route-segment/commit/904b72477e322a7ab647d8b6c96165c7d4332dea)).
+  **ATTENTION:** AngularJS 1.1.x is no longer supported due to this fix!
+- Fixed a bug with a segment placed inside ng-if ([32dea](https://github.com/artch/angular-route-segment/commit/904b72477e322a7ab647d8b6c96165c7d4332dea)).  
+- Fixed a bug with camelCasing default segment names ([74b64](https://github.com/artch/angular-route-segment/commit/60bf2eca0ed554809c14f4556776a92eb2574b64)).
+
 # 1.3.3 (2014-09-30)
 
 - Due to [angular.js@fca6be71](https://github.com/angular/angular.js/commit/fca6be71), filters are now flagged as `$stateful=true` for compatibility reasons ([03f8425](https://github.com/artch/angular-route-segment/commit/03f8425)).
