@@ -27,14 +27,6 @@ module.exports = function(grunt) {
         },        
         
         karma: {
-            angular11: {
-                options: {
-                    keepalive: true,
-                    configFile: 'karma-angular-1.1.conf.js',
-                    autoWatch: false,
-                    singleRun: true
-                }                
-            },
             angular12: {
                 options: {
                     keepalive: true,
@@ -47,6 +39,14 @@ module.exports = function(grunt) {
                 options: {
                     keepalive: true,
                     configFile: 'karma-angular-1.3.conf.js',
+                    autoWatch: false,
+                    singleRun: true
+                }
+            },
+            angular14: {
+                options: {
+                    keepalive: true,
+                    configFile: 'karma-angular-1.4.conf.js',
                     autoWatch: false,
                     singleRun: true
                 }
