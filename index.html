@@ -32,7 +32,7 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h2>
-<a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting Started</h2>
+<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting Started</h2>
 
 <p>Example site is located here: </p>
 
@@ -49,126 +49,119 @@
 
 <p>Or use this CDN link (thanks to <a href="http://cdnjs.com">cdnjs.com</a>):</p>
 
-<div class="highlight highlight-html"><pre><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"//cdnjs.cloudflare.com/ajax/libs/angular-route-segment/1.3.3/angular-route-segment.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
-</pre></div>
+<div class="highlight highlight-html"><pre>&lt;<span class="pl-ent">script</span> <span class="pl-e">src</span>=<span class="pl-s1"><span class="pl-pds">"</span>//cdnjs.cloudflare.com/ajax/libs/angular-route-segment/1.4.0/angular-route-segment.min.js<span class="pl-pds">"</span></span>&gt;&lt;/<span class="pl-ent">script</span>&gt;</pre></div>
 
-<p>Tested with AngularJS 1.1.5, 1.2.21 and 1.3.0-rc.3.</p>
+<p>Tested with AngularJS 1.2.21, 1.3.14, and 1.4.0-beta.5.</p>
 
 <h2>
-<a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview</h2>
+<a id="overview" class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h2>
 
 <p>This library is intended to provide the lacking functionality of nested routing to AngularJS applications. It is widely known, there are no ways to keep the parent state unchanged when children are updated via routing mechanics - the <code>$route</code> service re-creates the whole scope after a route is changed, losing its state completely. <strong>route-segment</strong> gives you a way to handle this.</p>
 
 <p>The library provides two pieces of code: <code>$routeSegment</code> service and <code>app-view-segment</code> directive. Both are placed in their own modules which you must include as dependencies in your app module:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">'app'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'ngRoute'</span><span class="p">,</span> <span class="s1">'route-segment'</span><span class="p">,</span> <span class="s1">'view-segment'</span><span class="p">]);</span>
-</pre></div>
+<div class="highlight highlight-javascript"><pre><span class="pl-s">var</span> app <span class="pl-k">=</span> angular.module(<span class="pl-s1"><span class="pl-pds">'</span>app<span class="pl-pds">'</span></span>, [<span class="pl-s1"><span class="pl-pds">'</span>ngRoute<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">'</span>route-segment<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">'</span>view-segment<span class="pl-pds">'</span></span>]);</pre></div>
 
 <p><code>$routeSegment</code> is a layer on top of built-in Angular <code>$route</code> service and is meant to be used instead of it. Its provider exposes configuration methods which can be used to traverse the tree of route segments and setup it properly.</p>
 
 <div class="highlight highlight-javascript"><pre>
-<span class="nx">app</span><span class="p">.</span><span class="nx">config</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">$routeSegmentProvider</span><span class="p">)</span> <span class="p">{</span>
+app.config(<span class="pl-st">function</span> (<span class="pl-vpf">$routeSegmentProvider</span>) {
 
-<span class="nx">$routeSegmentProvider</span><span class="p">.</span>
+$routeSegmentProvider.
 
-    <span class="nx">when</span><span class="p">(</span><span class="s1">'/section1'</span><span class="p">,</span>          <span class="s1">'s1'</span><span class="p">).</span>
-    <span class="nx">when</span><span class="p">(</span><span class="s1">'/section1/prefs'</span><span class="p">,</span>    <span class="s1">'s1.prefs'</span><span class="p">).</span>
-    <span class="nx">when</span><span class="p">(</span><span class="s1">'/section1/:id'</span><span class="p">,</span>      <span class="s1">'s1.itemInfo'</span><span class="p">).</span>
-    <span class="nx">when</span><span class="p">(</span><span class="s1">'/section1/:id/edit'</span><span class="p">,</span> <span class="s1">'s1.itemInfo.edit'</span><span class="p">).</span>
-    <span class="nx">when</span><span class="p">(</span><span class="s1">'/section2'</span><span class="p">,</span>          <span class="s1">'s2'</span><span class="p">).</span>
+    when(<span class="pl-s1"><span class="pl-pds">'</span>/section1<span class="pl-pds">'</span></span>,          <span class="pl-s1"><span class="pl-pds">'</span>s1<span class="pl-pds">'</span></span>).
+    when(<span class="pl-s1"><span class="pl-pds">'</span>/section1/prefs<span class="pl-pds">'</span></span>,    <span class="pl-s1"><span class="pl-pds">'</span>s1.prefs<span class="pl-pds">'</span></span>).
+    when(<span class="pl-s1"><span class="pl-pds">'</span>/section1/:id<span class="pl-pds">'</span></span>,      <span class="pl-s1"><span class="pl-pds">'</span>s1.itemInfo<span class="pl-pds">'</span></span>).
+    when(<span class="pl-s1"><span class="pl-pds">'</span>/section1/:id/edit<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">'</span>s1.itemInfo.edit<span class="pl-pds">'</span></span>).
+    when(<span class="pl-s1"><span class="pl-pds">'</span>/section2<span class="pl-pds">'</span></span>,          <span class="pl-s1"><span class="pl-pds">'</span>s2<span class="pl-pds">'</span></span>).
 
-    <span class="nx">segment</span><span class="p">(</span><span class="s1">'s1'</span><span class="p">,</span> <span class="p">{</span>
-        <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1.html'</span><span class="p">,</span>
-        <span class="nx">controller</span><span class="o">:</span> <span class="nx">MainCtrl</span><span class="p">}).</span>
+    segment(<span class="pl-s1"><span class="pl-pds">'</span>s1<span class="pl-pds">'</span></span>, {
+        templateUrl<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>templates/section1.html<span class="pl-pds">'</span></span>,
+        controller<span class="pl-k">:</span> MainCtrl}).
 
-    <span class="nx">within</span><span class="p">().</span>
+    within().
 
-        <span class="nx">segment</span><span class="p">(</span><span class="s1">'home'</span><span class="p">,</span> <span class="p">{</span>
-            <span class="k">default</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
-            <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/home.html'</span><span class="p">}).</span>
+        segment(<span class="pl-s1"><span class="pl-pds">'</span>home<span class="pl-pds">'</span></span>, {
+            <span class="pl-k">default</span><span class="pl-k">:</span> <span class="pl-c1">true</span>,
+            templateUrl<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>templates/section1/home.html<span class="pl-pds">'</span></span>}).
 
-        <span class="nx">segment</span><span class="p">(</span><span class="s1">'itemInfo'</span><span class="p">,</span> <span class="p">{</span>
-            <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/item.html'</span><span class="p">,</span>
-            <span class="nx">controller</span><span class="o">:</span> <span class="nx">Section1ItemCtrl</span><span class="p">,</span>
-            <span class="nx">dependencies</span><span class="o">:</span> <span class="p">[</span><span class="s1">'id'</span><span class="p">]}).</span>
+        segment(<span class="pl-s1"><span class="pl-pds">'</span>itemInfo<span class="pl-pds">'</span></span>, {
+            templateUrl<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>templates/section1/item.html<span class="pl-pds">'</span></span>,
+            controller<span class="pl-k">:</span> Section1ItemCtrl,
+            dependencies<span class="pl-k">:</span> [<span class="pl-s1"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>]}).
 
-        <span class="nx">within</span><span class="p">().</span>
+        within().
 
-            <span class="nx">segment</span><span class="p">(</span><span class="s1">'overview'</span><span class="p">,</span> <span class="p">{</span>
-                <span class="k">default</span><span class="o">:</span> <span class="kc">true</span>
-                <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/item/overview.html'</span><span class="p">}).</span>
+            segment(<span class="pl-s1"><span class="pl-pds">'</span>overview<span class="pl-pds">'</span></span>, {
+                <span class="pl-k">default</span><span class="pl-k">:</span> <span class="pl-c1">true</span>
+                templateUrl<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>templates/section1/item/overview.html<span class="pl-pds">'</span></span>}).
 
-            <span class="nx">segment</span><span class="p">(</span><span class="s1">'edit'</span><span class="p">,</span> <span class="p">{</span>
-                 <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/item/edit.html'</span><span class="p">}).</span>
+            segment(<span class="pl-s1"><span class="pl-pds">'</span>edit<span class="pl-pds">'</span></span>, {
+                 templateUrl<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>templates/section1/item/edit.html<span class="pl-pds">'</span></span>}).
 
-            <span class="nx">up</span><span class="p">().</span>
+            up().
 
-        <span class="nx">segment</span><span class="p">(</span><span class="s1">'prefs'</span><span class="p">,</span> <span class="p">{</span>
-            <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/prefs.html'</span><span class="p">}).</span>
+        segment(<span class="pl-s1"><span class="pl-pds">'</span>prefs<span class="pl-pds">'</span></span>, {
+            templateUrl<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>templates/section1/prefs.html<span class="pl-pds">'</span></span>}).
 
-        <span class="nx">up</span><span class="p">().</span>
+        up().
 
-    <span class="nx">segment</span><span class="p">(</span><span class="s1">'s2'</span><span class="p">,</span> <span class="p">{</span>
-        <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section2.html'</span><span class="p">,</span>
-        <span class="nx">controller</span><span class="o">:</span> <span class="nx">MainCtrl</span><span class="p">});</span>
-</pre></div>
+    segment(<span class="pl-s1"><span class="pl-pds">'</span>s2<span class="pl-pds">'</span></span>, {
+        templateUrl<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>templates/section2.html<span class="pl-pds">'</span></span>,
+        controller<span class="pl-k">:</span> MainCtrl});</pre></div>
 
 <p>Alternatively, you can use this syntax instead of traversing (useful if you want modules to have their own separately defined routes):</p>
 
-<div class="highlight highlight-javascript"><pre><span class="nx">$routeSegmentProvider</span><span class="p">.</span><span class="nx">segment</span><span class="p">(</span><span class="s1">'s1'</span><span class="p">,</span> <span class="p">{</span>
-    <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1.html'</span><span class="p">,</span>
-    <span class="nx">controller</span><span class="o">:</span> <span class="nx">MainCtrl</span><span class="p">});</span>
+<div class="highlight highlight-javascript"><pre>$routeSegmentProvider.segment(<span class="pl-s1"><span class="pl-pds">'</span>s1<span class="pl-pds">'</span></span>, {
+    templateUrl<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>templates/section1.html<span class="pl-pds">'</span></span>,
+    controller<span class="pl-k">:</span> MainCtrl});
 
-<span class="nx">$routeSegmentProvider</span><span class="p">.</span><span class="nx">within</span><span class="p">(</span><span class="s1">'s1'</span><span class="p">).</span><span class="nx">segment</span><span class="p">(</span><span class="s1">'home'</span><span class="p">,</span> <span class="p">{</span>
-    <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/home.html'</span><span class="p">});</span>
+$routeSegmentProvider.within(<span class="pl-s1"><span class="pl-pds">'</span>s1<span class="pl-pds">'</span></span>).segment(<span class="pl-s1"><span class="pl-pds">'</span>home<span class="pl-pds">'</span></span>, {
+    templateUrl<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>templates/section1/home.html<span class="pl-pds">'</span></span>});
 
-<span class="nx">$routeSegmentProvider</span><span class="p">.</span><span class="nx">within</span><span class="p">(</span><span class="s1">'s1'</span><span class="p">).</span><span class="nx">segment</span><span class="p">(</span><span class="s1">'itemInfo'</span><span class="p">,</span> <span class="p">{</span>
-    <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/item.html'</span><span class="p">,</span>
-    <span class="nx">controller</span><span class="o">:</span> <span class="nx">Section1ItemCtrl</span><span class="p">,</span>
-    <span class="nx">dependencies</span><span class="o">:</span> <span class="p">[</span><span class="s1">'id'</span><span class="p">]});</span>
+$routeSegmentProvider.within(<span class="pl-s1"><span class="pl-pds">'</span>s1<span class="pl-pds">'</span></span>).segment(<span class="pl-s1"><span class="pl-pds">'</span>itemInfo<span class="pl-pds">'</span></span>, {
+    templateUrl<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>templates/section1/item.html<span class="pl-pds">'</span></span>,
+    controller<span class="pl-k">:</span> Section1ItemCtrl,
+    dependencies<span class="pl-k">:</span> [<span class="pl-s1"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>]});
 
-<span class="nx">$routeSegmentProvider</span><span class="p">.</span><span class="nx">within</span><span class="p">(</span><span class="s1">'s1'</span><span class="p">).</span><span class="nx">within</span><span class="p">(</span><span class="s1">'itemInfo'</span><span class="p">).</span><span class="nx">segment</span><span class="p">(</span><span class="s1">'overview'</span><span class="p">,</span> <span class="p">{</span>
-    <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">'templates/section1/item/overview.html'</span><span class="p">});</span>
-</pre></div>
+$routeSegmentProvider.within(<span class="pl-s1"><span class="pl-pds">'</span>s1<span class="pl-pds">'</span></span>).within(<span class="pl-s1"><span class="pl-pds">'</span>itemInfo<span class="pl-pds">'</span></span>).segment(<span class="pl-s1"><span class="pl-pds">'</span>overview<span class="pl-pds">'</span></span>, {
+    templateUrl<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>templates/section1/item/overview.html<span class="pl-pds">'</span></span>});</pre></div>
 
 <p>Then, any <code>app-view-segment</code> tags (which are similar to built-in <code>ng-view</code>) in the DOM will be populated with the corresponding route segment item. You must provide a segment index as an argument to this directive to make it aware about which segment level in the tree it should be linked to.</p>
 
 <p><strong>index.html:</strong></p>
 
-<div class="highlight highlight-html"><pre><span class="nt">&lt;ul&gt;</span>
-    <span class="nt">&lt;li</span> <span class="na">ng-class=</span><span class="s">"{active: $routeSegment.startsWith('s1')}"</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"/section1"</span><span class="nt">&gt;</span>Section 1<span class="nt">&lt;/a&gt;</span>
-    <span class="nt">&lt;/li&gt;</span>
-    <span class="nt">&lt;li</span> <span class="na">ng-class=</span><span class="s">"{active: $routeSegment.startsWith('s2')}"</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"/section2"</span><span class="nt">&gt;</span>Section 2<span class="nt">&lt;/a&gt;</span>
-    <span class="nt">&lt;/li&gt;</span>
-<span class="nt">&lt;/ul&gt;</span>
-<span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"contents"</span> <span class="na">app-view-segment=</span><span class="s">"0"</span><span class="nt">&gt;&lt;/div&gt;</span>
-</pre></div>
+<div class="highlight highlight-html"><pre>&lt;<span class="pl-ent">ul</span>&gt;
+    &lt;<span class="pl-ent">li</span> <span class="pl-e">ng-class</span>=<span class="pl-s1"><span class="pl-pds">"</span>{active: $routeSegment.startsWith('s1')}<span class="pl-pds">"</span></span>&gt;
+        &lt;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s1"><span class="pl-pds">"</span>/section1<span class="pl-pds">"</span></span>&gt;Section 1&lt;/<span class="pl-ent">a</span>&gt;
+    &lt;/<span class="pl-ent">li</span>&gt;
+    &lt;<span class="pl-ent">li</span> <span class="pl-e">ng-class</span>=<span class="pl-s1"><span class="pl-pds">"</span>{active: $routeSegment.startsWith('s2')}<span class="pl-pds">"</span></span>&gt;
+        &lt;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s1"><span class="pl-pds">"</span>/section2<span class="pl-pds">"</span></span>&gt;Section 2&lt;/<span class="pl-ent">a</span>&gt;
+    &lt;/<span class="pl-ent">li</span>&gt;
+&lt;/<span class="pl-ent">ul</span>&gt;
+&lt;<span class="pl-ent">div</span> <span class="pl-e">id</span>=<span class="pl-s1"><span class="pl-pds">"</span>contents<span class="pl-pds">"</span></span> <span class="pl-e">app-view-segment</span>=<span class="pl-s1"><span class="pl-pds">"</span>0<span class="pl-pds">"</span></span>&gt;&lt;/<span class="pl-ent">div</span>&gt;</pre></div>
 
 <p><strong>section1.html:</strong> (it will be loaded to <code>div#contents</code> in <code>index.html</code>)</p>
 
-<div class="highlight highlight-html"><pre><span class="nt">&lt;h4&gt;</span>Section 1<span class="nt">&lt;/h4&gt;</span>
+<div class="highlight highlight-html"><pre>&lt;<span class="pl-ent">h4</span>&gt;Section 1&lt;/<span class="pl-ent">h4</span>&gt;
 Section 1 contents.
-<span class="nt">&lt;div</span> <span class="na">app-view-segment=</span><span class="s">"1"</span><span class="nt">&gt;&lt;/div&gt;</span>
-</pre></div>
+&lt;<span class="pl-ent">div</span> <span class="pl-e">app-view-segment</span>=<span class="pl-s1"><span class="pl-pds">"</span>1<span class="pl-pds">"</span></span>&gt;&lt;/<span class="pl-ent">div</span>&gt;</pre></div>
 
 <p>...etc. You can reach any nesting level here. Every view will be handled independently, keeping the state of top-level views.</p>
 
 <p>You can also use filters to define link hrefs. It will resolve segment URLs automatically:</p>
 
-<div class="highlight highlight-html"><pre><span class="nt">&lt;ul&gt;</span>
-    <span class="nt">&lt;li</span> <span class="na">ng-class=</span><span class="s">"{active: ('s1' | routeSegmentStartsWith)}"</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"{{ 's1' | routeSegmentUrl }}"</span><span class="nt">&gt;</span>Section 1<span class="nt">&lt;/a&gt;</span>
-    <span class="nt">&lt;/li&gt;</span>
-    <span class="nt">&lt;li</span> <span class="na">ng-class=</span><span class="s">"{active: ('s2' | routeSegmentStartsWith)}"</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"{{ 's2' | routeSegmentUrl }}"</span><span class="nt">&gt;</span>Section 2<span class="nt">&lt;/a&gt;</span>
-    <span class="nt">&lt;/li&gt;</span>
-<span class="nt">&lt;/ul&gt;</span>
-</pre></div>
+<div class="highlight highlight-html"><pre>&lt;<span class="pl-ent">ul</span>&gt;
+    &lt;<span class="pl-ent">li</span> <span class="pl-e">ng-class</span>=<span class="pl-s1"><span class="pl-pds">"</span>{active: ('s1' | routeSegmentStartsWith)}<span class="pl-pds">"</span></span>&gt;
+        &lt;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s1"><span class="pl-pds">"</span>{{ 's1' | routeSegmentUrl }}<span class="pl-pds">"</span></span>&gt;Section 1&lt;/<span class="pl-ent">a</span>&gt;
+    &lt;/<span class="pl-ent">li</span>&gt;
+    &lt;<span class="pl-ent">li</span> <span class="pl-e">ng-class</span>=<span class="pl-s1"><span class="pl-pds">"</span>{active: ('s2' | routeSegmentStartsWith)}<span class="pl-pds">"</span></span>&gt;
+        &lt;<span class="pl-ent">a</span> <span class="pl-e">href</span>=<span class="pl-s1"><span class="pl-pds">"</span>{{ 's2' | routeSegmentUrl }}<span class="pl-pds">"</span></span>&gt;Section 2&lt;/<span class="pl-ent">a</span>&gt;
+    &lt;/<span class="pl-ent">li</span>&gt;
+&lt;/<span class="pl-ent">ul</span>&gt;</pre></div>
 
 <h2>
-<a name="difference-from-ui-router" class="anchor" href="#difference-from-ui-router"><span class="octicon octicon-link"></span></a>Difference from UI-Router</h2>
+<a id="difference-from-ui-router" class="anchor" href="#difference-from-ui-router" aria-hidden="true"><span class="octicon octicon-link"></span></a>Difference from UI-Router</h2>
 
 <p>While it seems that this library has very similar goal to what <a href="https://github.com/angular-ui/ui-router/">UI-Router</a> provides, there are some important differences between their implementations, though.</p>
 
@@ -177,15 +170,15 @@ Section 1 contents.
 <p>Such approach makes it possible to accomplish the desired nested routing task in more simpler manner, which produces less code, less complexity and potential bugs, provides better cohesion with Angular core engine and is easier to understand, use and debug.</p>
 
 <h2>
-<a name="documentation" class="anchor" href="#documentation"><span class="octicon octicon-link"></span></a>Documentation</h2>
+<a id="documentation" class="anchor" href="#documentation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Documentation</h2>
 
 <p>Please note that you may read the <a href="https://github.com/artch/angular-route-segment/tree/master/test/unit">test specs</a> to learn features usage.</p>
 
 <h3>
-<a name="routesegmentprovider-properties" class="anchor" href="#routesegmentprovider-properties"><span class="octicon octicon-link"></span></a>$routeSegmentProvider properties</h3>
+<a id="routesegmentprovider-properties" class="anchor" href="#routesegmentprovider-properties" aria-hidden="true"><span class="octicon octicon-link"></span></a>$routeSegmentProvider properties</h3>
 
 <h5>
-<a name="options" class="anchor" href="#options"><span class="octicon octicon-link"></span></a>options</h5>
+<a id="options" class="anchor" href="#options" aria-hidden="true"><span class="octicon octicon-link"></span></a>options</h5>
 
 <p>A hash object which can be used to set up the service on config stage:</p>
 
@@ -200,8 +193,10 @@ Section 1 contents.
 
 <p>When true, all attempts to call <code>within</code> method on non-existing segments will throw an error (you would usually want this behavior in production). When false, it will transparently create new empty segment (can be useful in isolated tests).</p>
 </li>
-</ul><h5>
-<a name="whenroute-name" class="anchor" href="#whenroute-name"><span class="octicon octicon-link"></span></a>when(route, name)</h5>
+</ul>
+
+<h5>
+<a id="whenroute-name" class="anchor" href="#whenroute-name" aria-hidden="true"><span class="octicon octicon-link"></span></a>when(route, name)</h5>
 
 <p>The shorthand for $routeProvider.when() method with specified fully qualified route name.</p>
 
@@ -216,8 +211,10 @@ Section 1 contents.
 
 <p>Fully qualified route name, e.g. <code>foo.bar</code></p>
 </li>
-</ul><h5>
-<a name="segmentname-params" class="anchor" href="#segmentname-params"><span class="octicon octicon-link"></span></a>segment(name, params)</h5>
+</ul>
+
+<h5>
+<a id="segmentname-params" class="anchor" href="#segmentname-params" aria-hidden="true"><span class="octicon octicon-link"></span></a>segment(name, params)</h5>
 
 <p>Adds new segment at current pointer level.</p>
 
@@ -256,8 +253,10 @@ controllerAs name;</li>
 <code>default</code> is a boolean value which can be set to true if this child segment should be loaded by default when no child is specified in the route.</li>
 </ul>
 </li>
-</ul><h5>
-<a name="withinchildname" class="anchor" href="#withinchildname"><span class="octicon octicon-link"></span></a>within(childName)</h5>
+</ul>
+
+<h5>
+<a id="withinchildname" class="anchor" href="#withinchildname" aria-hidden="true"><span class="octicon octicon-link"></span></a>within(childName)</h5>
 
 <p>Traverses into an existing segment, so that subsequent <code>segment</code> calls will add new segments as its descendants.</p>
 
@@ -267,32 +266,34 @@ controllerAs name;</li>
 
 <p>An existing segment's name. An optional argument. If undefined, then the last added segment is selected.</p>
 </li>
-</ul><h5>
-<a name="up" class="anchor" href="#up"><span class="octicon octicon-link"></span></a>up()</h5>
+</ul>
+
+<h5>
+<a id="up" class="anchor" href="#up" aria-hidden="true"><span class="octicon octicon-link"></span></a>up()</h5>
 
 <p>Traverses up in the tree.</p>
 
 <h5>
-<a name="root" class="anchor" href="#root"><span class="octicon octicon-link"></span></a>root()</h5>
+<a id="root" class="anchor" href="#root" aria-hidden="true"><span class="octicon octicon-link"></span></a>root()</h5>
 
 <p>Traverses to the root.</p>
 
 <h3>
-<a name="routesegment-properties" class="anchor" href="#routesegment-properties"><span class="octicon octicon-link"></span></a>$routeSegment properties</h3>
+<a id="routesegment-properties" class="anchor" href="#routesegment-properties" aria-hidden="true"><span class="octicon octicon-link"></span></a>$routeSegment properties</h3>
 
 <h5>
-<a name="name" class="anchor" href="#name"><span class="octicon octicon-link"></span></a>name</h5>
+<a id="name" class="anchor" href="#name" aria-hidden="true"><span class="octicon octicon-link"></span></a>name</h5>
 
 <p>Fully qualified name of current active route.</p>
 
 <h5>
-<a name="routeparams" class="anchor" href="#routeparams"><span class="octicon octicon-link"></span></a>$routeParams</h5>
+<a id="routeparams" class="anchor" href="#routeparams" aria-hidden="true"><span class="octicon octicon-link"></span></a>$routeParams</h5>
 
 <p>A copy of <code>$routeParams</code> in its state of the latest successful segment update. It may be not equal to <code>$routeParams</code>
 while some resolving is not completed yet. Should be used instead of original <code>$routeParams</code> in most cases.</p>
 
 <h5>
-<a name="chain" class="anchor" href="#chain"><span class="octicon octicon-link"></span></a>chain</h5>
+<a id="chain" class="anchor" href="#chain" aria-hidden="true"><span class="octicon octicon-link"></span></a>chain</h5>
 
 <p>An array of segments splitted by each level separately. Each item contains the following properties:</p>
 
@@ -305,18 +306,20 @@ while some resolving is not completed yet. Should be used instead of original <c
 <code>locals</code> is a hash which contains resolve results if any;</li>
 <li>
 <code>reload</code> is a function to reload a segment (restart resolving, reinstantiate a controller, etc)</li>
-</ul><h5>
-<a name="startswithval" class="anchor" href="#startswithval"><span class="octicon octicon-link"></span></a>startsWith(val)</h5>
+</ul>
+
+<h5>
+<a id="startswithval" class="anchor" href="#startswithval" aria-hidden="true"><span class="octicon octicon-link"></span></a>startsWith(val)</h5>
 
 <p>Helper method for checking whether current route starts with the given string.</p>
 
 <h5>
-<a name="containsval" class="anchor" href="#containsval"><span class="octicon octicon-link"></span></a>contains(val)</h5>
+<a id="containsval" class="anchor" href="#containsval" aria-hidden="true"><span class="octicon octicon-link"></span></a>contains(val)</h5>
 
 <p>Helper method for checking whether current route contains the given string.</p>
 
 <h5>
-<a name="getsegmenturlsegmentname-routeparams" class="anchor" href="#getsegmenturlsegmentname-routeparams"><span class="octicon octicon-link"></span></a>getSegmentUrl(segmentName, routeParams)</h5>
+<a id="getsegmenturlsegmentname-routeparams" class="anchor" href="#getsegmenturlsegmentname-routeparams" aria-hidden="true"><span class="octicon octicon-link"></span></a>getSegmentUrl(segmentName, routeParams)</h5>
 
 <p>A method for reverse routing which can return the route URL for the specified segment name.</p>
 
@@ -332,60 +335,56 @@ while some resolving is not completed yet. Should be used instead of original <c
 <p>Route params hash to be put into route URL template. Standard <code>$routeParams</code> object is used first;
 it is extended (overrided) with this provided object then.</p>
 </li>
-</ul><div class="highlight highlight-javascript"><pre><span class="nx">$routeSegment</span><span class="p">.</span><span class="nx">getSegmentUrl</span><span class="p">(</span><span class="s1">'s1'</span><span class="p">);</span>                              <span class="c1">// -&gt; '/section1'</span>
-<span class="nx">$routeSegment</span><span class="p">.</span><span class="nx">getSegmentUrl</span><span class="p">(</span><span class="s1">'s1.prefs'</span><span class="p">);</span>                        <span class="c1">// -&gt; '/section1/prefs'</span>
-<span class="nx">$routeSegment</span><span class="p">.</span><span class="nx">getSegmentUrl</span><span class="p">(</span><span class="s1">'s1.itemInfo'</span><span class="p">,</span> <span class="p">{</span><span class="nx">id</span><span class="o">:</span> <span class="mi">123</span><span class="p">});</span>          <span class="c1">// -&gt; '/section1/123'</span>
-<span class="nx">$routeSegment</span><span class="p">.</span><span class="nx">getSegmentUrl</span><span class="p">(</span><span class="s1">'s1.itemInfo.edit'</span><span class="p">,</span> <span class="p">{</span><span class="nx">id</span><span class="o">:</span> <span class="mi">123</span><span class="p">});</span>     <span class="c1">// -&gt; '/section1/123/edit'</span>
-</pre></div>
+</ul>
+
+<div class="highlight highlight-javascript"><pre>$routeSegment.getSegmentUrl(<span class="pl-s1"><span class="pl-pds">'</span>s1<span class="pl-pds">'</span></span>);                              <span class="pl-c">// -&gt; '/section1'</span>
+$routeSegment.getSegmentUrl(<span class="pl-s1"><span class="pl-pds">'</span>s1.prefs<span class="pl-pds">'</span></span>);                        <span class="pl-c">// -&gt; '/section1/prefs'</span>
+$routeSegment.getSegmentUrl(<span class="pl-s1"><span class="pl-pds">'</span>s1.itemInfo<span class="pl-pds">'</span></span>, {id<span class="pl-k">:</span> <span class="pl-c1">123</span>});          <span class="pl-c">// -&gt; '/section1/123'</span>
+$routeSegment.getSegmentUrl(<span class="pl-s1"><span class="pl-pds">'</span>s1.itemInfo.edit<span class="pl-pds">'</span></span>, {id<span class="pl-k">:</span> <span class="pl-c1">123</span>});     <span class="pl-c">// -&gt; '/section1/123/edit'</span></pre></div>
 
 <h3>
-<a name="filters" class="anchor" href="#filters"><span class="octicon octicon-link"></span></a>Filters</h3>
+<a id="filters" class="anchor" href="#filters" aria-hidden="true"><span class="octicon octicon-link"></span></a>Filters</h3>
 
 <p><strong>ATTENTION:</strong> filters are not stateless. While they are not intended to work with complex data structures, it can impact performance anyway. See more info at <a href="https://github.com/angular/angular.js/commit/fca6be71">angular.js commit fca6be71</a>.</p>
 
 <h5>
-<a name="routesegmentequalsto" class="anchor" href="#routesegmentequalsto"><span class="octicon octicon-link"></span></a>routeSegmentEqualsTo</h5>
+<a id="routesegmentequalsto" class="anchor" href="#routesegmentequalsto" aria-hidden="true"><span class="octicon octicon-link"></span></a>routeSegmentEqualsTo</h5>
 
 <p>A wrapper for <code>$routeSegment.name == value</code>.</p>
 
-<div class="highlight highlight-html"><pre><span class="nt">&lt;li</span> <span class="na">ng-class=</span><span class="s">"{active: ('s1' | routeSegmentEqualsTo)}"</span><span class="nt">&gt;</span>
-</pre></div>
+<div class="highlight highlight-html"><pre>&lt;<span class="pl-ent">li</span> <span class="pl-e">ng-class</span>=<span class="pl-s1"><span class="pl-pds">"</span>{active: ('s1' | routeSegmentEqualsTo)}<span class="pl-pds">"</span></span>&gt;</pre></div>
 
 <h5>
-<a name="routesegmentstartswith" class="anchor" href="#routesegmentstartswith"><span class="octicon octicon-link"></span></a>routeSegmentStartsWith</h5>
+<a id="routesegmentstartswith" class="anchor" href="#routesegmentstartswith" aria-hidden="true"><span class="octicon octicon-link"></span></a>routeSegmentStartsWith</h5>
 
 <p>A wrapper for <code>$routeSegment.startsWith(value)</code>.</p>
 
-<div class="highlight highlight-html"><pre><span class="nt">&lt;li</span> <span class="na">ng-class=</span><span class="s">"{active: ('s1' | routeSegmentStartsWith)}"</span><span class="nt">&gt;</span>
-</pre></div>
+<div class="highlight highlight-html"><pre>&lt;<span class="pl-ent">li</span> <span class="pl-e">ng-class</span>=<span class="pl-s1"><span class="pl-pds">"</span>{active: ('s1' | routeSegmentStartsWith)}<span class="pl-pds">"</span></span>&gt;</pre></div>
 
 <h5>
-<a name="routesegmentcontains" class="anchor" href="#routesegmentcontains"><span class="octicon octicon-link"></span></a>routeSegmentContains</h5>
+<a id="routesegmentcontains" class="anchor" href="#routesegmentcontains" aria-hidden="true"><span class="octicon octicon-link"></span></a>routeSegmentContains</h5>
 
 <p>A wrapper for <code>$routeSegment.contains(value)</code>.</p>
 
-<div class="highlight highlight-html"><pre><span class="nt">&lt;li</span> <span class="na">ng-class=</span><span class="s">"{active: ('s1' | routeSegmentContains)}"</span><span class="nt">&gt;</span>
-</pre></div>
+<div class="highlight highlight-html"><pre>&lt;<span class="pl-ent">li</span> <span class="pl-e">ng-class</span>=<span class="pl-s1"><span class="pl-pds">"</span>{active: ('s1' | routeSegmentContains)}<span class="pl-pds">"</span></span>&gt;</pre></div>
 
 <h5>
-<a name="routesegmentparam" class="anchor" href="#routesegmentparam"><span class="octicon octicon-link"></span></a>routeSegmentParam</h5>
+<a id="routesegmentparam" class="anchor" href="#routesegmentparam" aria-hidden="true"><span class="octicon octicon-link"></span></a>routeSegmentParam</h5>
 
 <p>A wrapper for <code>$routeSegment.$routeParams[value]</code>.</p>
 
-<div class="highlight highlight-html"><pre><span class="nt">&lt;li</span> <span class="na">ng-class=</span><span class="s">"{active: ('s1.itemInfo' | routeSegmentEqualsTo) &amp;&amp; ('id' | routeSegmentParam) == 123}"</span><span class="nt">&gt;</span>
-</pre></div>
+<div class="highlight highlight-html"><pre>&lt;<span class="pl-ent">li</span> <span class="pl-e">ng-class</span>=<span class="pl-s1"><span class="pl-pds">"</span>{active: ('s1.itemInfo' | routeSegmentEqualsTo) <span class="pl-ii">&amp;&amp;</span> ('id' | routeSegmentParam) == 123}<span class="pl-pds">"</span></span>&gt;</pre></div>
 
 <h5>
-<a name="routesegmenturl" class="anchor" href="#routesegmenturl"><span class="octicon octicon-link"></span></a>routeSegmentUrl</h5>
+<a id="routesegmenturl" class="anchor" href="#routesegmenturl" aria-hidden="true"><span class="octicon octicon-link"></span></a>routeSegmentUrl</h5>
 
 <p>A wrapper for <code>$routeSegment.getSegmentUrl</code>.</p>
 
-<div class="highlight highlight-html"><pre><span class="nt">&lt;a</span> <span class="na">ng-href=</span><span class="s">"{{ 's1.home' | routeSegmentUrl }}"</span><span class="nt">&gt;</span>
-<span class="nt">&lt;a</span> <span class="na">ng-href=</span><span class="s">"{{ 's1.itemInfo.edit' | routeSegmentUrl: {id: 123} }}"</span><span class="nt">&gt;</span>
-</pre></div>
+<div class="highlight highlight-html"><pre>&lt;<span class="pl-ent">a</span> <span class="pl-e">ng-href</span>=<span class="pl-s1"><span class="pl-pds">"</span>{{ 's1.home' | routeSegmentUrl }}<span class="pl-pds">"</span></span>&gt;
+&lt;<span class="pl-ent">a</span> <span class="pl-e">ng-href</span>=<span class="pl-s1"><span class="pl-pds">"</span>{{ 's1.itemInfo.edit' | routeSegmentUrl: {id: 123} }}<span class="pl-pds">"</span></span>&gt;</pre></div>
 
 <h2>
-<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
 
 <p>The MIT License (MIT)</p>
 
