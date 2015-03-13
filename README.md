@@ -18,10 +18,10 @@ bower install angular-route-segment
 ```
 Or use this CDN link (thanks to [cdnjs.com](http://cdnjs.com)):
 ```html
-<script src="//cdnjs.cloudflare.com/ajax/libs/angular-route-segment/1.4.0/angular-route-segment.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/angular-route-segment/1.3.3/angular-route-segment.min.js"></script>
 ```
 
-Tested with AngularJS 1.2.21, 1.3.14, and 1.4.0-beta.5.
+Tested with AngularJS 1.1.5, 1.2.21 and 1.3.0-rc.3.
 
 Overview
 --------
@@ -34,7 +34,7 @@ The library provides two pieces of code: `$routeSegment` service and `app-view-s
 var app = angular.module('app', ['ngRoute', 'route-segment', 'view-segment']);
 ```
 
-`$routeSegment` is meant to be used instead of built-in Angular `$route` service. Its provider exposes configuration methods which can be used to traverse the tree of route segments and setup it properly.
+`$routeSegment` is a layer on top of built-in Angular `$route` service and is meant to be used instead of it. Its provider exposes configuration methods which can be used to traverse the tree of route segments and setup it properly.
 
 ```javascript
 
@@ -269,7 +269,7 @@ $routeSegment.getSegmentUrl('s1.itemInfo.edit', {id: 123});     // -> '/section1
 
 ### Filters ###
 
-**ATTENTION:** filters are not stateless. While they are not intented to work with complex data structures, it can impact performance anyway. See more info at [angular.js commit fca6be71](https://github.com/angular/angular.js/commit/fca6be71).
+**ATTENTION:** filters are not stateless. While they are not intended to work with complex data structures, it can impact performance anyway. See more info at [angular.js commit fca6be71](https://github.com/angular/angular.js/commit/fca6be71).
 
 ##### routeSegmentEqualsTo
 
