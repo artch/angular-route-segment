@@ -8,7 +8,7 @@ describe('view-segment', function() {
     beforeEach(module('view-segment'));
     
     var scope, ctrl, elm;    
-    var $rootScope, $compile, $routeSegment, $routeSegmentProvider, $controller, $location;
+    var $rootScope, $compile, $routeSegment, $routeSegmentProvider, $controller, $location, $timeout;
     
     beforeEach(module(function(_$routeSegmentProvider_, $provide) {
         
@@ -17,13 +17,14 @@ describe('view-segment', function() {
         $provide.value('$routeParams', {});
     }))
     
-    beforeEach(inject(function(_$compile_, _$rootScope_, _$routeSegment_, _$controller_, _$location_) {
+    beforeEach(inject(function(_$compile_, _$rootScope_, _$routeSegment_, _$controller_, _$location_, _$timeout_) {
         
         $rootScope = _$rootScope_;
         $compile = _$compile_;
         $routeSegment = _$routeSegment_;
         $controller = _$controller_;
         $location = _$location_;
+        $timeout = _$timeout_;
         
         $routeSegmentProvider
         
@@ -49,9 +50,9 @@ describe('view-segment', function() {
                 .segment('subsection22', {
                     template: '<h4>Subsection 2-2</h4><span>{{test}}</span>'})
                           
-        scope = $rootScope.$new();    
+        scope = $rootScope.$new();
         scope.test = 1;
-        elm = angular.element('<div class="container" app:view-segment="0"></div>');        
+        elm = angular.element('<div class="container"><div class="segment" app:view-segment="0"></div></div>');
         $compile(elm)(scope);        
         scope.$apply();
     }));
@@ -65,6 +66,7 @@ describe('view-segment', function() {
 
         $rootScope.$digest();
         expect(elm).toHaveClass('container');
+        expect(elm.find('> div')).toHaveClass('segment');
         expect(elm.find('> div > h4').text()).toMatch(/Section 1/);
     })
 
@@ -72,6 +74,7 @@ describe('view-segment', function() {
         $location.path('/2');
 
         $rootScope.$digest();
+
         expect(elm.find('> div > h4').text()).toMatch(/Section 2/);
         expect(elm.find('> div > div').text()).toMatch(/Nothing/);
         expect(elm.find('> div > div').contents().scope().test).toBe(1);
@@ -109,10 +112,10 @@ describe('view-segment', function() {
         $rootScope.$digest();
         expect(elm.find('> div > span').text()).toBe('1');
 
-        elm.find('> div > div').contents().scope().test = 10;
+        elm.find('> div').contents().scope().test = 2;
 
         $rootScope.$digest();
-        expect(elm.find('> div > span').text()).toBe('10');
+        expect(elm.find('> div > span').text()).toBe('2');
 
         elm.find('> div > span').addClass('testClass');
 
@@ -122,14 +125,18 @@ describe('view-segment', function() {
 
         $rootScope.$digest();
         expect(elm.find('> div > div > span').text()).toBe('CONTROLLER OVERRIDED');
-        expect(elm.find('> div > span').text()).toBe('10');
+        expect(elm.find('> div > span').text()).toBe('2');
         expect(elm.find('> div > span')).toHaveClass('testClass');
 
         $location.path('/2/2');
 
         $rootScope.$digest();
+
+        elm.find('> div > div').contents().scope().test = 10;
+        $rootScope.$digest();
+
         expect(elm.find('> div > div > span').text()).toBe('10');
-        expect(elm.find('> div > span').text()).toBe('10');
+        expect(elm.find('> div > span').text()).toBe('2');
         expect(elm.find('> div > span')).toHaveClass('testClass');
     })
 
@@ -194,7 +201,7 @@ describe('view-segment', function() {
         $rootScope.$digest();
 
         scope = $rootScope.$new();
-        elm = angular.element('<div class="container" app:view-segment="0"></div>');
+        elm = angular.element('<div class="container"><div app:view-segment="0"></div></div>');
         $compile(elm)(scope);
         scope.$digest();
         $timeout.flush();
@@ -212,7 +219,7 @@ describe('view-segment', function() {
         })
 
         scope = $rootScope.$new();
-        elm = angular.element('<div class="container" app:view-segment="0"></div>');
+        elm = angular.element('<div class="container"><div app:view-segment="0"></div></div>');
         $compile(elm)(scope);
         scope.$digest();
 
@@ -308,6 +315,33 @@ describe('view-segment', function() {
 
     }))
 
+    it('should work with ngIf', inject(function($timeout) {
+        $location.path('/1');
+        $rootScope.$digest();
+
+        scope = $rootScope.$new();
+        scope.show = true;
+        elm = angular.element('<div class="container"><div ng-if="show"><div app:view-segment="0"></div></div></div>');
+        $compile(elm)(scope);
+        scope.$digest();
+        $timeout.flush();
+
+        expect(elm).toHaveClass('container');
+        expect(elm.find('> div > div > h4').text()).toMatch(/Section 1/);
+
+        scope.show = false;
+        scope.$digest();
+
+        expect(elm.find('> div > div > h4').text()).toMatch('');
+
+        scope.show = true;
+        scope.$digest();
+        $timeout.flush();
+
+        expect(elm.find('> div > div > h4').text()).toMatch('Section 1');
+
+    }))
+
     describe('a view with empty template', function() {
 
         beforeEach(function() {
@@ -376,8 +410,9 @@ describe('view-segment', function() {
 
             $routeSegmentProvider.when('/3', 'section3');
             $routeSegmentProvider.when('/3/1', 'section3.section31');
+            $routeSegmentProvider.when('/3/2', 'section3.section32');
             $routeSegmentProvider.segment('section3', {
-                template: '<div app:view-segment="1"></div>'
+                template: '<div class="container"><div app:view-segment="1">EMPTY: {{data}}</div>'
             })
             $routeSegmentProvider.within('section3').segment('section31', {
                 template: '<div>{{data}}</div>',
@@ -388,6 +423,19 @@ describe('view-segment', function() {
                     data: function() {
                         return defer.promise;
                     }
+                }
+            });
+            $routeSegmentProvider.within('section3').segment('section32', {
+                controller: function($scope, data) {
+                    $scope.data = data;
+                },
+                resolve: {
+                    data: function() {
+                        return defer.promise;
+                    }
+                },
+                untilResolved: {
+                    template: '<div>LOADING</div>'
                 }
             });
         }))
@@ -401,12 +449,30 @@ describe('view-segment', function() {
             $location.path('/3/1')
 
             $rootScope.$digest();
-            expect(elm.find('> div > div').text()).toBe('');
+            expect(elm.find('> div > div').text()).toBe('EMPTY: ');
 
             defer.resolve('RESOLVED');
 
             $rootScope.$digest();
             expect(elm.find('> div > div').text()).toBe('RESOLVED');
+
+        })
+
+        it('should work with resolving, empty template, and untilResolved', function() {
+            $location.path('/2/2');
+
+            $rootScope.$digest();
+            expect(elm.find('> div > div > span').text()).toBe('1');
+
+            $location.path('/3/2');
+
+            $rootScope.$digest();
+            expect(elm.find('> div > div').text()).toBe('LOADING');
+
+            defer.resolve('RESOLVED');
+
+            $rootScope.$digest();
+            expect(elm.find('> div > div').text()).toBe('EMPTY: RESOLVED');
 
         })
 

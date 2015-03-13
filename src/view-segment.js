@@ -9,40 +9,29 @@
 (function(angular) {
 
     angular.module( 'view-segment', [ 'route-segment' ] ).directive( 'appViewSegment',
-    ['$route', '$compile', '$controller', '$routeParams', '$routeSegment', '$q', '$injector', '$timeout',
-        function($route, $compile, $controller, $routeParams, $routeSegment, $q, $injector, $timeout) {
+    ['$route', '$compile', '$controller', '$routeParams', '$routeSegment', '$q', '$injector', '$timeout', '$animate',
+        function($route, $compile, $controller, $routeParams, $routeSegment, $q, $injector, $timeout, $animate) {
 
             return {
                 restrict : 'ECA',
-                priority: 500,
+                priority: 400,
+                transclude: 'element',
+
                 compile : function(tElement, tAttrs) {
 
-                    var defaultContent = tElement.html(), isDefault = true,
-                    anchor = angular.element(document.createComment(' view-segment '));
+                    return function($scope, element, attrs, ctrl, $transclude) {
 
-                    tElement.prepend(anchor);
+                        var currentScope, currentElement, currentSegment = {}, onloadExp = tAttrs.onload || '',
+                        viewSegmentIndex = parseInt(tAttrs.appViewSegment), updatePromise, previousLeaveAnimation;
 
-                    return function($scope) {
-
-                        var currentScope, currentElement, currentSegment, onloadExp = tAttrs.onload || '', animate,
-                        viewSegmentIndex = parseInt(tAttrs.appViewSegment), updatePromise;
-
-                        try {
-                            // angular 1.1.x
-                            var $animator = $injector.get('$animator')
-                            animate = $animator($scope, tAttrs);
-                        }
-                        catch(e) {}
-                        try {
-                            // angular 1.2.x
-                            animate = $injector.get('$animate');
-                        }
-                        catch(e) {}
-
-                        if($routeSegment.chain[viewSegmentIndex])
-                            updatePromise = $timeout(function() {
+                        if($routeSegment.chain[viewSegmentIndex]) {
+                            updatePromise = $timeout(function () {
                                 update($routeSegment.chain[viewSegmentIndex]);
                             }, 0);
+                        }
+                        else {
+                            update();
+                        }
 
                         // Watching for the specified route segment and updating contents
                         $scope.$on('routeSegmentChange', function(event, args) {
@@ -50,64 +39,48 @@
                             if(updatePromise)
                                 $timeout.cancel(updatePromise);
 
-                            if(args.index == viewSegmentIndex && currentSegment != args.segment)
+                            if(args.index == viewSegmentIndex && currentSegment != args.segment) {
                                 update(args.segment);
+                            }
                         });
 
                         function clearContent() {
-
-                            if(currentElement) {
-                                animate.leave(currentElement);
-                                currentElement = null;
+                            if (previousLeaveAnimation) {
+                                $animate.cancel(previousLeaveAnimation);
+                                previousLeaveAnimation = null;
                             }
 
                             if (currentScope) {
                                 currentScope.$destroy();
                                 currentScope = null;
                             }
+                            if (currentElement) {
+                                previousLeaveAnimation = $animate.leave(currentElement);
+                                if(previousLeaveAnimation) {
+                                    previousLeaveAnimation.then(function () {
+                                        previousLeaveAnimation = null;
+                                    });
+                                }
+                                currentElement = null;
+                            }
                         }
-
 
                         function update(segment) {
 
                             currentSegment = segment;
 
-                            if(isDefault) {
-                                isDefault = false;
-                                tElement.replaceWith(anchor);
-                            }
+                            var newScope = $scope.$new();
 
-                            if(!segment) {
+                            var clone = $transclude(newScope, function(clone) {
+                                if(segment) {
+                                    clone.data('viewSegment', segment);
+                                }
+                                $animate.enter(clone, null, currentElement || element);
                                 clearContent();
-                                currentElement = tElement.clone();
-                                currentElement.html(defaultContent);
-                                animate.enter( currentElement, null, anchor );
-                                $compile(currentElement, false, 499)($scope);
-                                return;
-                            }
+                            });
 
-                            var locals = angular.extend({}, segment.locals),
-                            template = locals && locals.$template;
-
-                            clearContent();
-
-                            currentElement = tElement.clone();
-                            currentElement.html(template ? template : defaultContent);
-                            animate.enter( currentElement, null, anchor );
-
-                            var link = $compile(currentElement, false, 499), controller;
-
-                            currentScope = $scope.$new();
-                            if (segment.params.controller) {
-                                locals.$scope = currentScope;
-                                controller = $controller(segment.params.controller, locals);
-                                if(segment.params.controllerAs)
-                                    currentScope[segment.params.controllerAs] = controller;
-                                currentElement.data('$ngControllerController', controller);
-                                currentElement.children().data('$ngControllerController', controller);
-                            }
-
-                            link(currentScope);
+                            currentElement = clone;
+                            currentScope = newScope;
                             currentScope.$emit('$viewContentLoaded');
                             currentScope.$eval(onloadExp);
                         }
@@ -115,5 +88,39 @@
                 }
             }
         }]);
+
+    angular.module( 'view-segment').directive( 'appViewSegment',
+        ['$route', '$compile', '$controller', function($route, $compile, $controller) {
+
+                return {
+                    restrict: 'ECA',
+                    priority: -400,
+                    link: function ($scope, element) {
+
+                        var segment = element.data('viewSegment') || {};
+
+                        var locals = angular.extend({}, segment.locals),
+                                template = locals && locals.$template;
+
+                            if(template) {
+                                element.html(template);
+                            }
+
+                            var link = $compile(element.contents());
+
+                            if (segment.params && segment.params.controller) {
+                                locals.$scope = $scope;
+                                var controller = $controller(segment.params.controller, locals);
+                                if(segment.params.controllerAs)
+                                    $scope[segment.params.controllerAs] = controller;
+                                element.data('$ngControllerController', controller);
+                                element.children().data('$ngControllerController', controller);
+                            }
+
+                            link($scope);
+                    }
+                }
+
+            }]);
 
 })(angular);
