@@ -18,10 +18,10 @@ bower install angular-route-segment
 ```
 Or use this CDN link (thanks to [cdnjs.com](http://cdnjs.com)):
 ```html
-<script src="//cdnjs.cloudflare.com/ajax/libs/angular-route-segment/1.3.3/angular-route-segment.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/angular-route-segment/1.4.0/angular-route-segment.min.js"></script>
 ```
 
-Tested with AngularJS 1.1.5, 1.2.21 and 1.3.0-rc.3.
+Tested with AngularJS 1.2.21, 1.3.14, and 1.4.0-beta.5.
 
 Overview
 --------
