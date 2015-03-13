@@ -7,7 +7,7 @@
         "grunt-contrib-concat": "",
         "grunt-karma": "",
         "karma": "",
-        "karma-jasmine": "",
+        "karma-jasmine": "0.1.5",
         "karma-phantomjs-launcher": "",
         "karma-junit-reporter": "",
         "grunt-git-describe": ""
