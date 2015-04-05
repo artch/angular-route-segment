@@ -5,18 +5,18 @@
 var mod = angular.module( 'route-segment', [] );
 mod.provider( '$routeSegment',
         ['$routeProvider', function($routeProvider) {
-
+    
     var $routeSegmentProvider = this;
-
+    
     var options = $routeSegmentProvider.options = {
-
+            
         /**
          * When true, it will resolve `templateUrl` automatically via $http service and put its
          * contents into `template`.
          * @type {boolean}
          */
         autoLoadTemplates: true,
-
+        
         /**
          * When true, all attempts to call `within` method on non-existing segments will throw an error (you would
          * usually want this behavior in production). When false, it will transparently create new empty segment
@@ -25,46 +25,46 @@ mod.provider( '$routeSegment',
          */
         strictMode: false
     };
-
+    
     var segments = this.segments = {},
         rootPointer = pointer(segments, null),
         segmentRoutes = {};
-
+    
     function camelCase(name) {
         return name.replace(/([\:\-\_]+(.))/g, function(_, separator, letter, offset) {
             return offset ? letter.toUpperCase() : letter;
         });
     }
-
+    
     function pointer(segment, parent) {
-
+        
         if(!segment)
             throw new Error('Invalid pointer segment');
-
+        
         var lastAddedName;
-
+        
         return {
-
+            
             /**
              * Adds new segment at current pointer level.
-             *
+             * 
              * @param string} name Name of a segment.
              * @param {Object} params Segment's parameters hash. The following params are supported:
              *                        - `template` provides HTML for the given segment view;
              *                        - `templateUrl` is a template should be fetched from network via this URL;
              *                        - `controller` is attached to the given segment view when compiled and linked,
              *                              this can be any controller definition AngularJS supports;
-             *                        - `dependencies` is an array of route param names which are forcing the view
+             *                        - `dependencies` is an array of route param names which are forcing the view 
              *                              to recreate when changed;
              *                        - `watcher` is a $watch-function for recreating the view when its returning value
              *                              is changed;
              *                        - `resolve` is a hash of functions or injectable names which should be resolved
              *                              prior to instantiating the template and the controller;
              *                        - `untilResolved` is the alternate set of params (e.g. `template` and `controller`)
-             *                              which should be used before resolving is completed;
-             *                        - `resolveFailed` is the alternate set of params which should be used
+             *                              which should be used before resolving is completed; 
+             *                        - `resolveFailed` is the alternate set of params which should be used 
              *                              if resolving failed;
-             *
+             *                              
              * @returns {Object} The same level pointer.
              */
             segment: function(name, params) {
@@ -79,11 +79,11 @@ mod.provider( '$routeSegment',
              *
              * @param {string} childName An existing segment's name. If undefined, then the last added segment is selected.
              * @returns {Object} The pointer to the child segment.
-             */
-            within: function(childName) {
+             */  
+            within: function(childName) {                
                 var child;
                 childName = childName || lastAddedName;
-
+                
                 if(child = segment[camelCase(childName)]) {
                     if(child.children == undefined)
                         child.children = {};
@@ -93,11 +93,11 @@ mod.provider( '$routeSegment',
                         throw new Error('Cannot get into unknown `'+childName+'` segment');
                     else {
                         child = segment[camelCase(childName)] = {params: {}, children: {}};
-                    }
+                    }                
                 }
                 return pointer(child.children, this);
             },
-
+            
             /**
              * Traverses up in the tree.
              * @returns {Object} The pointer which are parent to the current one;
@@ -105,7 +105,7 @@ mod.provider( '$routeSegment',
             up: function() {
                 return parent;
             },
-
+            
             /**
              * Traverses to the root.
              * @returns The root pointer.
@@ -115,7 +115,7 @@ mod.provider( '$routeSegment',
             }
         }
     }
-
+    
     /**
      * The shorthand for $routeProvider.when() method with specified route name.
      * @param {string} path Route URL, e.g. '/foo/bar'
@@ -131,18 +131,18 @@ mod.provider( '$routeSegment',
         segmentRoutes[name] = path;
         return this;
     };
-
+    
     // Extending the provider with the methods of rootPointer
     // to start configuration.
     angular.extend($routeSegmentProvider, rootPointer);
-
-
+    
+        
     // the service factory
     this.$get = ['$rootScope', '$q', '$http', '$templateCache', '$route', '$routeParams', '$injector',
                  function($rootScope, $q, $http, $templateCache, $route, $routeParams, $injector) {
-
-        var $routeSegment = {
-
+                
+        var $routeSegment = {    
+                
                 /**
                  * Fully qualified name of current active route
                  * @type {string}
@@ -156,7 +156,7 @@ mod.provider( '$routeSegment',
                  * @type {Object}
                  */
                 $routeParams: angular.copy($routeParams),
-
+                
                 /**
                  * Array of segments splitted by each level separately. Each item contains the following properties:
                  * - `name` is the name of a segment;
@@ -167,7 +167,7 @@ mod.provider( '$routeSegment',
                  * @type {Array.<Object>}
                  */
                 chain: [],
-
+                
                 /**
                  * Helper method for checking whether current route starts with the given string
                  * @param {string} val
@@ -177,7 +177,7 @@ mod.provider( '$routeSegment',
                     var regexp = new RegExp('^'+val);
                     return regexp.test($routeSegment.name);
                 },
-
+                
                 /**
                  * Helper method for checking whether current route contains the given string
                  * @param {string} val
@@ -214,22 +214,22 @@ mod.provider( '$routeSegment',
 
                     return url;
                 }
-        };
+        };    
 
         var resolvingSemaphoreChain = {};
-
+        
         // When a route changes, all interested parties should be notified about new segment chain
         $rootScope.$on('$routeChangeSuccess', function(event, args) {
 
-            var route = args.$route || args.$$route;
+            var route = args.$route || args.$$route; 
             if(route && route.segment) {
 
                 var segmentName = route.segment;
                 var segmentNameChain = segmentName.split(".");
                 var updates = [], lastUpdateIndex = -1;
-
+                
                 for(var i=0; i < segmentNameChain.length; i++) {
-
+                    
                     var newSegment = getSegmentInChain( i, segmentNameChain );
 
                     if(resolvingSemaphoreChain[i] != newSegment.name || updates.length > 0 || isDependenciesChanged(newSegment)) {
@@ -242,7 +242,7 @@ mod.provider( '$routeSegment',
                             updates.push({index: i, newSegment: newSegment});
                             lastUpdateIndex = i;
                         }
-                    }
+                    }    
                 }
 
                 var curSegmentPromise = $q.when();
@@ -310,7 +310,7 @@ mod.provider( '$routeSegment',
                                         lastUpdateIndex = index;
                                     }
                                 })(i, children, index);
-
+                                
 
                             }
                         }
@@ -320,7 +320,7 @@ mod.provider( '$routeSegment',
                 });
             }
         });
-
+        
         function isDependenciesChanged(segment) {
 
             var result = false;
@@ -357,22 +357,22 @@ mod.provider( '$routeSegment',
             else
                 return resolve(index, segment.name, segment.params);
         }
-
+        
         function resolve(index, name, params) {
-
+            
             var locals = angular.extend({}, params.resolve);
-
+            
             angular.forEach(locals, function(value, key) {
                 locals[key] = angular.isString(value) ? $injector.get(value) : $injector.invoke(value);
             });
-
+                        
             if(params.template) {
 
                 locals.$template = params.template;
                 if(angular.isFunction(locals.$template))
                     locals.$template = $injector.invoke(locals.$template);
             }
-
+            
             if(options.autoLoadTemplates && params.templateUrl) {
 
                 locals.$template = params.templateUrl;
@@ -387,7 +387,7 @@ mod.provider( '$routeSegment',
             }
 
             return $q.all(locals).then(
-
+                    
                     function(resolvedLocals) {
 
                         if(resolvingSemaphoreChain[index] != name)
@@ -432,9 +432,9 @@ mod.provider( '$routeSegment',
 
                         return {success: index};
                     },
-
+                    
                     function(error) {
-
+                        
                         if(params.resolveFailed) {
                             var newResolve = {error: function() { return $q.when(error); }};
                             return resolve(index, name, angular.extend({resolve: newResolve}, params.resolveFailed));
@@ -459,34 +459,34 @@ mod.provider( '$routeSegment',
                 index: index,
                 segment: $routeSegment.chain[index] || null } );
         }
-
+        
         function getSegmentInChain(segmentIdx, segmentNameChain) {
-
-            if(!segmentNameChain)
-                return null;
-
-            if(segmentIdx >= segmentNameChain.length)
-                return null;
-
+                        
+            if(!segmentNameChain) 
+                return null;    
+            
+            if(segmentIdx >= segmentNameChain.length) 
+                return null;    
+                        
             var curSegment = segments, nextName;
-            for(var i=0;i<=segmentIdx;i++) {
+            for(var i=0;i<=segmentIdx;i++) {        
 
                 nextName = segmentNameChain[i];
 
                 if(curSegment[ camelCase(nextName) ] != undefined)
                     curSegment = curSegment[ camelCase(nextName) ];
-
+                
                 if(i < segmentIdx)
                     curSegment = curSegment.children;
             }
-
+            
             return {
                 name: nextName,
                 params: curSegment.params,
                 children: curSegment.children
             };
         }
-
+        
         return $routeSegment;
     }];
 }]);
