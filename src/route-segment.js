@@ -118,12 +118,17 @@ mod.provider( '$routeSegment',
     
     /**
      * The shorthand for $routeProvider.when() method with specified route name.
-     * @param {string} route Route URL, e.g. '/foo/bar'
+     * @param {string} path Route URL, e.g. '/foo/bar'
      * @param {string} name Fully qualified route name, e.g. 'foo.bar'
+     * @param {Object} route Mapping information to be assigned to $route.current on route match.
      */
-    $routeSegmentProvider.when = function(route, name) {
-        $routeProvider.when(route, {segment: name});
-        segmentRoutes[name] = route;
+    $routeSegmentProvider.when = function(path, name, route) {
+        if (route == undefined)
+            route = {};
+        route.segment = name;
+
+        $routeProvider.when(path, route);
+        segmentRoutes[name] = path;
         return this;
     };
     
