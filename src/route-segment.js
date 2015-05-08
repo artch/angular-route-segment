@@ -217,103 +217,108 @@ mod.provider( '$routeSegment',
         $rootScope.$on('$routeChangeSuccess', function(event, args) {
 
             var route = args.$route || args.$$route; 
-            if(route && route.segment) {
+            if(!route || !route.segment) {
+                // Clear outermost segment if this route wasn't configured by route-segment
+                $rootScope.$broadcast( 'routeSegmentChange', {
+                    index: 0,
+                    segment: {} } );
+                return;
+            }
 
-                var segmentName = route.segment;
-                var segmentNameChain = segmentName.split(".");
-                var updates = [], lastUpdateIndex = -1;
+            var segmentName = route.segment;
+            var segmentNameChain = segmentName.split(".");
+            var updates = [], lastUpdateIndex = -1;
+            
+            for(var i=0; i < segmentNameChain.length; i++) {
                 
-                for(var i=0; i < segmentNameChain.length; i++) {
-                    
-                    var newSegment = getSegmentInChain( i, segmentNameChain );
+                var newSegment = getSegmentInChain( i, segmentNameChain );
 
-                    if(resolvingSemaphoreChain[i] != newSegment.name || updates.length > 0 || isDependenciesChanged(newSegment)) {
+                if(resolvingSemaphoreChain[i] != newSegment.name || updates.length > 0 || isDependenciesChanged(newSegment)) {
 
-                        if($routeSegment.chain[i] && $routeSegment.chain[i].name == newSegment.name &&
-                            updates.length == 0 && !isDependenciesChanged(newSegment))
-                            // if we went back to the same state as we were before resolving new segment
-                            resolvingSemaphoreChain[i] = newSegment.name;
-                        else {
-                            updates.push({index: i, newSegment: newSegment});
-                            lastUpdateIndex = i;
-                        }
-                    }    
-                }
+                    if($routeSegment.chain[i] && $routeSegment.chain[i].name == newSegment.name &&
+                        updates.length == 0 && !isDependenciesChanged(newSegment))
+                        // if we went back to the same state as we were before resolving new segment
+                        resolvingSemaphoreChain[i] = newSegment.name;
+                    else {
+                        updates.push({index: i, newSegment: newSegment});
+                        lastUpdateIndex = i;
+                    }
+                }    
+            }
 
-                var curSegmentPromise = $q.when();
+            var curSegmentPromise = $q.when();
 
-                if(updates.length > 0) {
+            if(updates.length > 0) {
 
-                    for(var i=0; i<updates.length; i++) {
-                        (function(i) {
-                            curSegmentPromise = curSegmentPromise.then(function() {
+                for(var i=0; i<updates.length; i++) {
+                    (function(i) {
+                        curSegmentPromise = curSegmentPromise.then(function() {
 
-                                return updateSegment(updates[i].index, updates[i].newSegment);
+                            return updateSegment(updates[i].index, updates[i].newSegment);
 
-                            }).then(function(result) {
+                        }).then(function(result) {
 
-                                if(result.success != undefined) {
+                            if(result.success != undefined) {
 
-                                    broadcast(result.success);
+                                broadcast(result.success);
 
-                                    for(var j = updates[i].index + 1; j < $routeSegment.chain.length; j++) {
+                                for(var j = updates[i].index + 1; j < $routeSegment.chain.length; j++) {
 
-                                        if($routeSegment.chain[j]) {
-                                            $routeSegment.chain[j] = null;
-                                            updateSegment(j, null);
-                                        }
+                                    if($routeSegment.chain[j]) {
+                                        $routeSegment.chain[j] = null;
+                                        updateSegment(j, null);
                                     }
                                 }
-                            })
-                        })(i);
+                            }
+                        })
+                    })(i);
+                }
+            }
+
+            curSegmentPromise.then(function() {
+
+                // Removing redundant segment in case if new segment chain is shorter than old one
+                if($routeSegment.chain.length > segmentNameChain.length) {
+                    var oldLength = $routeSegment.chain.length;
+                    var shortenBy = $routeSegment.chain.length - segmentNameChain.length;
+                    $routeSegment.chain.splice(-shortenBy, shortenBy);
+                    for(var i=segmentNameChain.length; i < oldLength; i++) {
+                        updateSegment(i, null);
+                        lastUpdateIndex = $routeSegment.chain.length-1;
+                    }
+                }
+            }).then(function() {
+
+                var defaultChildUpdatePromise = $q.when();
+
+                if(lastUpdateIndex == $routeSegment.chain.length-1) {
+
+                    var curSegment = getSegmentInChain(lastUpdateIndex, $routeSegment.name.split("."));
+
+                    while(curSegment) {
+                        var children = curSegment.children, index = lastUpdateIndex+1;
+                        curSegment = null;
+                        for (var i in children) {
+                            (function(i, children, index) {
+                                if (children[i].params['default']) {
+                                    defaultChildUpdatePromise = defaultChildUpdatePromise.then(function () {
+                                        return updateSegment(index, {name: children[i].name, params: children[i].params})
+                                            .then(function (result) {
+                                                if (result.success) broadcast(result.success);
+                                            });
+                                    });
+                                    curSegment = children[i];
+                                    lastUpdateIndex = index;
+                                }
+                            })(i, children, index);
+                            
+
+                        }
                     }
                 }
 
-                curSegmentPromise.then(function() {
-
-                    // Removing redundant segment in case if new segment chain is shorter than old one
-                    if($routeSegment.chain.length > segmentNameChain.length) {
-                        var oldLength = $routeSegment.chain.length;
-                        var shortenBy = $routeSegment.chain.length - segmentNameChain.length;
-                        $routeSegment.chain.splice(-shortenBy, shortenBy);
-                        for(var i=segmentNameChain.length; i < oldLength; i++) {
-                            updateSegment(i, null);
-                            lastUpdateIndex = $routeSegment.chain.length-1;
-                        }
-                    }
-                }).then(function() {
-
-                    var defaultChildUpdatePromise = $q.when();
-
-                    if(lastUpdateIndex == $routeSegment.chain.length-1) {
-
-                        var curSegment = getSegmentInChain(lastUpdateIndex, $routeSegment.name.split("."));
-
-                        while(curSegment) {
-                            var children = curSegment.children, index = lastUpdateIndex+1;
-                            curSegment = null;
-                            for (var i in children) {
-                                (function(i, children, index) {
-                                    if (children[i].params['default']) {
-                                        defaultChildUpdatePromise = defaultChildUpdatePromise.then(function () {
-                                            return updateSegment(index, {name: children[i].name, params: children[i].params})
-                                                .then(function (result) {
-                                                    if (result.success) broadcast(result.success);
-                                                });
-                                        });
-                                        curSegment = children[i];
-                                        lastUpdateIndex = index;
-                                    }
-                                })(i, children, index);
-                                
-
-                            }
-                        }
-                    }
-
-                    return defaultChildUpdatePromise;
-                });
-            }
+                return defaultChildUpdatePromise;
+            });
         });
         
         function isDependenciesChanged(segment) {
