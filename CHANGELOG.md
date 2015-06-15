@@ -1,3 +1,8 @@
+# 1.5.0 (2015-06-15)
+
+- Changed `$routeSegmentProvider.when` signature to `when(path, name, route)` which enables to extend the route information object with any custom properties, like `reloadOnSearch` or `caseInsensitiveMatch` ([425ac](https://github.com/artch/angular-route-segment/commit/1c21f9f40855cf9d8a74f6a760471b0eae7425ac)) thanks to [krmarien](https://github.com/krmarien).
+- Published to npm repository.
+
 # 1.4.0 (2015-03-13) 
 
 - Refactored render directive using modern `$transclude` cloning mechanism instead of manual cloning ([32dea](https://github.com/artch/angular-route-segment/commit/904b72477e322a7ab647d8b6c96165c7d4332dea)).

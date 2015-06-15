@@ -167,17 +167,21 @@ A hash object which can be used to set up the service on config stage:
 
     When true, all attempts to call `within` method on non-existing segments will throw an error (you would usually want this behavior in production). When false, it will transparently create new empty segment (can be useful in isolated tests).
 
-##### when(route, name)
+##### when(path, name, route)
 
-The shorthand for $routeProvider.when() method with specified fully qualified route name.
+The shorthand for `$routeProvider.when()` method with specified fully qualified route name.
 
-- *route*
+- *path*
 
     Route URL, e.g. `/foo/bar`
     
 - *name*
     
     Fully qualified route name, e.g. `foo.bar`
+    
+- *route*
+
+    Mapping information object to be assigned to `$route.current` on route match.
 
 ##### segment(name, params)
 
