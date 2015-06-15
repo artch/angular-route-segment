@@ -1,7 +1,7 @@
 {
     "name": "angular-route-segment",
     "version": "1.4.0",
-    "dependencies": {
+    "devDependencies": {
         "grunt": "",
         "grunt-contrib-uglify": "",
         "grunt-contrib-concat": "",
@@ -12,6 +12,7 @@
         "karma-junit-reporter": "",
         "grunt-git-describe": ""
     },
+    "main": "build/angular-route-segment.js",
     "scripts": {
         "test": "grunt karma"
     }
