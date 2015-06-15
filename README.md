@@ -21,7 +21,7 @@ Or use this CDN link (thanks to [cdnjs.com](http://cdnjs.com)):
 <script src="//cdnjs.cloudflare.com/ajax/libs/angular-route-segment/1.4.0/angular-route-segment.min.js"></script>
 ```
 
-Tested with AngularJS 1.2.21, 1.3.14, and 1.4.0-beta.5.
+Tested with AngularJS 1.2.21, 1.3.16, and 1.4.0.
 
 Overview
 --------
