@@ -131,7 +131,16 @@ mod.provider( '$routeSegment',
         segmentRoutes[name] = path;
         return this;
     };
-    
+
+    /**
+     * The shorthand for $routeProvider.otherwise() method with specified route.
+     * @param {string|function} route Route URL, e.g. '/'; or function that return a URL
+     */
+    $routeSegmentProvider.otherwise = function(route) {
+        $routeProvider.otherwise({redirectTo: route});
+        return this;
+    };
+
     // Extending the provider with the methods of rootPointer
     // to start configuration.
     angular.extend($routeSegmentProvider, rootPointer);
@@ -416,7 +425,7 @@ mod.provider( '$routeSegment',
                                     params.watcher,
                                     {},
                                     {segment: $routeSegment.chain[index]});
-                            }
+                            };
 
                             var lastWatcherValue = getWatcherValue();
 

@@ -170,6 +170,15 @@ describe('route segment', function() {
 
         });
 
+        it('should redirect to / when invalid section', function () {
+            $routeSegmentProvider.otherwise('/1');
+
+            $location.path('/invalid');
+            $rootScope.$broadcast('$locationChangeSuccess', $location.absUrl(), null);
+            $rootScope.$on('$locationChangeSuccess', function() {
+                expect($location.url()).toBe('/1');
+            });
+        });
 
         it('should auto-fetch templateUrl by $http', function () {
 
