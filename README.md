@@ -16,10 +16,15 @@ You can install the library via [Bower](http://bower.io/):
 ```
 bower install angular-route-segment
 ```
-Or use this CDN link (thanks to [cdnjs.com](http://cdnjs.com)):
-```html
-<script src="//cdnjs.cloudflare.com/ajax/libs/angular-route-segment/1.4.0/angular-route-segment.min.js"></script>
+Or using [npm](http://npmjs.com):
 ```
+npm install angular-route-segment
+```
+Or using this CDN link (thanks to [cdnjs.com](http://cdnjs.com)):
+```html
+<script src="//cdnjs.cloudflare.com/ajax/libs/angular-route-segment/1.5.0/angular-route-segment.min.js"></script>
+```
+
 
 Tested with AngularJS 1.2.21, 1.3.16, and 1.4.0.
 
