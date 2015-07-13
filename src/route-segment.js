@@ -400,8 +400,12 @@ mod.provider( '$routeSegment',
                                 reload: function() {
                                     var originalSegment = getSegmentInChain(index, $routeSegment.name.split("."));
                                     updateSegment(index, originalSegment).then(function(result) {
-                                        if(result.success != undefined)
+                                        if (result.success != undefined) {
                                             broadcast(index);
+                                            if (originalSegment.children) {
+                                                broadcast(index + 1);
+                                            }
+                                        }
                                     })
                                 }
                             };
