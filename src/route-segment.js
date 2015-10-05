@@ -264,6 +264,10 @@ mod.provider( '$routeSegment',
                                     for(var j = updates[i].index + 1; j < $routeSegment.chain.length; j++) {
 
                                         if($routeSegment.chain[j]) {
+                                            if ($routeSegment.chain[j].clearWatcher) {
+                                                $routeSegment.chain[j].clearWatcher();
+                                            }
+                                            
                                             $routeSegment.chain[j] = null;
                                             updateSegment(j, null);
                                         }
