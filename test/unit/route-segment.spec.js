@@ -2,6 +2,9 @@
 
 describe('route segment', function() {
 
+    if(angular.version.major > 1 || angular.version.minor >= 2)
+        beforeEach(module('ngRoute'));
+
     beforeEach(module('route-segment'));
         
     var $routeSegment, $routeSegmentProvider, $rootScope, $httpBackend, $location, $provide;
@@ -181,6 +184,34 @@ describe('route segment', function() {
             expect(callback.calls[0].args[1].segment.locals.$template).toEqual('TEST');
         });
 
+        it('should work with template set as a function', function () {
+
+            $routeSegmentProvider.segment('section3', {
+                template: function(injectable) { return injectable.foo }
+            });
+            $provide.value('injectable', {foo: 'bar'});
+
+            $rootScope.$broadcast('$routeChangeSuccess', {$route: {segment: 'section3'}});
+            $rootScope.$digest();
+            expect(callback.calls[0].args[1].segment.locals.$template).toEqual('bar');
+        });
+
+        it('should work with templateUrl set as a function', function () {
+
+            $routeSegmentProvider.options.autoLoadTemplates = true;
+            $routeSegmentProvider.segment('section3', {
+                templateUrl: function(injectable) { return injectable.foo }
+            });
+            $provide.value('injectable', {foo: '/abc/def'});
+
+            $httpBackend.expectGET('/abc/def').respond(200, 'TEST');
+            $rootScope.$broadcast('$routeChangeSuccess', {$route: {segment: 'section3'}});
+
+            $rootScope.$digest();
+            $httpBackend.flush();
+            expect(callback.calls[0].args[1].segment.locals.$template).toEqual('TEST');
+        });
+
         it('`startsWith` should work', function () {
             $location.path('/X-foo');
 
@@ -247,8 +278,10 @@ describe('route segment', function() {
 
             $rootScope.$digest();
             expect($routeSegment.name).toBe('section-first');
-            expect(callback.calls.length).toBe(2);
+            //expect(callback.calls.length).toBe(2);
+            expect(callback.calls[0].args[1].index).toBe(0);
             expect(callback.calls[0].args[1].segment.name).toBe('section-first');
+            expect(callback.calls[1].args[1].index).toBe(1);
             expect(callback.calls[1].args[1].segment).toBe(null);
         })
 
@@ -315,6 +348,51 @@ describe('route segment', function() {
             $rootScope.$digest();
             expect($routeSegment.chain.length).toBe(1);
         })
+
+        describe('default=true', function() {
+            beforeEach(function () {
+                $routeSegmentProvider.when('/3', 'section3');
+                $routeSegmentProvider.when('/3/1', 'section3.section31-default');
+                $routeSegmentProvider.when('/3/1/1', 'section3.section31-default.section311');
+                $routeSegmentProvider.when('/3/1/2', 'section3.section31-default.section312-default');
+                $routeSegmentProvider.when('/3/2', 'section3.section32');
+                $routeSegmentProvider.segment('section3', {});
+                $routeSegmentProvider.within('section3').segment('section31-default', {default: true});
+                $routeSegmentProvider.within('section3').within('section31-default').segment('section311', {});
+                $routeSegmentProvider.within('section3').within('section31-default').segment('section312-default', {default: true});
+                $routeSegmentProvider.within('section3').segment('section32', {});
+            });
+
+            it('should auto-select a child with default=true', function () {
+                $location.path('/3');
+
+                $rootScope.$digest();
+                expect($routeSegment.name).toBe('section3.section31-default.section312-default');
+                expect($routeSegment.chain[0].name).toBe('section3');
+                expect($routeSegment.chain[1].name).toBe('section31-default');
+                expect($routeSegment.chain[2].name).toBe('section312-default');
+                expect(callback.calls[0].args[1].segment.name).toBe('section3');
+                expect(callback.calls[1].args[1].segment.name).toBe('section31-default');
+                expect(callback.calls[2].args[1].segment.name).toBe('section312-default');
+            });
+
+            it('should auto-select a child with default=true when coming from another child at the same level', function () {
+                $location.path('/3/2');
+                $rootScope.$digest();
+                $location.path('/3');
+
+                $rootScope.$digest();
+                expect($routeSegment.name).toBe('section3.section31-default.section312-default');
+                expect($routeSegment.chain[0].name).toBe('section3');
+                expect($routeSegment.chain[1].name).toBe('section31-default');
+                expect($routeSegment.chain[2].name).toBe('section312-default');
+                expect(callback.calls[0].args[1].segment.name).toBe('section3');
+                expect(callback.calls[1].args[1].segment.name).toBe('section32');
+                expect(callback.calls[2].args[1].segment).toBe(null);
+                expect(callback.calls[3].args[1].segment.name).toBe('section31-default');
+                expect(callback.calls[4].args[1].segment.name).toBe('section312-default');
+            })
+        });
 
         describe('watcher', function() {
 
@@ -388,17 +466,19 @@ describe('route segment', function() {
     
     describe('resolving', function() {       
         
-        var resolve;
+        var resolve, resolveInner;
         
         beforeEach(function() {
-            resolve = {};
-            $routeSegmentProvider.when('/3', 'section3');            
+            resolve = {}, resolveInner = {};
+            $routeSegmentProvider.when('/3', 'section3');
+            $routeSegmentProvider.when('/3/1', 'section3.section31');
         })        
         
         describe('without `untilResolved`', function() {
             
             beforeEach(function() {
                 $routeSegmentProvider.segment('section3', {resolve: resolve});
+                $routeSegmentProvider.within('section3').segment('section31', {resolve: resolveInner});
             })
         
             it('should resolve a param as function', inject(function($q) {
@@ -520,9 +600,32 @@ describe('route segment', function() {
 
                 $rootScope.$digest();
                 expect(callback).not.toHaveBeenCalled();
+
                 expect($routeSegment.chain[0].name).toEqual('section2');
                 expect($routeSegment.chain[1].name).toEqual('section21');
                 expect($routeSegment.name).toEqual('section2.section21');
+            }))
+
+            it('should reset 2nd-level segment while loading when first-level is changed', inject(function($q) {
+
+                var defer = $q.defer();
+                resolveInner.param1 = function() { return defer.promise; };
+
+                $location.path('/2/X');
+                $rootScope.$digest();
+                $location.path('/3/1');
+
+                $rootScope.$digest();
+                expect($routeSegment.name).toBe('section3');
+                expect($routeSegment.chain[1]).toBe(null);
+
+
+                defer.resolve();
+
+                $rootScope.$digest();
+                expect($routeSegment.name).toBe('section3.section31');
+                expect($routeSegment.chain.length).toBe(2);
+
             }))
         })
         
@@ -575,6 +678,27 @@ describe('route segment', function() {
                 $rootScope.$digest();
                 expect(callback.calls[0].args[1].segment.params.stage).toBe('ERROR');
                 expect(callback.calls[0].args[1].segment.locals.error).toEqual('foo');
+            }))
+
+            it('should return to successful params after fail when error has gone', inject(function($q) {
+                resolve.param1 = function() { return $q.reject('foo'); }
+
+                $location.path('/3');
+
+                $rootScope.$digest();
+                expect(callback.calls[0].args[1].segment.params.stage).toBe('ERROR');
+
+                $routeSegment.chain[0].reload();
+
+                $rootScope.$digest();
+                expect(callback.calls[1].args[1].segment.params.stage).toBe('ERROR');
+
+                // Error has gone
+                resolve.param1 = function() { return $q.when(); }
+                $routeSegment.chain[0].reload();
+
+                $rootScope.$digest();
+                expect(callback.calls[2].args[1].segment.params.stage).toBe('OK');
             }))
             
             it('should auto-fetch failing templateUrl if resolving is failed', inject(function($q) {
@@ -755,5 +879,127 @@ describe('route segment', function() {
 
     })
     
-    
+    describe('reverse routes', function() {
+
+        it('should get simple reverse route without params', function() {
+            var url = $routeSegment.getSegmentUrl('section-first');
+            expect(url).toBe('/1');
+        })
+
+        it('should get 2nd level route without params', function() {
+            var url = $routeSegment.getSegmentUrl('section2.section21');
+            expect(url).toBe('/2/X');
+        })
+
+        it('should get a route with the specified params', function() {
+            var url = $routeSegment.getSegmentUrl('section2.section23', {id: 'TEST'});
+            expect(url).toBe('/2/TEST');
+        })
+
+        it('should get a route with param using * mark', function() {
+            $routeSegmentProvider.when('/foo/:param*/bar', 'foo.bar');
+            var url = $routeSegment.getSegmentUrl('foo.bar', {param: 'TEST'});
+            expect(url).toBe('/foo/TEST/bar');
+        })
+
+        it('should get a route with an optional param using ? mark', function() {
+            $routeSegmentProvider.when('/foo/:param?/bar', 'foo.bar');
+            var url = $routeSegment.getSegmentUrl('foo.bar', {param: 'TEST'});
+            expect(url).toBe('/foo/TEST/bar');
+
+            url = $routeSegment.getSegmentUrl('foo.bar', {});
+            expect(url).toBe('/foo/bar');
+        })
+
+        it('should get a route using injected $routeParams', inject(function($routeParams) {
+            $routeParams.param1 = 'TEST1';
+            $routeParams.param2 = 'TEST2';
+
+            $routeSegmentProvider.when('/foo/:param1/bar', 'foo.bar');
+            $routeSegmentProvider.when('/foo/:param1/bar/:param2', 'foo.bar.baz');
+
+            var url = $routeSegment.getSegmentUrl('foo.bar');
+            expect(url).toBe('/foo/TEST1/bar');
+
+            url = $routeSegment.getSegmentUrl('foo.bar', {param1: 'OVERRIDED1'});
+            expect(url).toBe('/foo/OVERRIDED1/bar');
+
+            url = $routeSegment.getSegmentUrl('foo.bar', {param2: 'OVERRIDED1'});
+            expect(url).toBe('/foo/TEST1/bar');
+
+            url = $routeSegment.getSegmentUrl('foo.bar.baz', {param1: 'OVERRIDED1'});
+            expect(url).toBe('/foo/OVERRIDED1/bar/TEST2');
+        }));
+
+        it('should throw an error for unknown segment', function() {
+            expect(function() {
+                $routeSegment.getSegmentUrl('unknown-segment');
+            }).toThrow();
+        })
+
+        it('should throw an error when required params not specified', function() {
+            expect(function() {
+                $routeSegment.getSegmentUrl('section2.section23');
+            }).toThrow();
+        })
+    });
+
+    describe('filters', function() {
+
+        it('routeSegmentUrl', inject(function($filter) {
+            spyOn($routeSegment,'getSegmentUrl').andReturn('foo');
+            var params = {};
+
+            expect($filter('routeSegmentUrl')('URL', params)).toBe('foo');
+            expect($routeSegment.getSegmentUrl).toHaveBeenCalledWith('URL', params);
+        }))
+
+        it('routeSegmentEqualsTo', inject(function($filter) {
+            $location.path('/1');
+            $rootScope.$digest();
+            expect($filter('routeSegmentEqualsTo')('section-first')).toBe(true);
+
+            $location.path('/2/X');
+            $rootScope.$digest();
+            expect($filter('routeSegmentEqualsTo')('section-first')).toBe(false);
+            expect($filter('routeSegmentEqualsTo')('section2.section21')).toBe(true);
+        }))
+
+        it('routeSegmentEqualsTo', inject(function($filter) {
+            $location.path('/2/X');
+            $rootScope.$digest();
+            expect($filter('routeSegmentStartsWith')('section-first')).toBe(false);
+            expect($filter('routeSegmentStartsWith')('section2')).toBe(true);
+            expect($filter('routeSegmentStartsWith')('section2.section21')).toBe(true);
+        }))
+
+        it('routeSegmentEqualsTo', inject(function($filter) {
+            $location.path('/2/X');
+            $rootScope.$digest();
+            expect($filter('routeSegmentContains')('section-first')).toBe(false);
+            expect($filter('routeSegmentContains')('section2')).toBe(true);
+            expect($filter('routeSegmentContains')('section21')).toBe(true);
+        }))
+
+        it('routeSegmentParam', inject(function($filter) {
+            $routeSegment.$routeParams.qux = 'quux';
+            expect($filter('routeSegmentParam')('qux')).toBe('quux');
+        }))
+
+        it('should expect the filters to be stateful and not cached', inject(function($compile, $routeSegment, $rootScope) {
+            var elm = $('<div>{{"qux" | routeSegmentParam}}</div>'),
+                scope = $rootScope.$new();
+
+            $routeSegment.$routeParams.qux = 'quux';
+            $compile(elm)(scope);
+            scope.$apply();
+
+            expect(elm.text()).toBe('quux');
+
+            $routeSegment.$routeParams.qux = 'changed';
+            scope.$apply();
+
+            expect(elm.text()).toBe('changed');
+        }))
+    })
 })

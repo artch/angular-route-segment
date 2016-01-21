@@ -6,7 +6,7 @@ module.exports = function(grunt) {
                 
         uglify: {
             options: {
-                banner: "/**\n * angular-route-segment <%=grunt.config('gitdescribe')[1]%>\n * https://angular-route-segment.com\n * @author Artem Chivchalov\n * @license MIT License http://opensource.org/licenses/MIT\n */\n"
+                banner: "/**\n * angular-route-segment <%=pkg.version%>\n * https://angular-route-segment.com\n * @author Artem Chivchalov\n * @license MIT License http://opensource.org/licenses/MIT\n */\n"
             },
             prod: {
                 files: {
@@ -18,7 +18,7 @@ module.exports = function(grunt) {
         concat: {
             options: {
                 separator: ';',
-                banner: "/**\n * angular-route-segment <%=(grunt.config('gitdescribe') && grunt.config('gitdescribe')[1])%>\n * https://angular-route-segment.com\n * @author Artem Chivchalov\n * @license MIT License http://opensource.org/licenses/MIT\n */\n"
+                banner: "/**\n * angular-route-segment <%=pkg.version%>\n * https://angular-route-segment.com\n * @author Artem Chivchalov\n * @license MIT License http://opensource.org/licenses/MIT\n */\n"
             },
             prod: {
                 src: ['src/**/*.js'],
@@ -27,18 +27,26 @@ module.exports = function(grunt) {
         },        
         
         karma: {
-            angular115: {
+            angular12: {
                 options: {
                     keepalive: true,
-                    configFile: 'karma-angular-1.1.5.conf.js',
+                    configFile: 'karma-angular-1.2.conf.js',
                     autoWatch: false,
                     singleRun: true
-                }                
+                }
             },
-            angular120: {
+            angular13: {
                 options: {
                     keepalive: true,
-                    configFile: 'karma-angular-1.2.0rc1.conf.js',
+                    configFile: 'karma-angular-1.3.conf.js',
+                    autoWatch: false,
+                    singleRun: true
+                }
+            },
+            angular14: {
+                options: {
+                    keepalive: true,
+                    configFile: 'karma-angular-1.4.conf.js',
                     autoWatch: false,
                     singleRun: true
                 }

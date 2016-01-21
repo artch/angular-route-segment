@@ -1,5 +1,5 @@
 /**
- * angular-route-segment v1.2.0
+ * angular-route-segment 1.5.0
  * https://angular-route-segment.com
  * @author Artem Chivchalov
  * @license MIT License http://opensource.org/licenses/MIT
@@ -8,7 +8,8 @@
 
 (function(angular) {
 
-angular.module( 'route-segment', [] ).provider( '$routeSegment',
+var mod = angular.module( 'route-segment', [] );
+mod.provider( '$routeSegment',
         ['$routeProvider', function($routeProvider) {
     
     var $routeSegmentProvider = this;
@@ -20,7 +21,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
          * contents into `template`.
          * @type {boolean}
          */
-        autoLoadTemplates: false,
+        autoLoadTemplates: true,
         
         /**
          * When true, all attempts to call `within` method on non-existing segments will throw an error (you would
@@ -32,7 +33,8 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
     };
     
     var segments = this.segments = {},
-        rootPointer = pointer(segments, null);
+        rootPointer = pointer(segments, null),
+        segmentRoutes = {};
     
     function camelCase(name) {
         return name.replace(/([\:\-\_]+(.))/g, function(_, separator, letter, offset) {
@@ -72,7 +74,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
              * @returns {Object} The same level pointer.
              */
             segment: function(name, params) {
-                segment[camelCase(name)] = {params: params};
+                segment[camelCase(name)] = {name: name, params: params};
                 lastAddedName = name;
                 return this;
             },
@@ -122,11 +124,17 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
     
     /**
      * The shorthand for $routeProvider.when() method with specified route name.
-     * @param {string} route Route URL, e.g. '/foo/bar'
+     * @param {string} path Route URL, e.g. '/foo/bar'
      * @param {string} name Fully qualified route name, e.g. 'foo.bar'
+     * @param {Object} route Mapping information to be assigned to $route.current on route match.
      */
-    $routeSegmentProvider.when = function(route, name) {
-        $routeProvider.when(route, {segment: name});
+    $routeSegmentProvider.when = function(path, name, route) {
+        if (route == undefined)
+            route = {};
+        route.segment = name;
+
+        $routeProvider.when(path, route);
+        segmentRoutes[name] = path;
         return this;
     };
     
@@ -183,9 +191,34 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                  */
                 contains: function (val) {
                     for(var i=0; i<this.chain.length; i++)
-                        if(this.chain[i].name == val)
+                        if(this.chain[i] && this.chain[i].name == val)
                             return true;
                     return false;
+                },
+
+                /**
+                 * A method for reverse routing which can return the route URL for the specified segment name
+                 * @param {string} segmentName The name of a segment as defined in `when()`
+                 * @param {Object} routeParams Route params hash to be put into route URL template
+                 */
+                getSegmentUrl: function(segmentName, routeParams) {
+                    var url, i, m;
+                    if(!segmentRoutes[segmentName])
+                        throw new Error('Can not get URL for segment with name `'+segmentName+'`');
+
+                    routeParams = angular.extend({}, $routeParams, routeParams || {});
+
+                    url = segmentRoutes[segmentName];
+                    for(i in routeParams) {
+                        var regexp = new RegExp('\:'+i+'[\*\?]?','g');
+                        url = url.replace(regexp, routeParams[i]);
+                    }
+                    url = url.replace(/\/\:.*?\?/g, '');
+
+                    if(m = url.match(/\/\:([^\/]*)/))
+                        throw new Error('Route param `'+m[1]+'` is not specified for route `'+segmentRoutes[segmentName]+'`');
+
+                    return url;
                 }
         };    
 
@@ -199,26 +232,29 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
 
                 var segmentName = route.segment;
                 var segmentNameChain = segmentName.split(".");
-                var updates = [];
+                var updates = [], lastUpdateIndex = -1;
                 
                 for(var i=0; i < segmentNameChain.length; i++) {
                     
                     var newSegment = getSegmentInChain( i, segmentNameChain );
 
-                    if(resolvingSemaphoreChain[i] != newSegment.name || isDependenciesChanged(newSegment)) {
+                    if(resolvingSemaphoreChain[i] != newSegment.name || updates.length > 0 || isDependenciesChanged(newSegment)) {
 
                         if($routeSegment.chain[i] && $routeSegment.chain[i].name == newSegment.name &&
-                            !isDependenciesChanged(newSegment))
+                            updates.length == 0 && !isDependenciesChanged(newSegment))
                             // if we went back to the same state as we were before resolving new segment
                             resolvingSemaphoreChain[i] = newSegment.name;
-                        else
+                        else {
                             updates.push({index: i, newSegment: newSegment});
+                            lastUpdateIndex = i;
+                        }
                     }    
                 }
 
                 var curSegmentPromise = $q.when();
 
                 if(updates.length > 0) {
+
                     for(var i=0; i<updates.length; i++) {
                         (function(i) {
                             curSegmentPromise = curSegmentPromise.then(function() {
@@ -228,7 +264,16 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                             }).then(function(result) {
 
                                 if(result.success != undefined) {
+
                                     broadcast(result.success);
+
+                                    for(var j = updates[i].index + 1; j < $routeSegment.chain.length; j++) {
+
+                                        if($routeSegment.chain[j]) {
+                                            $routeSegment.chain[j] = null;
+                                            updateSegment(j, null);
+                                        }
+                                    }
                                 }
                             })
                         })(i);
@@ -242,13 +287,43 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                         var oldLength = $routeSegment.chain.length;
                         var shortenBy = $routeSegment.chain.length - segmentNameChain.length;
                         $routeSegment.chain.splice(-shortenBy, shortenBy);
-                        for(var i=segmentNameChain.length; i < oldLength; i++)
+                        for(var i=segmentNameChain.length; i < oldLength; i++) {
                             updateSegment(i, null);
+                            lastUpdateIndex = $routeSegment.chain.length-1;
+                        }
                     }
-                })
+                }).then(function() {
 
-                
+                    var defaultChildUpdatePromise = $q.when();
 
+                    if(lastUpdateIndex == $routeSegment.chain.length-1) {
+
+                        var curSegment = getSegmentInChain(lastUpdateIndex, $routeSegment.name.split("."));
+
+                        while(curSegment) {
+                            var children = curSegment.children, index = lastUpdateIndex+1;
+                            curSegment = null;
+                            for (var i in children) {
+                                (function(i, children, index) {
+                                    if (children[i].params['default']) {
+                                        defaultChildUpdatePromise = defaultChildUpdatePromise.then(function () {
+                                            return updateSegment(index, {name: children[i].name, params: children[i].params})
+                                                .then(function (result) {
+                                                    if (result.success) broadcast(result.success);
+                                                });
+                                        });
+                                        curSegment = children[i];
+                                        lastUpdateIndex = index;
+                                    }
+                                })(i, children, index);
+                                
+
+                            }
+                        }
+                    }
+
+                    return defaultChildUpdatePromise;
+                });
             }
         });
         
@@ -262,7 +337,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                 });
             return result;
         }
-        
+
         function updateSegment(index, segment) {
 
             if($routeSegment.chain[index] && $routeSegment.chain[index].clearWatcher) {
@@ -297,16 +372,26 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                 locals[key] = angular.isString(value) ? $injector.get(value) : $injector.invoke(value);
             });
                         
-            if(params.template)
+            if(params.template) {
+
                 locals.$template = params.template;
+                if(angular.isFunction(locals.$template))
+                    locals.$template = $injector.invoke(locals.$template);
+            }
             
-            if(options.autoLoadTemplates && params.templateUrl)
-                locals.$template = 
-                    $http.get(params.templateUrl, {cache: $templateCache})
-                        .then(function(response) {                            
+            if(options.autoLoadTemplates && params.templateUrl) {
+
+                locals.$template = params.templateUrl;
+                if(angular.isFunction(locals.$template))
+                    locals.$template = $injector.invoke(locals.$template);
+
+                locals.$template =
+                    $http.get(locals.$template, {cache: $templateCache})
+                        .then(function (response) {
                             return response.data;
                         });
-                                     
+            }
+
             return $q.all(locals).then(
                     
                     function(resolvedLocals) {
@@ -319,7 +404,8 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                                 params: params,
                                 locals: resolvedLocals,
                                 reload: function() {
-                                    updateSegment(index, this).then(function(result) {
+                                    var originalSegment = getSegmentInChain(index, $routeSegment.name.split("."));
+                                    updateSegment(index, originalSegment).then(function(result) {
                                         if(result.success != undefined)
                                             broadcast(index);
                                     })
@@ -329,7 +415,7 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                         if(params.watcher) {
 
                             var getWatcherValue = function() {
-                                if(!angular.isFunction(params.watcher))
+                                if(!angular.isFunction(params.watcher) && !angular.isArray(params.watcher))
                                     throw new Error('Watcher is not a function in segment `'+name+'`');
 
                                 return $injector.invoke(
@@ -371,7 +457,8 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
 
             $routeSegment.name = '';
             for(var i=0; i<$routeSegment.chain.length; i++)
-                $routeSegment.name += $routeSegment.chain[i].name+".";
+                if($routeSegment.chain[i])
+                    $routeSegment.name += $routeSegment.chain[i].name+".";
             $routeSegment.name = $routeSegment.name.substr(0, $routeSegment.name.length-1);
 
             $rootScope.$broadcast( 'routeSegmentChange', {
@@ -401,16 +488,79 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
             
             return {
                 name: nextName,
-                params: curSegment.params
+                params: curSegment.params,
+                children: curSegment.children
             };
         }
         
         return $routeSegment;
     }];
-}])
+}]);
+
+/**
+ * Usage:
+ * <a ng-href="{{ 'index.list' | routeSegmentUrl }}">
+ * <a ng-href="{{ 'index.list.itemInfo' | routeSegmentUrl: {id: 123} }}">
+ */
+mod.filter('routeSegmentUrl', ['$routeSegment', function($routeSegment) {
+    var filter = function(segmentName, params) {
+        return $routeSegment.getSegmentUrl(segmentName, params);
+    };
+    filter.$stateful = true;
+    return filter;
+}]);
+
+/**
+ * Usage:
+ * <li ng-class="{active: ('index.list' | routeSegmentEqualsTo)}">
+ */
+mod.filter('routeSegmentEqualsTo', ['$routeSegment', function($routeSegment) {
+    var filter = function(value) {
+        return $routeSegment.name == value;
+    };
+    filter.$stateful = true;
+    return filter;
+}]);
+
+/**
+ * Usage:
+ * <li ng-class="{active: ('section1' | routeSegmentStartsWith)}">
+ */
+mod.filter('routeSegmentStartsWith', ['$routeSegment', function($routeSegment) {
+    var filter = function(value) {
+        return $routeSegment.startsWith(value);
+    };
+    filter.$stateful = true;
+    return filter;
+}]);
+
+/**
+ * Usage:
+ * <li ng-class="{active: ('itemInfo' | routeSegmentContains)}">
+ */
+mod.filter('routeSegmentContains', ['$routeSegment', function($routeSegment) {
+    var filter = function(value) {
+        return $routeSegment.contains(value);
+    };
+    filter.$stateful = true;
+    return filter;
+}]);
+
+/**
+ * Usage:
+ * <li ng-class="{active: ('index.list.itemInfo' | routeSegmentEqualsTo) && ('id' | routeSegmentParam) == 123}">
+ */
+mod.filter('routeSegmentParam', ['$routeSegment', function($routeSegment) {
+    var filter = function(value) {
+        return $routeSegment.$routeParams[value];
+    };
+    filter.$stateful = true;
+    return filter;
+}]);
 
 
-})(angular);;'use strict';
+})(angular);
+;'use strict';
 
 /**
  * appViewSegment directive
@@ -421,99 +571,78 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
 (function(angular) {
 
     angular.module( 'view-segment', [ 'route-segment' ] ).directive( 'appViewSegment',
-    ['$route', '$compile', '$controller', '$routeParams', '$routeSegment', '$q', '$injector',
-        function($route, $compile, $controller, $routeParams, $routeSegment, $q, $injector) {
+    ['$route', '$compile', '$controller', '$routeParams', '$routeSegment', '$q', '$injector', '$timeout', '$animate',
+        function($route, $compile, $controller, $routeParams, $routeSegment, $q, $injector, $timeout, $animate) {
 
             return {
                 restrict : 'ECA',
-                priority: 500,
+                priority: 400,
+                transclude: 'element',
+
                 compile : function(tElement, tAttrs) {
 
-                    var defaultContent = tElement.html(), isDefault = true,
-                    anchor = angular.element(document.createComment(' view-segment '));
+                    return function($scope, element, attrs, ctrl, $transclude) {
 
-                    tElement.prepend(anchor);
+                        var currentScope, currentElement, currentSegment = {}, onloadExp = tAttrs.onload || '',
+                        viewSegmentIndex = parseInt(tAttrs.appViewSegment), updatePromise, previousLeaveAnimation;
 
-                    return function($scope) {
-
-                        var currentScope, currentElement, currentSegment, onloadExp = tAttrs.onload || '', animate,
-                        viewSegmentIndex = parseInt(tAttrs.appViewSegment);
-
-                        try {
-                            // angular 1.1.x
-                            var $animator = $injector.get('$animator')
-                            animate = $animator($scope, tAttrs);
+                        if($routeSegment.chain[viewSegmentIndex]) {
+                            updatePromise = $timeout(function () {
+                                update($routeSegment.chain[viewSegmentIndex]);
+                            }, 0);
                         }
-                        catch(e) {}
-                        try {
-                            // angular 1.2.x
-                            animate = $injector.get('$animate');
+                        else {
+                            update();
                         }
-                        catch(e) {}
-
-                        if($routeSegment.chain[viewSegmentIndex])
-                            update($routeSegment.chain[viewSegmentIndex]);
 
                         // Watching for the specified route segment and updating contents
                         $scope.$on('routeSegmentChange', function(event, args) {
-                            if(args.index == viewSegmentIndex && currentSegment != args.segment)
+
+                            if(updatePromise)
+                                $timeout.cancel(updatePromise);
+
+                            if(args.index == viewSegmentIndex && currentSegment != args.segment) {
                                 update(args.segment);
+                            }
                         });
 
                         function clearContent() {
-
-                            if(currentElement) {
-                                animate.leave(currentElement);
-                                currentElement = null;
+                            if (previousLeaveAnimation) {
+                                $animate.cancel(previousLeaveAnimation);
+                                previousLeaveAnimation = null;
                             }
 
                             if (currentScope) {
                                 currentScope.$destroy();
                                 currentScope = null;
                             }
+                            if (currentElement) {
+                                previousLeaveAnimation = $animate.leave(currentElement);
+                                if(previousLeaveAnimation) {
+                                    previousLeaveAnimation.then(function () {
+                                        previousLeaveAnimation = null;
+                                    });
+                                }
+                                currentElement = null;
+                            }
                         }
-
 
                         function update(segment) {
 
                             currentSegment = segment;
 
-                            if(isDefault) {
-                                isDefault = false;
-                                tElement.replaceWith(anchor);
-                            }
+                            var newScope = $scope.$new();
 
-                            if(!segment) {
+                            var clone = $transclude(newScope, function(clone) {
+                                if(segment) {
+                                    clone.data('viewSegment', segment);
+                                }
+                                $animate.enter(clone, null, currentElement || element);
                                 clearContent();
-                                currentElement = tElement.clone();
-                                currentElement.html(defaultContent);
-                                animate.enter( currentElement, null, anchor );
-                                $compile(currentElement, false, 499)($scope);
-                                return;
-                            }
+                            });
 
-                            var locals = angular.extend({}, segment.locals),
-                            template = locals && locals.$template;
-
-                            clearContent();
-
-                            currentElement = tElement.clone();
-                            currentElement.html(template ? template : defaultContent);
-                            animate.enter( currentElement, null, anchor );
-
-                            var link = $compile(currentElement, false, 499), controller;
-
-                            currentScope = $scope.$new();
-                            if (segment.params.controller) {
-                                locals.$scope = currentScope;
-                                controller = $controller(segment.params.controller, locals);
-                                if(segment.params.controllerAs)
-                                    currentScope[segment.params.controllerAs] = controller;
-                                currentElement.data('$ngControllerController', controller);
-                                currentElement.children().data('$ngControllerController', controller);
-                            }
-
-                            link(currentScope);
+                            currentElement = clone;
+                            currentScope = newScope;
                             currentScope.$emit('$viewContentLoaded');
                             currentScope.$eval(onloadExp);
                         }
@@ -521,5 +650,39 @@ angular.module( 'route-segment', [] ).provider( '$routeSegment',
                 }
             }
         }]);
+
+    angular.module( 'view-segment').directive( 'appViewSegment',
+        ['$route', '$compile', '$controller', function($route, $compile, $controller) {
+
+                return {
+                    restrict: 'ECA',
+                    priority: -400,
+                    link: function ($scope, element) {
+
+                        var segment = element.data('viewSegment') || {};
+
+                        var locals = angular.extend({}, segment.locals),
+                                template = locals && locals.$template;
+
+                            if(template) {
+                                element.html(template);
+                            }
+
+                            var link = $compile(element.contents());
+
+                            if (segment.params && segment.params.controller) {
+                                locals.$scope = $scope;
+                                var controller = $controller(segment.params.controller, locals);
+                                if(segment.params.controllerAs)
+                                    $scope[segment.params.controllerAs] = controller;
+                                element.data('$ngControllerController', controller);
+                                element.children().data('$ngControllerController', controller);
+                            }
+
+                            link($scope);
+                    }
+                }
+
+            }]);
 
 })(angular);

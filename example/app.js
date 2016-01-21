@@ -12,9 +12,9 @@ app.config(function($routeSegmentProvider, $routeProvider) {
   
     $routeSegmentProvider
     
-        .when('/section1',          's1.home')
+        .when('/section1',          's1')
         .when('/section1/prefs',    's1.prefs')
-        .when('/section1/:id',      's1.itemInfo.tab1')
+        .when('/section1/:id',      's1.itemInfo')
         .when('/section1/:id/X',    's1.itemInfo.tab1')
         .when('/section1/:id/Y',    's1.itemInfo.tab2')
         
@@ -25,21 +25,23 @@ app.config(function($routeSegmentProvider, $routeProvider) {
         
         .segment('s1', {
             templateUrl: 'templates/section1.html',
-            controller: MainCtrl})
+            controller: 'MainCtrl'})
             
         .within()
             
             .segment('home', {
+                'default': true,
                 templateUrl: 'templates/section1/home.html'})
                 
             .segment('itemInfo', {
                 templateUrl: 'templates/section1/item.html',
-                controller: Section1ItemCtrl,
+                controller: 'Section1ItemCtrl',
                 dependencies: ['id']})
                 
             .within() 
                 
                 .segment('tab1', {
+                    'default': true,
                     templateUrl: 'templates/section1/tabs/tab1.html'})
                     
                 .segment('tab2', {
@@ -54,7 +56,7 @@ app.config(function($routeSegmentProvider, $routeProvider) {
         
         .segment('s2', {
             templateUrl: 'templates/section2.html',
-            controller: MainCtrl})
+            controller: 'MainCtrl'})
             
         .within()
             
@@ -89,7 +91,7 @@ app.config(function($routeSegmentProvider, $routeProvider) {
         .when('/invalid-data', 's1.invalidData')
         .when('/slow-data', 's1.slowDataSimple')
         .when('/slow-data-loading', 's1.slowDataLoading')
-        .when('/inline-view', 's1.inlineParent.inlineChildren')
+        .when('/inline-view', 's1.inlineParent')
         .when('/section1/:id/slow',    's1.itemInfo.tabSlow')
         
         .within('s1')
@@ -141,6 +143,7 @@ app.config(function($routeSegmentProvider, $routeProvider) {
                 .segment('inlineChildren', {
                     // no template here
                     controller: 'SlowDataCtrl',
+                    'default': true,
                     resolve: {
                         data: function($timeout) {
                             return $timeout(function() { return 'SLOW DATA CONTENT'; }, 2000);
@@ -174,7 +177,7 @@ app.config(function($routeSegmentProvider, $routeProvider) {
 
 app.value('loader', {show: false});
 
-function MainCtrl($scope, $routeSegment, loader) {
+app.controller('MainCtrl', function($scope, $routeSegment, loader) {
 
     $scope.$routeSegment = $routeSegment;
     $scope.loader = loader;
@@ -182,35 +185,35 @@ function MainCtrl($scope, $routeSegment, loader) {
     $scope.$on('routeSegmentChange', function() {
         loader.show = false;
     })
-}
+});
 
-function Section1Ctrl($scope, $routeSegment) {
+app.controller('Section1Ctrl', function($scope, $routeSegment) {
     
     $scope.$routeSegment = $routeSegment;
     $scope.test = { btnClicked: false };
     $scope.items = [ 1,2,3,4,5 ];
-}
+});
 
-function Section1ItemCtrl($scope, $routeSegment) {
+app.controller('Section1ItemCtrl', function($scope, $routeSegment) {
 
     $scope.$routeSegment = $routeSegment;
     $scope.item = { id: $routeSegment.$routeParams.id };
     $scope.test = { textValue: '' };
-}
+});
 
-function Section2Ctrl($scope, $routeSegment) {
+app.controller('Section2Ctrl', function($scope, $routeSegment) {
 
     $scope.$routeSegment = $routeSegment;
     $scope.test = { textValue: '' };
     $scope.items = [ 1,2,3,4,5,6,7,8,9 ];
-}
+});
 
-function ErrorCtrl($scope, error) {
+app.controller('ErrorCtrl', function($scope, error) {
     $scope.error = error;
-}
+});
 
-function SlowDataCtrl($scope, data, loader) {
+app.controller('SlowDataCtrl', function($scope, data, loader) {
     loader.show = false;
     $scope.data = data;
-}
+});
 

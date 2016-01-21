@@ -1,15 +1,19 @@
 {
     "name": "angular-route-segment",
-    "version": "1.0.0",
-    "dependencies": {
+    "version": "1.5.0",
+    "devDependencies": {
         "grunt": "",
         "grunt-contrib-uglify": "",
         "grunt-contrib-concat": "",
         "grunt-karma": "",
         "karma": "",
-        "karma-jasmine": "",
+        "karma-jasmine": "0.1.5",
         "karma-phantomjs-launcher": "",
         "karma-junit-reporter": "",
         "grunt-git-describe": ""
+    },
+    "main": "build/angular-route-segment.js",
+    "scripts": {
+        "test": "grunt karma"
     }
 }

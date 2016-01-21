@@ -3,43 +3,43 @@
         <div class="well">
             <ul class="nav nav-list">
             
-                <li ng-class="{active: $routeSegment.name == 's1.home'}"><a href="#/section1/">Home</a></li>
+                <li ng-class="{active: ('s1.home' | routeSegmentStartsWith)}">
+                    <a href="#{{ 's1' | routeSegmentUrl }}">Home</a>
+                </li>
                 
                 <li class="nav-header">Items</li>
                 
                 <li ng-repeat="i in items" 
-                    ng-class="{active: $routeSegment.startsWith('s1.itemInfo') && $routeSegment.$routeParams.id == i}">
-                    
-                    <a ng-href="#/section1/{{i}}">Item {{i}}</a>
-                    
+                    ng-class="{active: ('s1.itemInfo' | routeSegmentStartsWith) && ('id' | routeSegmentParam) == i}">
+                    <a ng-href="#{{ 's1.itemInfo' | routeSegmentUrl: {id: i} }}">Item {{i}}</a>
                 </li>
                 
-                <li ng-class="{active: $routeSegment.startsWith('s1.prefs')}">
-                    <a href="#/section1/prefs">Preferences</a>
+                <li ng-class="{active: ('s1.prefs' | routeSegmentStartsWith)}">
+                    <a href="#{{ 's1.prefs' | routeSegmentUrl }}">Preferences</a>
                 </li>
                 
                 <li class="nav-header">Error handling</li>
                 
-                <li ng-class="{active: $routeSegment.startsWith('s1.invalidTemplate')}">
-                    <a href="#/invalid-template">Invalid template file</a>
+                <li ng-class="{active: ('s1.invalidTemplate' | routeSegmentStartsWith)}">
+                    <a href="#{{ 's1.invalidTemplate' | routeSegmentUrl }}">Invalid template file</a>
                 </li>
 
-                <li ng-class="{active: $routeSegment.startsWith('s1.invalidData')}">
-                    <a href="#/invalid-data">Invalid resolve data</a>
+                <li ng-class="{active: ('s1.invalidData' | routeSegmentStartsWith)}">
+                    <a href="#{{ 's1.invalidData' | routeSegmentUrl }}">Invalid resolve data</a>
                 </li>
 
                 <li class="nav-header">Slow data resolving</li>
 
-                <li ng-class="{active: $routeSegment.startsWith('s1.slowDataSimple')}">
-                    <a href="#/slow-data">Without `untilResolved`</a>
+                <li ng-class="{active: ('s1.slowDataSimple' | routeSegmentStartsWith)}">
+                    <a href="#{{ 's1.slowDataSimple' | routeSegmentUrl }}">Without `untilResolved`</a>
                 </li>
 
-                <li ng-class="{active: $routeSegment.startsWith('s1.slowDataLoading')}">
-                    <a href="#/slow-data-loading">With `untilResolved`</a>
+                <li ng-class="{active: ('s1.slowDataLoading' | routeSegmentStartsWith)}">
+                    <a href="#{{ 's1.slowDataLoading' | routeSegmentUrl }}">With `untilResolved`</a>
                 </li>
 
-                <li ng-class="{active: $routeSegment.startsWith('s1.inlineView')}">
-                    <a href="#/inline-view">Inline view</a>
+                <li ng-class="{active: ('s1.inlineParent' | routeSegmentStartsWith)}">
+                    <a href="#{{ 's1.inlineParent' | routeSegmentUrl }}">Inline view</a>
                 </li>
                 
                 <li class="divider"></li>
