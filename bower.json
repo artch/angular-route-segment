@@ -13,6 +13,7 @@
     "karma-angular-1.2.conf.js",
     "karma-angular-1.3.conf.js",
     "karma-angular-1.4.conf.js",
+    "karma-angular-1.5.conf.js",
     "package.json",
     "src",
     "**/*.min.js"

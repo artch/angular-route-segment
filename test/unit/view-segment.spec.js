@@ -245,7 +245,7 @@ describe('view-segment', function() {
         $location.path('/3');
 
         $rootScope.$digest();
-        expect(spy.calls.length).toBe(1);
+        expect(spy.calls.count()).toBe(1);
     }))
 
     it('should call the controller twice after reload', inject(function() {
@@ -263,7 +263,7 @@ describe('view-segment', function() {
         $routeSegment.chain[0].reload();
 
         $rootScope.$digest();
-        expect(spy.calls.length).toBe(2);
+        expect(spy.calls.count()).toBe(2);
     }))
 
     it('should not call the controller of a sub-segment called previously if new segment doesnt have a sub-segment', function() {
@@ -281,12 +281,12 @@ describe('view-segment', function() {
         $location.path('/3/1');
 
         $rootScope.$digest();
-        expect(spy.calls.length).toBe(1);
+        expect(spy.calls.count()).toBe(1);
 
         $location.path('/1');
 
         $rootScope.$digest();
-        expect(spy.calls.length).toBe(1);
+        expect(spy.calls.count()).toBe(1);
 
     })
 
@@ -311,7 +311,7 @@ describe('view-segment', function() {
             $timeout.flush();
         }
         catch(e) {}
-        expect(spy.calls.length).toBe(1);
+        expect(spy.calls.count()).toBe(1);
 
     }))
 

@@ -111,8 +111,8 @@ describe('route segment', function() {
             $location.path('/1');
 
             $rootScope.$digest();
-            expect(callback.calls.length).toBe(1);
-            expect(callback.calls[0].args[1]).toEqual({index: 0, segment: {
+            expect(callback.calls.count()).toBe(1);
+            expect(callback.calls.argsFor(0)[1]).toEqual({index: 0, segment: {
                 name: 'section-first', params: {test: 'A'}, locals: {}, reload: jasmine.any(Function)}});
         });
 
@@ -120,10 +120,10 @@ describe('route segment', function() {
             $location.path('/2/X');
 
             $rootScope.$digest();
-            expect(callback.calls.length).toBe(2);
-            expect(callback.calls[0].args[1]).toEqual({index: 0, segment: {
+            expect(callback.calls.count()).toBe(2);
+            expect(callback.calls.argsFor(0)[1]).toEqual({index: 0, segment: {
                 name: 'section2', params: {test: 'B'}, locals: {}, reload: jasmine.any(Function)}});
-            expect(callback.calls[1].args[1]).toEqual({index: 1, segment: {
+            expect(callback.calls.argsFor(1)[1]).toEqual({index: 1, segment: {
                 name: 'section21', params: {test: 'C'}, locals: {}, reload: jasmine.any(Function)}});
         });
 
@@ -131,10 +131,10 @@ describe('route segment', function() {
             $location.path('/Y');
 
             $rootScope.$digest();
-            expect(callback.calls.length).toBe(2);
-            expect(callback.calls[0].args[1]).toEqual({index: 0, segment: {
+            expect(callback.calls.count()).toBe(2);
+            expect(callback.calls.argsFor(0)[1]).toEqual({index: 0, segment: {
                 name: 'section2', params: {test: 'B'}, locals: {}, reload: jasmine.any(Function)}});
-            expect(callback.calls[1].args[1]).toEqual({index: 1, segment: {
+            expect(callback.calls.argsFor(1)[1]).toEqual({index: 1, segment: {
                 name: 'section22', params: {test: 'D'}, locals: {}, reload: jasmine.any(Function)}});
         });
 
@@ -142,12 +142,12 @@ describe('route segment', function() {
             $location.path('/X-foo')
 
             $rootScope.$digest();
-            expect(callback.calls.length).toBe(3);
-            expect(callback.calls[0].args[1]).toEqual({index: 0, segment: {
+            expect(callback.calls.count()).toBe(3);
+            expect(callback.calls.argsFor(0)[1]).toEqual({index: 0, segment: {
                 name: 'section2', params: {test: 'B'}, locals: {}, reload: jasmine.any(Function)}});
-            expect(callback.calls[1].args[1]).toEqual({index: 1, segment: {
+            expect(callback.calls.argsFor(1)[1]).toEqual({index: 1, segment: {
                 name: 'section21', params: {test: 'C'}, locals: {}, reload: jasmine.any(Function)}});
-            expect(callback.calls[2].args[1]).toEqual({index: 2, segment: {
+            expect(callback.calls.argsFor(2)[1]).toEqual({index: 2, segment: {
                 name: 'section211', params: {test: 'E'}, locals: {}, reload: jasmine.any(Function)}});
         });
 
@@ -181,7 +181,7 @@ describe('route segment', function() {
 
             $rootScope.$digest();
             $httpBackend.flush();
-            expect(callback.calls[0].args[1].segment.locals.$template).toEqual('TEST');
+            expect(callback.calls.argsFor(0)[1].segment.locals.$template).toEqual('TEST');
         });
 
         it('should work with template set as a function', function () {
@@ -193,7 +193,7 @@ describe('route segment', function() {
 
             $rootScope.$broadcast('$routeChangeSuccess', {$route: {segment: 'section3'}});
             $rootScope.$digest();
-            expect(callback.calls[0].args[1].segment.locals.$template).toEqual('bar');
+            expect(callback.calls.argsFor(0)[1].segment.locals.$template).toEqual('bar');
         });
 
         it('should work with templateUrl set as a function', function () {
@@ -209,7 +209,7 @@ describe('route segment', function() {
 
             $rootScope.$digest();
             $httpBackend.flush();
-            expect(callback.calls[0].args[1].segment.locals.$template).toEqual('TEST');
+            expect(callback.calls.argsFor(0)[1].segment.locals.$template).toEqual('TEST');
         });
 
         it('`startsWith` should work', function () {
@@ -244,8 +244,8 @@ describe('route segment', function() {
             $location.path('/2/X');
 
             $rootScope.$digest();
-            expect(callback.calls.length).toBe(1);
-            expect(callback.calls[0].args[1]).toEqual({index: 1, segment: {
+            expect(callback.calls.count()).toBe(1);
+            expect(callback.calls.argsFor(0)[1]).toEqual({index: 1, segment: {
                 name: 'section21', params: {test: 'C'}, locals: {}, reload: jasmine.any(Function)}});
         })
 
@@ -260,8 +260,8 @@ describe('route segment', function() {
             $location.path('/2');
 
             $rootScope.$digest();
-            expect(callback.calls.length).toBe(1);
-            expect(callback.calls[0].args[1]).toEqual({index: 1, segment: null});
+            expect(callback.calls.count()).toBe(1);
+            expect(callback.calls.argsFor(0)[1]).toEqual({index: 1, segment: null});
             expect($routeSegment.chain.length).toBe(1);
             expect($routeSegment.chain[0].name).toBe('section2');
         })
@@ -278,11 +278,11 @@ describe('route segment', function() {
 
             $rootScope.$digest();
             expect($routeSegment.name).toBe('section-first');
-            //expect(callback.calls.length).toBe(2);
-            expect(callback.calls[0].args[1].index).toBe(0);
-            expect(callback.calls[0].args[1].segment.name).toBe('section-first');
-            expect(callback.calls[1].args[1].index).toBe(1);
-            expect(callback.calls[1].args[1].segment).toBe(null);
+            //expect(callback.calls.count()).toBe(2);
+            expect(callback.calls.argsFor(0)[1].index).toBe(0);
+            expect(callback.calls.argsFor(0)[1].segment.name).toBe('section-first');
+            expect(callback.calls.argsFor(1)[1].index).toBe(1);
+            expect(callback.calls.argsFor(1)[1].segment).toBe(null);
         })
 
         it('should update when dependencies are changed', function () {
@@ -293,10 +293,10 @@ describe('route segment', function() {
             $location.path('/2/details/1/info');
 
             $rootScope.$digest();
-            expect(callback.calls.length).toBe(2);
-            expect(callback.calls[0].args[1]).toEqual({index: 0, segment: {
+            expect(callback.calls.count()).toBe(2);
+            expect(callback.calls.argsFor(0)[1]).toEqual({index: 0, segment: {
                 name: 'section2', params: {test: 'B'}, locals: {}, reload: jasmine.any(Function)}});
-            expect(callback.calls[1].args[1]).toEqual({index: 1, segment: {
+            expect(callback.calls.argsFor(1)[1]).toEqual({index: 1, segment: {
                 name: 'details', params: {dependencies: ['id']}, locals: {}, reload: jasmine.any(Function)}});
             expect($routeSegment.$routeParams.id).toBe('1');
             expect($routeSegment.$routeParams.tab).toBe('info');
@@ -316,8 +316,8 @@ describe('route segment', function() {
             $location.path('/2/details/2/edit');
 
             $rootScope.$digest();
-            expect(callback.calls.length).toBe(1);
-            expect(callback.calls[0].args[1]).toEqual({index: 1, segment: {
+            expect(callback.calls.count()).toBe(1);
+            expect(callback.calls.argsFor(0)[1]).toEqual({index: 1, segment: {
                 name: 'details', params: {dependencies: ['id']}, locals: {}, reload: jasmine.any(Function)}});
             expect($routeSegment.$routeParams.id).toBe('2');
             expect($routeSegment.$routeParams.tab).toBe('edit');
@@ -328,14 +328,14 @@ describe('route segment', function() {
             $location.path('/2');
 
             $rootScope.$digest();
-            expect(callback.calls.length).toBe(1);
+            expect(callback.calls.count()).toBe(1);
 
             $routeSegment.chain[0].reload();
 
             $rootScope.$digest();
-            expect(callback.calls.length).toBe(2);
-            expect(callback.calls[1].args[1].index).toBe(0);
-            expect(callback.calls[1].args[1].segment.name).toBe('section2');
+            expect(callback.calls.count()).toBe(2);
+            expect(callback.calls.argsFor(1)[1].index).toBe(0);
+            expect(callback.calls.argsFor(1)[1].segment.name).toBe('section2');
         })
 
         it('should shorten $routeSegment.chain.length from 3 to 1', function() {
@@ -371,9 +371,9 @@ describe('route segment', function() {
                 expect($routeSegment.chain[0].name).toBe('section3');
                 expect($routeSegment.chain[1].name).toBe('section31-default');
                 expect($routeSegment.chain[2].name).toBe('section312-default');
-                expect(callback.calls[0].args[1].segment.name).toBe('section3');
-                expect(callback.calls[1].args[1].segment.name).toBe('section31-default');
-                expect(callback.calls[2].args[1].segment.name).toBe('section312-default');
+                expect(callback.calls.argsFor(0)[1].segment.name).toBe('section3');
+                expect(callback.calls.argsFor(1)[1].segment.name).toBe('section31-default');
+                expect(callback.calls.argsFor(2)[1].segment.name).toBe('section312-default');
             });
 
             it('should auto-select a child with default=true when coming from another child at the same level', function () {
@@ -386,11 +386,11 @@ describe('route segment', function() {
                 expect($routeSegment.chain[0].name).toBe('section3');
                 expect($routeSegment.chain[1].name).toBe('section31-default');
                 expect($routeSegment.chain[2].name).toBe('section312-default');
-                expect(callback.calls[0].args[1].segment.name).toBe('section3');
-                expect(callback.calls[1].args[1].segment.name).toBe('section32');
-                expect(callback.calls[2].args[1].segment).toBe(null);
-                expect(callback.calls[3].args[1].segment.name).toBe('section31-default');
-                expect(callback.calls[4].args[1].segment.name).toBe('section312-default');
+                expect(callback.calls.argsFor(0)[1].segment.name).toBe('section3');
+                expect(callback.calls.argsFor(1)[1].segment.name).toBe('section32');
+                expect(callback.calls.argsFor(2)[1].segment).toBe(null);
+                expect(callback.calls.argsFor(3)[1].segment.name).toBe('section31-default');
+                expect(callback.calls.argsFor(4)[1].segment.name).toBe('section312-default');
             })
         });
 
@@ -413,12 +413,12 @@ describe('route segment', function() {
                 $location.path('/3');
 
                 $rootScope.$digest();
-                expect(callback.calls.length).toBe(1);
+                expect(callback.calls.count()).toBe(1);
 
                 watchedObj.value = 1;
 
                 $rootScope.$digest();
-                expect(callback.calls.length).toBe(2);
+                expect(callback.calls.count()).toBe(2);
 
             })
 
@@ -448,17 +448,17 @@ describe('route segment', function() {
                 $location.path('/3');
 
                 $rootScope.$digest();
-                expect(callback.calls.length).toBe(1);
+                expect(callback.calls.count()).toBe(1);
 
                 $location.path('/2');
 
                 $rootScope.$digest();
-                expect(callback.calls.length).toBe(2);
+                expect(callback.calls.count()).toBe(2);
 
                 watchedObj.value = 1;
 
                 $rootScope.$digest();
-                expect(callback.calls.length).toBe(2);
+                expect(callback.calls.count()).toBe(2);
             })
 
         })
@@ -495,7 +495,7 @@ describe('route segment', function() {
                 
                 $rootScope.$digest();
                 expect(callback).toHaveBeenCalled();
-                expect(callback.calls[0].args[1].segment.name).toBe('section3');     
+                expect(callback.calls.argsFor(0)[1].segment.name).toBe('section3');     
             }))
             
             it('should resolve a param as an injectable by its string name', inject(function($q) {
@@ -515,7 +515,7 @@ describe('route segment', function() {
                 
                 $rootScope.$digest();            
                 expect(callback).toHaveBeenCalled();
-                expect(callback.calls[0].args[1].segment.name).toBe('section3');   
+                expect(callback.calls.argsFor(0)[1].segment.name).toBe('section3');   
             }))
             
             it('should receive two resolved values in locals', inject(function($q) {
@@ -533,8 +533,8 @@ describe('route segment', function() {
                 defer2.resolve('TEST2');
                 
                 $rootScope.$digest();            
-                expect(callback.calls[0].args[1].segment.locals.param1).toBe('TEST1');
-                expect(callback.calls[0].args[1].segment.locals.param2).toBe('TEST2');
+                expect(callback.calls.argsFor(0)[1].segment.locals.param1).toBe('TEST1');
+                expect(callback.calls.argsFor(0)[1].segment.locals.param2).toBe('TEST2');
             }))
             
             it('should throw an error if a promise is rejected but no `resolveFailed` provided', inject(function($q) {
@@ -573,7 +573,7 @@ describe('route segment', function() {
                 defer.resolve();
 
                 $rootScope.$digest();
-                expect(callback.calls.length).toBe(1);
+                expect(callback.calls.count()).toBe(1);
                 expect($routeSegment.chain[0].name).toEqual('section-first');
                 expect($routeSegment.name).toEqual('section-first');
             }))
@@ -647,14 +647,14 @@ describe('route segment', function() {
                 $location.path('/3');
                 
                 $rootScope.$digest();            
-                expect(callback.calls.length).toBe(1);
-                expect(callback.calls[0].args[1].segment.params.stage).toBe('BEFORE');
+                expect(callback.calls.count()).toBe(1);
+                expect(callback.calls.argsFor(0)[1].segment.params.stage).toBe('BEFORE');
                 
                 defer.resolve();
                 
                 $rootScope.$digest();
-                expect(callback.calls.length).toBe(2);
-                expect(callback.calls[1].args[1].segment.params.stage).toBe('AFTER');     
+                expect(callback.calls.count()).toBe(2);
+                expect(callback.calls.argsFor(1)[1].segment.params.stage).toBe('AFTER');     
             }))
             
         })
@@ -676,8 +676,8 @@ describe('route segment', function() {
                 $location.path('/3');
                 
                 $rootScope.$digest();
-                expect(callback.calls[0].args[1].segment.params.stage).toBe('ERROR');
-                expect(callback.calls[0].args[1].segment.locals.error).toEqual('foo');
+                expect(callback.calls.argsFor(0)[1].segment.params.stage).toBe('ERROR');
+                expect(callback.calls.argsFor(0)[1].segment.locals.error).toEqual('foo');
             }))
 
             it('should return to successful params after fail when error has gone', inject(function($q) {
@@ -686,19 +686,19 @@ describe('route segment', function() {
                 $location.path('/3');
 
                 $rootScope.$digest();
-                expect(callback.calls[0].args[1].segment.params.stage).toBe('ERROR');
+                expect(callback.calls.argsFor(0)[1].segment.params.stage).toBe('ERROR');
 
                 $routeSegment.chain[0].reload();
 
                 $rootScope.$digest();
-                expect(callback.calls[1].args[1].segment.params.stage).toBe('ERROR');
+                expect(callback.calls.argsFor(1)[1].segment.params.stage).toBe('ERROR');
 
                 // Error has gone
                 resolve.param1 = function() { return $q.when(); }
                 $routeSegment.chain[0].reload();
 
                 $rootScope.$digest();
-                expect(callback.calls[2].args[1].segment.params.stage).toBe('OK');
+                expect(callback.calls.argsFor(2)[1].segment.params.stage).toBe('OK');
             }))
             
             it('should auto-fetch failing templateUrl if resolving is failed', inject(function($q) {
@@ -715,8 +715,8 @@ describe('route segment', function() {
                 
                 $rootScope.$digest();
                 $httpBackend.flush();
-                expect(callback.calls[0].args[1].segment.locals.error).toEqual('foo');                
-                expect(callback.calls[0].args[1].segment.locals.$template).toEqual('TEST');
+                expect(callback.calls.argsFor(0)[1].segment.locals.error).toEqual('foo');                
+                expect(callback.calls.argsFor(0)[1].segment.locals.$template).toEqual('TEST');
             }))
 
             it('should use `resolveFailed` set of params if templateUrl does not exist', function() {
@@ -732,7 +732,7 @@ describe('route segment', function() {
 
                 $rootScope.$digest();
                 $httpBackend.flush();
-                expect(callback.calls[0].args[1].segment.params.stage).toBe('ERROR');
+                expect(callback.calls.argsFor(0)[1].segment.params.stage).toBe('ERROR');
             })
         })
 
@@ -782,15 +782,15 @@ describe('route segment', function() {
             }))
 
             function expectSegmentChangeCall(callIndex, segmentName, segmentStage) {
-                expect(callback.calls[callIndex].args[1].segment.name).toBe(segmentName);
-                expect(callback.calls[callIndex].args[1].segment.params.stage).toBe(segmentStage);
+                expect(callback.calls.argsFor(callIndex)[1].segment.name).toBe(segmentName);
+                expect(callback.calls.argsFor(callIndex)[1].segment.params.stage).toBe(segmentStage);
             }
 
             it('should work in order 0-1-2', function() {
                 $location.path('/3/1/1');
 
                 $rootScope.$digest();
-                expect(callback.calls.length).toBe(1);
+                expect(callback.calls.count()).toBe(1);
                 expectSegmentChangeCall(0, 'section3', 'BEFORE');
                 expect($routeSegment.name).toBe('section3');
                 expect($routeSegment.chain.length).toBe(1);
@@ -798,7 +798,7 @@ describe('route segment', function() {
                 defers[0].resolve();
 
                 $rootScope.$digest();
-                expect(callback.calls.length).toBe(3);
+                expect(callback.calls.count()).toBe(3);
                 expectSegmentChangeCall(1, 'section3', 'AFTER');
                 expectSegmentChangeCall(2, 'section31', 'BEFORE');
                 expect($routeSegment.name).toBe('section3.section31');
@@ -807,7 +807,7 @@ describe('route segment', function() {
                 defers[1].resolve();
 
                 $rootScope.$digest();
-                expect(callback.calls.length).toBe(5);
+                expect(callback.calls.count()).toBe(5);
                 expectSegmentChangeCall(3, 'section31', 'AFTER');
                 expectSegmentChangeCall(4, 'section311', 'BEFORE');
                 expect($routeSegment.name).toBe('section3.section31.section311');
@@ -816,7 +816,7 @@ describe('route segment', function() {
                 defers[2].resolve();
 
                 $rootScope.$digest();
-                expect(callback.calls.length).toBe(6);
+                expect(callback.calls.count()).toBe(6);
                 expectSegmentChangeCall(5, 'section311', 'AFTER');
                 expect($routeSegment.name).toBe('section3.section31.section311');
             })
@@ -829,7 +829,7 @@ describe('route segment', function() {
                 defers[2].resolve();
 
                 $rootScope.$digest();
-                expect(callback.calls.length).toBe(3);
+                expect(callback.calls.count()).toBe(3);
                 expectSegmentChangeCall(0, 'section3', 'BEFORE');
                 expectSegmentChangeCall(1, 'section3', 'AFTER');
                 expectSegmentChangeCall(2, 'section31', 'BEFORE');
@@ -839,7 +839,7 @@ describe('route segment', function() {
                 defers[1].resolve();
 
                 $rootScope.$digest();
-                expect(callback.calls.length).toBe(6);
+                expect(callback.calls.count()).toBe(6);
                 expectSegmentChangeCall(3, 'section31', 'AFTER');
                 expectSegmentChangeCall(4, 'section311', 'BEFORE');
                 expectSegmentChangeCall(5, 'section311', 'AFTER');
@@ -854,18 +854,18 @@ describe('route segment', function() {
                 defers[2].resolve();
 
                 $rootScope.$digest();
-                expect(callback.calls.length).toBe(1);
+                expect(callback.calls.count()).toBe(1);
                 expectSegmentChangeCall(0, 'section3', 'BEFORE');
 
                 defers[1].resolve();
 
                 $rootScope.$digest();
-                expect(callback.calls.length).toBe(1);
+                expect(callback.calls.count()).toBe(1);
 
                 defers[0].resolve();
 
                 $rootScope.$digest();
-                expect(callback.calls.length).toBe(6);
+                expect(callback.calls.count()).toBe(6);
                 expectSegmentChangeCall(1, 'section3', 'AFTER');
                 expectSegmentChangeCall(2, 'section31', 'BEFORE');
                 expectSegmentChangeCall(3, 'section31', 'AFTER');
@@ -947,7 +947,7 @@ describe('route segment', function() {
     describe('filters', function() {
 
         it('routeSegmentUrl', inject(function($filter) {
-            spyOn($routeSegment,'getSegmentUrl').andReturn('foo');
+            spyOn($routeSegment,'getSegmentUrl').and.returnValue('foo');
             var params = {};
 
             expect($filter('routeSegmentUrl')('URL', params)).toBe('foo');
