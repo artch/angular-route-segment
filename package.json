@@ -2,15 +2,17 @@
     "name": "angular-route-segment",
     "version": "1.5.0",
     "devDependencies": {
+        "dgeni-alive": "~0.0.5",
         "grunt": "",
-        "grunt-contrib-uglify": "",
         "grunt-contrib-concat": "",
+        "grunt-contrib-uglify": "",
+        "grunt-git-describe": "",
         "grunt-karma": "",
         "karma": "",
         "karma-jasmine": "0.1.5",
-        "karma-phantomjs-launcher": "",
         "karma-junit-reporter": "",
-        "grunt-git-describe": ""
+        "karma-phantomjs-launcher": "",
+        "phantomjs": "^1.9.19"
     },
     "main": "build/angular-route-segment.js",
     "scripts": {

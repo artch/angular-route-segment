@@ -1,9 +1,72 @@
 'use strict';
 
 /**
- * appViewSegment directive
- * It is based on ngView directive code: 
- * https://github.com/angular/angular.js/blob/master/src/ngRoute/directive/ngView.js
+ * @ngdoc module
+ * @module view-segment
+ * @name view-segment
+ * @requires route-segment
+ * @description
+ * view-segment is a replacement for [ngView](https://docs.angularjs.org/api/ngRoute/directive/ngView) AngularJS directive.
+ *
+ * {@link appViewSegment appViewSegment} tags in the DOM will be populated with the corresponding route segment item.
+ * You must provide a segment index as an argument to this directive to make it aware about which segment level in the tree
+ * it should be linked to.
+ *
+ * *index.html*:
+ * ```html
+ * <ul>
+ *     <li ng-class="{active: $routeSegment.startsWith('s1')}">
+ *         <a href="/section1">Section 1</a>
+ *     </li>
+ *     <li ng-class="{active: $routeSegment.startsWith('s2')}">
+ *         <a href="/section2">Section 2</a>
+ *     </li>
+ * </ul>
+ * <div id="contents" app-view-segment="0"></div>
+ * ```
+ *
+ * *section1.html*: (it will be loaded to div#contents in index.html)
+ * ```html
+ * <h4>Section 1</h4>
+ * Section 1 contents.
+ * <div app-view-segment="1"></div>
+ * ```
+ *
+ * ...etc. You can reach any nesting level here. Every view will be handled independently, keeping the state of top-level views.
+ *
+ * You can also use filters to define link hrefs. It will resolve segment URLs automatically:
+ *
+ * ```html
+ * <ul>
+ *     <li ng-class="{active: ('s1' | routeSegmentStartsWith)}">
+ *         <a href="{{ 's1' | routeSegmentUrl }}">Section 1</a>
+ *     </li>
+ *     <li ng-class="{active: ('s2' | routeSegmentStartsWith)}">
+ *         <a href="{{ 's2' | routeSegmentUrl }}">Section 2</a>
+ *     </li>
+ * </ul>
+ * ```
+ */
+/**
+ * @ngdoc directive
+ * @module view-segment
+ * @name appViewSegment
+ * @requires https://docs.angularjs.org/api/ngRoute/service/$route $route
+ * @requires https://docs.angularjs.org/api/ng/service/$compile $compile
+ * @requires https://docs.angularjs.org/api/ng/service/$controller $controller
+ * @requires https://docs.angularjs.org/api/ngRoute/service/$routeParams $routeParams
+ * @requires $routeSegment
+ * @requires https://docs.angularjs.org/api/ng/service/$q $q
+ * @requires https://docs.angularjs.org/api/auto/service/$injector $injector
+ * @requires https://docs.angularjs.org/api/ng/service/$timeout $timeout
+ * @requires https://docs.angularjs.org/api/ng/service/$animate $animate
+ * @restrict ECA
+ * @priority 400
+ * @transclude
+ * @param {String} appViewSegment render depth level
+ * @description Renders active segment as specified by parameter
+ *
+ * It is based on [ngView directive code](https://github.com/angular/angular.js/blob/master/src/ngRoute/directive/ngView.js)
  */
 
 (function(angular) {
@@ -81,6 +144,11 @@
 
                             currentElement = clone;
                             currentScope = newScope;
+                            /*
+                             * @ngdoc event
+                             * @name appViewSegment#$viewContentLoaded
+                             * @description Indicates that segment content has been loaded and transcluded
+                             */
                             currentScope.$emit('$viewContentLoaded');
                             currentScope.$eval(onloadExp);
                         }
