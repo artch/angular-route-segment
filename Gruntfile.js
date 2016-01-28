@@ -50,6 +50,14 @@ module.exports = function(grunt) {
                     autoWatch: false,
                     singleRun: true
                 }
+            },
+            angular15: {
+                options: {
+                    keepalive: true,
+                    configFile: 'karma-angular-1.5.conf.js',
+                    autoWatch: false,
+                    singleRun: true
+                }
             }
         },
 
@@ -59,15 +67,35 @@ module.exports = function(grunt) {
                     prop: 'gitdescribe'
                 }
             }
+        },
+
+        "dgeni-alive": {
+            options: {
+                  serve: {
+                      port: '10000',
+                      openBrowser: false
+                  },
+            },
+            api: {
+                  title: '<%= pkg.title %>',
+                  version: '<%= pkg.version %>',
+                  expand: false,
+                  src: [
+                      'src/**/*.js',
+                      'docs/**/*.ngdoc'
+                  ],
+                  dest: 'build/docs'
+            }
         }
-        
+
     });
 
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-git-describe');
-        
+    grunt.loadNpmTasks('dgeni-alive');
+
     grunt.registerTask('default', ['concat:prod']);
     grunt.registerTask('prod', ['git-describe:run', 'concat:prod', 'uglify']);
 };
