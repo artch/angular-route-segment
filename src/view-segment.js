@@ -4,6 +4,7 @@
  * @ngdoc module
  * @module view-segment
  * @name view-segment
+ * @packageName angular-route-segment
  * @requires route-segment
  * @description
  * view-segment is a replacement for [ngView](https://docs.angularjs.org/api/ngRoute/directive/ngView) AngularJS directive.
@@ -62,7 +63,6 @@
  * @requires https://docs.angularjs.org/api/ng/service/$animate $animate
  * @restrict ECA
  * @priority 400
- * @transclude
  * @param {String} appViewSegment render depth level
  * @description Renders active segment as specified by parameter
  *

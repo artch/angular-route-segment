@@ -1,8 +1,10 @@
 @ngdoc overview
 @name API Reference
+@area api
+@id api-index
 @description
-
 # Angular-route-segment API Docs
+
 Welcome to the angular-route-segment API docs page. These pages contain the reference materials for version <strong ng-bind="version"></strong>.
 
 ## Modules

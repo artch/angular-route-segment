@@ -77,6 +77,8 @@ module.exports = function(grunt) {
                   },
             },
             api: {
+                  title: '<%= pkg.title %>',
+                  version: '<%= pkg.version %>',
                   expand: false,
                   src: [
                       'src/**/*.js',
