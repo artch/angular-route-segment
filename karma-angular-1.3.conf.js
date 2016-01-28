@@ -5,8 +5,7 @@ module.exports = function(config) {
 
         frameworks: [
              'jasmine',
-             'jasmine-jquery-matchers',
-             'phantomjs-shim'
+             'jasmine-jquery-matchers'
         ],
 
         files: [
