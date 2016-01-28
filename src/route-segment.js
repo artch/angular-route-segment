@@ -5,13 +5,13 @@
  * @license MIT License http://opensource.org/licenses/MIT
  */
 'use strict';
-
 (function(angular) {
 
 /**
  * @ngdoc module
  * @module route-segment
  * @name route-segment
+ * @packageName angular-route-segment
  * @requires ngRoute
  * @description
  * This library is intended to provide the lacking functionality of nested routing to [AngularJS](http://angularjs.org) applications.
@@ -167,7 +167,6 @@ mod.provider( '$routeSegment',
      * @ngdoc type
      * @module route-segment
      * @name $routeSegmentProvider.Pointer
-     * @protected
      * @description Segment traversal element.
      *
      * Each {@link $routeSegmentProvider#segment $routeSegmentProvider#segment} call creates new navigation pointer
@@ -189,26 +188,23 @@ mod.provider( '$routeSegment',
             /**
              * @ngdoc method
              * @name $routeSegmentProvider.Pointer#segment
-             * @param {String} name Name of a segment.
+             * @param {string} name Name of a segment.
              * @param {Object} params Segment's parameters hash. The following params are supported:
-             * - `template` {String|Function} provides HTML for the given segment view;
-             * - `templateUrl` {String|Function} is a template should be fetched from network via this URL;
-             * - `controller` {String|Function} is attached to the given segment view when compiled and linked,
+             * @param {String|Function} [params.template] provides HTML for the given segment view;
+             * @param {String|Function} [params.templateUrl] template to fetch from network via this URL;
+             * @param {String|Function} [params.controller] cotroller attached to the given segment view when compiled and linked,
              *   this can be any controller definition AngularJS supports;
-             * - `controllerAs` {String} is a controller alias name, if present the controller will be
+             * @param {String} [params.controllerAs] controller alias name, if present the controller will be
              *   published to scope under the controllerAs name
-             * - `dependencies` {String[]} is an array of route param names which are forcing the view
-             *   to recreate when changed;
-             * - `watcher` {Sunction} is a $watch-function for recreating the view when its returning value
-             *   is changed;
-             * - `resolve` {Object<String, Function>} is a hash of functions or injectable names which should be resolved
+             * @param {Array<String>} [params.dependencies] array of route param names which are forcing the view to recreate when changed;
+             * @param {Function} [params.watcher] $watch-function for recreating the view when its returning value is changed;
+             * @param {Object<String, Function>} resolve hash of functions or injectable names which should be resolved
              *   prior to instantiating the template and the controller;
-             * - `untilResolved` {Object} is the alternate set of params (e.g. `template` and `controller`)
+             * @param {Object} [params.untilResolved] alternate set of params (e.g. `template` and `controller`)
              *   which should be used before resolving is completed;
-             * - `resolveFailed` {Object} is the alternate set of params which should be used
-             *   if resolving failed;
-             * - `default` {Boolean} is a boolean value which can be set to true if this child segment should be
-             *   loaded by default when no child is specified in the route.
+             * @param {Object} [params.resolveFailed] alternate set of params which should be used if resolving failed;
+             * @param {Boolean} [params.default] when set to true this child segment should be loaded by
+             *   default when no child is specified in the route.
              * @returns {$routeSegmentProvider.Pointer} The same level pointer.
              * @description Adds new segment at current pointer level.
              *
@@ -229,7 +225,7 @@ mod.provider( '$routeSegment',
              * @name $routeSegmentProvider.Pointer#within
              * @param {String=} childName An existing segment's name. If undefined, then the last added segment is selected.
              * @returns {$routeSegmentProvider.Pointer} The pointer to the child segment.
-             * @throws {Error} when {@link $routeSegmentProvider#strictDi $routeSegmentProvider#strictDi} is true and segment with given name is not found
+             * @throws {Error} when {@link $routeSegmentProvider.options#strictMode $routeSegmentProvider.options#strictMode} is true and segment with given name is not found
              * @description Traverses into an existing segment, so that subsequent `segment` calls
              * will add new segments as its descendants.
              */
@@ -337,7 +333,7 @@ mod.provider( '$routeSegment',
                 /**
                  * @ngdoc property
                  * @name $routeSegment#chain
-                 * @type {Array<$routeSegment.Segment>}
+                 * @type {Array.<$routeSegment.Segment>}
                  * @description Array of segments splitted by each level separately. Each item contains the following properties:
                  *
                  * - `name` is the name of a segment;
@@ -584,7 +580,6 @@ mod.provider( '$routeSegment',
                          * @ngdoc type
                          * @module route-segment
                          * @name $routeSegment.Segment
-                         * @protected
                          * @description Segment record
                          */
                         $routeSegment.chain[index] = {
@@ -612,7 +607,7 @@ mod.provider( '$routeSegment',
                                 /**
                                  * @ngdoc method
                                  * @name $routeSegment.Segment#reload
-                                 * @description reloads current segment from scratc
+                                 * @description reloads current segment from scratch
                                  */
                                 reload: function() {
                                     var originalSegment = getSegmentInChain(index, $routeSegment.name.split("."));
@@ -723,6 +718,7 @@ mod.provider( '$routeSegment',
  * @name routeSegmentUrl
  * @param {String} name fully qualified segment name
  * @param {Object} params params to resolve segment
+ * @returns {string} given url
  * @description Returns url for a given segment
  *
  * Usage:
@@ -740,8 +736,17 @@ mod.filter('routeSegmentUrl', ['$routeSegment', function($routeSegment) {
 }]);
 
 /**
+ * @ngdoc filter
+ * @module route-segment
+ * @name routeSegmentEqualsTo
+ * @param {String} name fully qualified segment name
+ * @returns {boolean} true if given segment name is the active one
+ * @description Check whether active segment equals to the given segment name
+ *
  * Usage:
+ * ```html
  * <li ng-class="{active: ('index.list' | routeSegmentEqualsTo)}">
+ * ```
  */
 mod.filter('routeSegmentEqualsTo', ['$routeSegment', function($routeSegment) {
     var filter = function(value) {
@@ -752,8 +757,17 @@ mod.filter('routeSegmentEqualsTo', ['$routeSegment', function($routeSegment) {
 }]);
 
 /**
+ * @ngdoc filter
+ * @module route-segment
+ * @name routeSegmentStartsWith
+ * @param {String} name segment name
+ * @returns {boolean} true if active segment name begins with given name
+ * @description Check whether active segment starts with the given segment name
+ *
  * Usage:
+ * ```html
  * <li ng-class="{active: ('section1' | routeSegmentStartsWith)}">
+ * ```
  */
 mod.filter('routeSegmentStartsWith', ['$routeSegment', function($routeSegment) {
     var filter = function(value) {
@@ -764,8 +778,17 @@ mod.filter('routeSegmentStartsWith', ['$routeSegment', function($routeSegment) {
 }]);
 
 /**
+ * @ngdoc filter
+ * @module route-segment
+ * @name routeSegmentContains
+ * @param {String} name segment name
+ * @returns {boolean} true if active segment contains given name
+ * @description Check whether active segment contains the given segment name
+ *
  * Usage:
+ * ```html
  * <li ng-class="{active: ('itemInfo' | routeSegmentContains)}">
+ * ```
  */
 mod.filter('routeSegmentContains', ['$routeSegment', function($routeSegment) {
     var filter = function(value) {
@@ -776,8 +799,17 @@ mod.filter('routeSegmentContains', ['$routeSegment', function($routeSegment) {
 }]);
 
 /**
+ * @ngdoc filter
+ * @module route-segment
+ * @name routeSegmentParam
+ * @param {String} name param name
+ * @returns {string|undefined} param value or undefined
+ * @description Returns segment parameter by name
+ *
  * Usage:
+ * ```html
  * <li ng-class="{active: ('index.list.itemInfo' | routeSegmentEqualsTo) && ('id' | routeSegmentParam) == 123}">
+ * ```
  */
 mod.filter('routeSegmentParam', ['$routeSegment', function($routeSegment) {
     var filter = function(value) {
