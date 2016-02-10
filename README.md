@@ -26,7 +26,7 @@ Or using this CDN link (thanks to [cdnjs.com](http://cdnjs.com)):
 ```
 
 
-Tested with AngularJS 1.2.21, 1.3.16, and 1.4.0.
+Tested with AngularJS 1.2.21, 1.3.16, 1.4.9, 1.5.0.
 
 Overview
 --------
