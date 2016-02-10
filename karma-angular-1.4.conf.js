@@ -3,11 +3,12 @@ module.exports = function(config) {
 
         basePath: './',
 
-        frameworks: ["jasmine"],
+        frameworks: [
+             'jasmine',
+             'jasmine-jquery-matchers'
+        ],
 
         files: [
-            'test/lib/jquery.min.js',
-            'test/lib/helpers.js',
             'https://ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular.js',
             'https://ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular-route.js',
             'https://ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular-animate.js',
