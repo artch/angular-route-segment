@@ -1,3 +1,7 @@
+# 1.5.1 (2016-02-10)
+- Added thorough inline documentation, migrated to jasmine 2.0 and added tests against angular 1.5.0 (thanks to [wingedfox](https://github.com/wingedfox)).
+- Fixed memory leak with watchers are not torn down properly on route change ([#106](https://github.com/artch/angular-route-segment/issues/106), thanks to [jgrund](https://github.com/jgrund)).
+
 # 1.5.0 (2015-06-15)
 
 - Changed `$routeSegmentProvider.when` signature to `when(path, name, route)` which enables to extend the route information object with any custom properties, like `reloadOnSearch` or `caseInsensitiveMatch` ([425ac](https://github.com/artch/angular-route-segment/commit/1c21f9f40855cf9d8a74f6a760471b0eae7425ac)) thanks to [krmarien](https://github.com/krmarien).

@@ -1,7 +1,7 @@
 {
   "name": "angular-route-segment",
   "title": "Angular Route Segment",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "devDependencies": {
     "dgeni-alive": "~0.0.5",
     "grunt": "",

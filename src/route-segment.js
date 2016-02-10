@@ -1,9 +1,3 @@
-/**
- * angular-route-segment v1.5.0
- * https://angular-route-segment.com
- * @author Artem Chivchalov
- * @license MIT License http://opensource.org/licenses/MIT
- */
 'use strict';
 (function(angular) {
 
