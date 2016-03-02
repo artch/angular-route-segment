@@ -566,12 +566,15 @@ mod.provider( '$routeSegment',
                             return response.data;
                         });
             }
+			
+            // Store current route params to test whether they're still relevant when our promises resolve
+            var storedParams = $routeSegment.$routeParams;			
 
             return $q.all(locals).then(
 
                     function(resolvedLocals) {
 
-                        if(resolvingSemaphoreChain[index] != name)
+                        if(!angular.equals(storedParams, $routeSegment.$routeParams) || resolvingSemaphoreChain[index] != name)
                             return $q.reject();
 
                         /**
