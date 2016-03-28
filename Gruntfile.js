@@ -1,4 +1,5 @@
 module.exports = function(grunt) {
+    require("dgeni-alive/tasks/dgeni-alive").docgen.Package(['dgeni-alive/src/packages/jsdoc-ext', 'dgeni-alive/src/packages/ngdoc-ext', 'dgeni-alive/src/packages/links-ext']);
 
     grunt.initConfig({
         

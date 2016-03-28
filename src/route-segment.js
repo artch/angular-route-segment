@@ -196,9 +196,9 @@ mod.provider( '$routeSegment',
              *   this can be any controller definition AngularJS supports;
              * @param {String} [params.controllerAs] controller alias name, if present the controller will be
              *   published to scope under the controllerAs name
-             * @param {Array<String>} [params.dependencies] array of route param names which are forcing the view to recreate when changed;
+             * @param {Array.<String>} [params.dependencies] array of route param names which are forcing the view to recreate when changed;
              * @param {Function} [params.watcher] $watch-function for recreating the view when its returning value is changed;
-             * @param {Object<String, Function>} resolve hash of functions or injectable names which should be resolved
+             * @param {Object.<Function>} resolve hash of functions or injectable names which should be resolved
              *   prior to instantiating the template and the controller;
              * @param {Object} [params.untilResolved] alternate set of params (e.g. `template` and `controller`)
              *   which should be used before resolving is completed;

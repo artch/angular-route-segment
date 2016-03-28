@@ -3,7 +3,7 @@
   "title": "Angular Route Segment",
   "version": "1.5.0",
   "devDependencies": {
-    "dgeni-alive": "~0.0.5",
+    "dgeni-alive": "~0.2.0",
     "grunt": "",
     "grunt-contrib-concat": "",
     "grunt-contrib-uglify": "",
