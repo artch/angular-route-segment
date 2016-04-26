@@ -394,12 +394,23 @@ mod.provider( '$routeSegment',
         };
 
         var resolvingSemaphoreChain = {};
+        var lastPromise = null;
+        var nextRequest;
 
-        // When a route changes, all interested parties should be notified about new segment chain
-        $rootScope.$on('$routeChangeSuccess', function(event, args) {
+        function $routeChangeSuccess(event, args) {
 
             var route = args.$route || args.$$route; 
             if(route && route.segment) {
+
+                if (lastPromise) {
+                    nextRequest = arguments;
+                    return lastPromise.finally(function () {
+                        lastPromise = null;
+                        var nextRequestArguments = nextRequest;
+                        nextRequest = null;
+                        $routeChangeSuccess.apply(null, nextRequestArguments);
+                    });
+                }
 
                 var segmentName = route.segment;
                 var segmentNameChain = segmentName.split(".");
@@ -500,7 +511,9 @@ mod.provider( '$routeSegment',
                     return defaultChildUpdatePromise;
                 });
             }
-        });
+        }
+
+        $rootScope.$on('$routeChangeSuccess', $routeChangeSuccess);
 
         function isDependenciesChanged(segment) {
 
