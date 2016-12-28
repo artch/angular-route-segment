@@ -1,6 +1,7 @@
 {
   "name": "angular-route-segment",
   "version": "1.5.1",
+  "license": "MIT", 
   "main": "build/angular-route-segment.js",
   "ignore": [
     "**/.*",
